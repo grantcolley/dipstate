@@ -12,8 +12,5 @@ namespace DevelopmentInProgress.DipState
 
         [XmlEnum("3")]
         Completed = 3,
-
-        [XmlEnum("4")]
-        Failed = 4
     }
 }

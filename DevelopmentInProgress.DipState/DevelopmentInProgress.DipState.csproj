@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StateAction.cs" />
     <Compile Include="DipState.cs" />
     <Compile Include="DipStateAction.cs" />
     <Compile Include="DipStateEngine.cs" />
