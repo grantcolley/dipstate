@@ -16,22 +16,23 @@ namespace DevelopmentInProgress.DipState
             this.canComplete = canComplete;
         }
 
-        public int Id { get; set; }
+        public int Id { get; private set; }
         public string Name { get; set; }
         public int Position { get; set; }
         public bool IsDirty { get; private set; }
         public IDipState Parent { get; set; }
-        public IDipState AutoTransition { get; set; }
+        public IDipState Antecedent { get; set; }
+        public IDipState Transition { get; set; }
         public DipStateType Type { get; set; }
-        public IEnumerable<IDipState> Transitions { get; set; }
-        public IEnumerable<IDipState> Dependencies { get; set; }
-        public IEnumerable<IDipState> SubStates { get; set; }
-        public IEnumerable<StateAction> Actions { get; set; }
+        public IEnumerable<IDipState> Transitions { get; private set; }
+        public IEnumerable<IDipState> Dependencies { get; private set; }
+        public IEnumerable<IDipState> SubStates { get; private set; }
+        public IEnumerable<StateAction> Actions { get; private set; }
 
         public DipStateStatus Status
         {
             get { return status; }
-            set
+            internal set
             {
                 if (status != value)
                 {
