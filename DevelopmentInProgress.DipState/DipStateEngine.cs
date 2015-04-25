@@ -1,69 +1,157 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DevelopmentInProgress.DipState
 {
     public class DipStateEngine : IDipStateEngine
     {
+        public IDipState Run(IDipState state, DipStateStatus newStatus)
+        {
+            return Run(state, newStatus, null);
+        }
+
         public IDipState Run(IDipState state, IDipState transitionState)
         {
             return Run(state, DipStateStatus.Completed, transitionState);
         }
 
-        public IDipState Run(IDipState state, DipStateStatus newStatus, IDipState transitionState = null)
+        public IDipState Run(IDipState state, DipStateStatus newStatus, IDipState transitionState)
         {
+            if (state.Status.Equals(newStatus))
+            {
+                return state;
+            }
+
             if (state.Status.Equals(DipStateStatus.Completed))
             {
                 throw new DipStateException(String.Format(
-                    "Cannot transition state {0} {1} has already been completed.", state.Id, state.Name));
+                    "Cannot transition {0} ({1}) as it has already been completed.", state.Name, state.Id));
             }
 
-            return Transition(state, transitionState);
+            var currentState = (DipState)state;
+
+            if (transitionState != null
+                && (newStatus.Equals(DipStateStatus.Completed)
+                    || newStatus.Equals(DipStateStatus.Failed)))
+            {
+                currentState.Transition = transitionState;
+            }
+
+            switch (newStatus)
+            {
+                case DipStateStatus.Completed:
+                    return Transition(currentState);
+                case DipStateStatus.Failed:
+                    currentState.Status = DipStateStatus.Failed;
+                    return Transition(currentState);
+                case DipStateStatus.Initialised:
+                    return Initialise(currentState);
+                case DipStateStatus.Uninitialised:
+                    currentState.Reset();
+                    return currentState;
+                default:
+                    return ChangeStatus(currentState, newStatus);
+            }
         }
 
-        private IDipState InitialiseState(IDipState state)
+        private IDipState Initialise(IDipState state)
         {
-            RunActions(state, DipStateAction.Entry);
+            var dependencies = state.Dependencies.Where(d => !d.Status.Equals(DipStateStatus.Completed)).ToList();
+            if (dependencies.Any())
+            {
+                var dependencyStates = from d in dependencies select String.Format("{0} - {1}", d.Name, d.Status);
+                var dependentStateList = String.Join(",", dependencyStates.ToArray());
+                WriteLogEntry(state, String.Format("{0} is dependent on {1}", state.Name, dependentStateList));
+                return state;
+            }
+
+            RunActions(state, DipStateActionType.Entry);
+            
+            ((DipState)state).Status = DipStateStatus.Initialised;
+
+            WriteLogEntry(state, String.Format("{0} initialised", state.Name));
 
             if (state.Type.Equals(DipStateType.Auto))
             {
-                return Transition(state, state.Transition);
+                return Transition(state);
             }
 
             if (state.SubStates.Any())
             {
-                state.SubStates.ToList().ForEach(s => InitialiseState(s));
+                state.SubStates.OfType<SubState>()
+                    .Where(s => s.InitialiseWithParent)
+                    .ToList()
+                    .ForEach(s => Initialise(s));
             }
 
             return state;
         }
 
-        private IDipState Transition(IDipState state, IDipState transitionState)
+        private IDipState Transition(IDipState state)
         {
-            if (state.Status.Equals(DipStateStatus.Failed)
-                && transitionState == null)
+            if (state.Status.Equals(DipStateStatus.Failed))
             {
-                throw new DipStateException(String.Format("A failed state needs a state that it can transition to."));
-            }
-
-            if (TryCompleteState(state))
-            {
-                if (transitionState != null)
+                var stateFailedTo = GetFailTransitionState(state, state.Transition);
+                if (stateFailedTo != null)
                 {
-                    return InitialiseState(transitionState);
+                    return Initialise(stateFailedTo);
                 }
 
+                WriteLogEntry(state, String.Format("{0} has failed but is unable to transition", state.Name));
+                return state;
+            }
+
+            // Run exit actions and set the state's status to complete.
+            if (TryCompleteState(state))
+            {
+                // If we have a transition state then initialise and return it.
+                if (state.Transition != null)
+                {
+                    ((DipState)state.Transition).Antecedent = state;
+                    return Initialise(state.Transition);
+                }
+
+                // If we don't have a transition state then assume we are just completing the state so check
+                // if all the parents sub states are complete, and if they are then transition the parent.
                 if (state.Parent != null)
                 {
                     if (state.Parent.SubStates.Count(s => s.Status.Equals(DipStateStatus.Completed))
                         .Equals(state.Parent.SubStates.Count()))
                     {
-                        return Transition(state.Parent, state.Parent.Transitions.FirstOrDefault());
+                        ((DipState) state.Parent).Transition = state.Parent.Transitions.FirstOrDefault();
+                        return Transition(state.Parent);
                     }
                 }
             }
 
             return state;
+        }
+
+        private IDipState GetFailTransitionState(IDipState current, IDipState failTransitionState)
+        {
+            if (current != null)
+            {
+                current.Reset();
+
+                if (failTransitionState != null)
+                {
+                    if (current.Id.Equals(failTransitionState.Id))
+                    {
+                        return current;
+                    }
+
+                    return GetFailTransitionState(current.Antecedent, failTransitionState);
+                }
+
+                if (current.Antecedent != null)
+                {
+                    current.Antecedent.Reset();
+                    return current.Antecedent;
+                }
+            }
+
+            return null;
         }
 
         private IDipState ChangeStatus(IDipState state, DipStateStatus newStatus)
@@ -72,7 +160,7 @@ namespace DevelopmentInProgress.DipState
             // state with a null transition state to complete it.
             if (newStatus.Equals(DipStateStatus.Completed))
             {
-                return Transition(state, null);
+                return Transition(state);
             }
 
             ((DipState) state).Status = newStatus;
@@ -93,7 +181,7 @@ namespace DevelopmentInProgress.DipState
                 return;
             }
 
-            var aggregate = state.Parent;
+            var aggregate = (DipState)state.Parent;
             if (aggregate.Status.Equals(DipStateStatus.Completed))
             {
                 throw new DipStateException(
@@ -107,7 +195,8 @@ namespace DevelopmentInProgress.DipState
                     !aggregate.SubStates.Count()
                         .Equals(aggregate.SubStates.Count(s => s.Status.Equals(DipStateStatus.Completed)))))
             {
-                ((DipState) aggregate).Status = DipStateStatus.InProgress;
+                aggregate.Status = DipStateStatus.InProgress;
+                WriteLogEntry(state, String.Format("{0} in progress", aggregate.Status));
                 UpdateParentStatusToInProgress(aggregate);
             }
         }
@@ -116,18 +205,34 @@ namespace DevelopmentInProgress.DipState
         {
             if (state.CanComplete())
             {
-                RunActions(state, DipStateAction.Exit);
-                ChangeStatus(state, DipStateStatus.Completed);
+                RunActions(state, DipStateActionType.Exit);
+                ((DipState)state).Status = DipStateStatus.Completed;
+                WriteLogEntry(state, String.Format("{0} has completed", state.Name));
+                UpdateParentStatusToInProgress(state);
                 return true;
             }
 
-            throw new DipStateException(String.Format("Cannot complete state {0} {1}", state.Id, state.Name));
+            var message = String.Format("{0} is unable to completed", state.Name);
+            WriteLogEntry(state, message);
+            throw new DipStateException(message);
         }
 
-        private void RunActions(IDipState state, DipStateAction action)
+        private void RunActions(IDipState state, DipStateActionType actionType)
         {
-            var actions = state.Actions.Where(a => a.Action.Equals(action)).ToList();
-            actions.ForEach(a => a.Delegate(state));
+            var actions = state.Actions.Where(a => a.ActionType.Equals(actionType)).ToList();
+            actions.ForEach(a => a.Action(state));
+        }
+
+        private void WriteLogEntry(IDipState state, string message)
+        {
+            var logEntry = new LogEntry(message);
+            state.Log.Add(logEntry);
+
+            #if DEBUG
+            
+            Debug.WriteLine(logEntry);
+
+            #endif
         }
     }
 }

@@ -6,17 +6,18 @@ namespace DevelopmentInProgress.DipState
     {
         int Id { get; }
         string Name { get; }
-        int Position { get; }
         bool IsDirty { get; }
+        DipStateType Type { get; }
+        DipStateStatus Status { get; }
         IDipState Parent { get; }
         IDipState Antecedent { get; }
         IDipState Transition { get; }
-        DipStateType Type { get; }
-        IEnumerable<IDipState> Transitions { get; }
-        IEnumerable<IDipState> Dependencies { get; }
-        IEnumerable<IDipState> SubStates { get; }
-        IEnumerable<StateAction> Actions { get; }
-        DipStateStatus Status { get; }
+        List<IDipState> Transitions { get; }
+        List<IDipState> Dependencies { get; }
+        List<IDipState> SubStates { get; }
+        List<StateAction> Actions { get; }
+        List<LogEntry> Log { get; }
         bool CanComplete();
+        void Reset();
     }
 }

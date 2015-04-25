@@ -4,7 +4,7 @@ namespace DevelopmentInProgress.DipState
 {
     public class StateAction
     {
-        public DipStateAction Action { get; set; }
-        public Action<IDipState> Delegate { get; set; }
+        public DipStateActionType ActionType { get; set; }
+        public Action<IDipState> Action { get; set; }
     }
 }

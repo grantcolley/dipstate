@@ -2,7 +2,7 @@
 
 namespace DevelopmentInProgress.DipState
 {
-    public enum DipStateAction
+    public enum DipStateActionType
     {
         [XmlEnum("1")]
         Entry,
