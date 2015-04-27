@@ -15,7 +15,7 @@ namespace DevelopmentInProgress.DipState
 
         public override string ToString()
         {
-            return String.Format("{0}   {1}", Time.ToString("yy-mm-dd hhmmss"), Message);
+            return String.Format("{0}   {1}", Time.ToString("yyyy-MM-dd HH:mm:ss"), Message);
         }
     }
 }
