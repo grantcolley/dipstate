@@ -23,12 +23,6 @@ namespace DevelopmentInProgress.DipState
                 return state;
             }
 
-            if (state.Status.Equals(DipStateStatus.Completed))
-            {
-                throw new DipStateException(String.Format(
-                    "Cannot transition {0} ({1}) as it has already been completed.", state.Name, state.Id));
-            }
-
             var currentState = (DipState)state;
 
             if (transitionState != null
