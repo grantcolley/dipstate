@@ -8,12 +8,13 @@ namespace DevelopmentInProgress.DipState
         private readonly Predicate<IDipState> canComplete;
         private DipStateStatus status;
 
-        public DipState(int id = 0, string name = "", DipStateType type = DipStateType.Standard, DipStateStatus status = DipStateStatus.Uninitialised, Predicate<IDipState> canComplete = null)
+        public DipState(int id = 0, string name = "", DipStateType type = DipStateType.Standard, bool initialiseWithParent = false, DipStateStatus status = DipStateStatus.Uninitialised, Predicate<IDipState> canComplete = null)
         {
             Id = id;
             Name = name;
             Type = type;
-            this.status = status;
+            InitialiseWithParent = initialiseWithParent;
+            this.status = status;            
             this.canComplete = canComplete;
             Transitions = new List<IDipState>();
             Dependencies = new List<IDipState>();
@@ -25,10 +26,11 @@ namespace DevelopmentInProgress.DipState
         public int Id { get; private set; }
         public string Name { get; private set; }
         public bool IsDirty { get; private set; }
+        public bool InitialiseWithParent { get; private set; }
         public DipStateType Type { get; private set; }        
         public IDipState Parent { get; private set; }
         public IDipState Antecedent { get; internal set; }
-        public IDipState Transition { get; internal set; }
+        public IDipState Transition { get; set; }
         public List<IDipState> Transitions { get; private set; }
         public List<IDipState> Dependencies { get; private set; }
         public List<IDipState> SubStates { get; private set; }
@@ -61,26 +63,26 @@ namespace DevelopmentInProgress.DipState
             Status = DipStateStatus.Uninitialised;
         }
 
-        public IDipState AddTransition(IDipState transition)
+        public DipState AddTransition(IDipState transition)
         {
             Transitions.Add(transition);
             return this;
         }
 
-        public IDipState AddDependency(IDipState dependency)
+        public DipState AddDependency(IDipState dependency)
         {
             Dependencies.Add(dependency);
             return this;
         }
 
-        public IDipState AddSubState(IDipState subState)
+        public DipState AddSubState(IDipState subState)
         {
             ((DipState)subState).Parent = this;
             SubStates.Add(subState);
             return this;
         }
 
-        public IDipState AddAction(DipStateActionType actionType, Action<IDipState> action)
+        public DipState AddAction(DipStateActionType actionType, Action<IDipState> action)
         {
             Actions.Add(new StateAction() {ActionType = actionType, Action = action});
             return this;

@@ -7,11 +7,12 @@ namespace DevelopmentInProgress.DipState
         int Id { get; }
         string Name { get; }
         bool IsDirty { get; }
+        bool InitialiseWithParent { get; }
         DipStateType Type { get; }
         DipStateStatus Status { get; }
         IDipState Parent { get; }
         IDipState Antecedent { get; }
-        IDipState Transition { get; }
+        IDipState Transition { get; set; }
         List<IDipState> Transitions { get; }
         List<IDipState> Dependencies { get; }
         List<IDipState> SubStates { get; }

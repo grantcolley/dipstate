@@ -73,7 +73,7 @@ namespace DevelopmentInProgress.DipState
 
             if (state.SubStates.Any())
             {
-                state.SubStates.OfType<SubState>()
+                state.SubStates
                     .Where(s => s.InitialiseWithParent)
                     .ToList()
                     .ForEach(s => Initialise(s));
