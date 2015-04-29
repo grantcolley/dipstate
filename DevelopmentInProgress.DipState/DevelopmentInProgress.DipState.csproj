@@ -39,7 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DipStateDecorator.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="StateAction.cs" />
     <Compile Include="DipState.cs" />
@@ -51,7 +50,6 @@
     <Compile Include="DipStateType.cs" />
     <Compile Include="IDipStateEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SubState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
