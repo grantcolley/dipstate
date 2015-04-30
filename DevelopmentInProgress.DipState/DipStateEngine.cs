@@ -32,6 +32,15 @@ namespace DevelopmentInProgress.DipState
                 currentState.Transition = transitionState;
             }
 
+            if (state.Status.Equals(DipStateStatus.Uninitialised)
+                && !newStatus.Equals(DipStateStatus.Initialised))
+            {
+                throw new DipStateException(
+                    String.Format(
+                        "{0} {1} is Uninitialised and must first be set to Initialised before being set to {2}.",
+                        state.Id, state.Name, newStatus));
+            }
+
             switch (newStatus)
             {
                 case DipStateStatus.Completed:
