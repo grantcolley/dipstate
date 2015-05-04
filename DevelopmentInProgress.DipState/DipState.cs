@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DevelopmentInProgress.DipState
 {
@@ -46,6 +47,7 @@ namespace DevelopmentInProgress.DipState
                 {
                     status = value;
                     IsDirty = true;
+                    Log.Add(new LogEntry(String.Format("{0} - {1}", Name ?? String.Empty, status)));
                 }
             }
         }
@@ -57,10 +59,11 @@ namespace DevelopmentInProgress.DipState
 
         public void Reset()
         {
-            IsDirty = false;
             Transition = null;
             Antecedent = null;
             Status = DipStateStatus.Uninitialised;
+            SubStates.ForEach(s => s.Reset());
+            IsDirty = false;
         }
 
         public DipState AddTransition(IDipState transition)
