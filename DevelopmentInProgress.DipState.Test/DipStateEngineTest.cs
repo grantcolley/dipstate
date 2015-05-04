@@ -18,6 +18,22 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
+        public void Run_StateAlreadyHasStatusSpecified_StateStatusUnchanged()
+        {
+            // Arrange
+            IDipState state = new DipState(1, "Pricing Workflow", DipStateType.Standard,
+                status: DipStateStatus.Initialised);
+
+            // Act
+            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+
+            // Assert
+            Assert.AreEqual(state.Id, 1);
+            Assert.AreEqual(state.Name, "Pricing Workflow");
+            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
+        }
+
+        [TestMethod]
         public void Run_InitialiseState_StateInitialised()
         {
             // Arrange
@@ -33,7 +49,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_InitialiseStateWithEntryAction_StateInitialisedEntryActionExecuted()
+        public void Run_InitialiseStateWithEntryAction_StateInitialised()
         {
             // Arrange
             var mockAction = new Mock<Action<IDipState>>();
@@ -53,7 +69,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_InitialiseStateWithExceptionInEntryAction_StateNotInitialisedExceptionThrown()
+        public void Run_InitialiseStateWithExceptionInEntryAction_ExceptionThrownStateNotInitialised()
         {
             // Arrange 
             var mockAction = new Mock<Action<IDipState>>();
@@ -61,10 +77,7 @@ namespace DevelopmentInProgress.DipState.Test
             IDipState state = new DipState(1, "Pricing Workflow")
                 .AddAction(DipStateActionType.Entry, mockAction.Object);
 
-            mockAction.Setup(a => a(state))
-                .Throws(
-                    new InvalidOperationException(
-                        "Run_InitialiseStateWithExceptionInEntryAction_StateNotInitialisedExceptionThrown"));
+            mockAction.Setup(a => a(state)).Throws(new InvalidOperationException("Run_InitialiseStateWithExceptionInEntryAction_ExceptionThrownStateNotInitialised"));
 
             // Act
             try
@@ -73,9 +86,7 @@ namespace DevelopmentInProgress.DipState.Test
             }
             catch (InvalidOperationException ex)
             {
-                if (
-                    !ex.Message.Equals(
-                        "Run_InitialiseStateWithExceptionInEntryAction_StateNotInitialisedExceptionThrown"))
+                if (!ex.Message.Equals("Run_InitialiseStateWithExceptionInEntryAction_ExceptionThrownStateNotInitialised"))
                 {
                     throw;
                 }
@@ -89,25 +100,10 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_InitialiseStateWhenStateAlreadyInitialised_StateStatusUnchanged()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow", status: DipStateStatus.Initialised);
-
-            // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-        }
-
-        [TestMethod]
         public void Run_InitialiseStateWithDependencyComplete_StateInitialised()
         {
             // Arrange
-            var dependency = new DipState(0, "Dependent State", status: DipStateStatus.Completed);
+            var dependency = new DipState(0, "Dependent State", DipStateType.Standard, status: DipStateStatus.Completed);
 
             IDipState state = new DipState(1, "Pricing Workflow")
                 .AddDependency(dependency);
@@ -126,7 +122,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_InitialiseStateWithDependencyNotComplete_StateNotInitialised()
         {
             // Arrange
-            var dependency = new DipState(0, "Dependent State", status: DipStateStatus.InProgress);
+            var dependency = new DipState(0, "Dependent State", DipStateType.Standard, status: DipStateStatus.InProgress);
 
             IDipState state = new DipState(1, "Pricing Workflow")
                 .AddDependency(dependency);
@@ -144,29 +140,28 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_AutoStateInitialisedAndCompleteWithoutTransition_AutoStateCompleted()
+        public void Run_InitialiseAutoStateAndComplete_AutoStateCompleted()
         {
             // Arrange
-            IDipState autoState = new DipState(1, "Close Case", DipStateType.Auto);
+            IDipState autoState = new DipState(1, "Override Check", DipStateType.Auto);
 
             // Act
             autoState = dipStateEngine.Run(autoState, DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
-            Assert.AreEqual(autoState.Name, "Close Case");
+            Assert.AreEqual(autoState.Name, "Override Check");
             Assert.AreEqual(autoState.Status, DipStateStatus.Completed);
-            Assert.IsNull(autoState.Transition);
         }
 
         [TestMethod]
-        public void Run_AutoStateInitialisedWithTransition_AutoStateTransitionedToFinalReview()
+        public void Run_InitialiseAutoStateAndAutoTransition_AutoStateTransitionedToFinal()
         {
             // Arrange
-            var finalState = new DipState(2, "Final Review");
+            var finalState = new DipState(2, "Final");
             var overrideState = new DipState(3, "Override");
 
-            IDipState autoState = new DipState(1, "Override Decision", DipStateType.Auto)
+            IDipState autoState = new DipState(1, "Override Check", DipStateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = finalState; });
@@ -176,14 +171,12 @@ namespace DevelopmentInProgress.DipState.Test
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
-            Assert.AreEqual(autoState.Name, "Override Decision");
+            Assert.AreEqual(autoState.Name, "Override Check");
             Assert.AreEqual(autoState.Status, DipStateStatus.Completed);
-            Assert.AreEqual(autoState.Transition.Name, "Final Review");
 
             Assert.AreEqual(state.Id, 2);
-            Assert.AreEqual(state.Name, "Final Review");
+            Assert.AreEqual(state.Name, "Final");
             Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-            Assert.AreEqual(state.Antecedent.Name, "Override Decision");
 
             Assert.AreEqual(overrideState.Id, 3);
             Assert.AreEqual(overrideState.Name, "Override");
@@ -191,13 +184,13 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_AutoStateInitialisedWithTransition_AutoStateTransitionedToOverride()
+        public void Run_InitialiseAutoStateAndAutoTransition_AutoStateTransitionedToOverride()
         {
             // Arrange
             var finalState = new DipState(2, "Final");
             var overrideState = new DipState(3, "Override");
 
-            IDipState autoState = new DipState(1, "Override Decision", DipStateType.Auto)
+            IDipState autoState = new DipState(1, "Override Check", DipStateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = overrideState; });
@@ -207,7 +200,7 @@ namespace DevelopmentInProgress.DipState.Test
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
-            Assert.AreEqual(autoState.Name, "Override Decision");
+            Assert.AreEqual(autoState.Name, "Override Check");
             Assert.AreEqual(autoState.Status, DipStateStatus.Completed);
 
             Assert.AreEqual(finalState.Id, 2);
@@ -220,7 +213,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_AggregateStateInitialised_AggregateStateInitialisedWithTwoSubStatesInitialised()
+        public void Run_InitialiseAggregateStateInitialiseTwoSubStatesWithParent_AggregateStateInitialisedTwoSubStatesInitialised()
         {
             // Arrange
             IDipState state = new DipState(1, "Pricing Workflow")
@@ -251,430 +244,6 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(pricingC.Id, 4);
             Assert.AreEqual(pricingC.Name, "Pricing C");
             Assert.AreEqual(pricingC.Status, DipStateStatus.Initialised);
-        }
-
-        [TestMethod]
-        public void Run_AggregateStateChangeSubStateToInProgress_SubSateAndParentSetToInProgress()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true));
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
-
-            // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.InProgress);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.InProgress);
-
-            Assert.AreEqual(statePricingA.Id, 2);
-            Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, DipStateStatus.InProgress);
-        }
-
-        [TestMethod]
-        public void Run_AggregateStateChangeOneSubStateToComplete_SubStateCompletedAndParentSetToInProgress()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
-                .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
-
-            // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Completed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.InProgress);
-
-            Assert.AreEqual(statePricingA.Id, 2);
-            Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, DipStateStatus.Completed);
-
-            var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
-            Assert.AreEqual(statePricingB.Id, 3);
-            Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, DipStateStatus.Initialised);
-        }
-
-        [TestMethod]
-        public void Run_AggregateStateChangeAllSubStatesToCompleted_SubStatesCompletedAndParentCompleted()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
-                .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
-
-            var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
-
-            // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Completed);
-
-            state = dipStateEngine.Run(statePricingB, DipStateStatus.Completed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Completed);
-
-            Assert.AreEqual(statePricingA.Id, 2);
-            Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, DipStateStatus.Completed);
-
-            Assert.AreEqual(statePricingB.Id, 3);
-            Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, DipStateStatus.Completed);
-        }
-
-        [TestMethod]
-        public void Run_UninitialiseState_StateReset()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Uninitialised);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);
-        }
-
-        [TestMethod]
-        public void Run_FailStateWithoutTransition_StateFailedWithLogEntry()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
-
-            // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Failed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);
-            Assert.IsNull(state.Transition);
-            Assert.IsFalse(state.IsDirty);
-
-            var logEntry =
-                state.Log.FirstOrDefault(
-                    e => e.Message.Contains(String.Format("{0} has failed but is unable to transition", state.Name)));
-            Assert.IsNotNull(logEntry);
-        }
-
-        [TestMethod]
-        public void Run_FailAllSubStatesFailsParent_SubStatesFailedAndParentFailed()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
-                .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
-
-            var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
-
-            // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Failed);
-
-            statePricingB = dipStateEngine.Run(statePricingB, DipStateStatus.Failed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);
-            Assert.IsFalse(state.IsDirty);
-
-            Assert.AreEqual(statePricingA.Id, 2);
-            Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, DipStateStatus.Uninitialised);
-            Assert.IsFalse(statePricingA.IsDirty);
-            var statePricingALogEntry =
-                statePricingA.Log.FirstOrDefault(
-                    e =>
-                        e.Message.Contains(String.Format("{0} has failed but is unable to transition",
-                            statePricingA.Name)));
-            Assert.IsNotNull(statePricingALogEntry);
-
-            Assert.AreEqual(statePricingB.Id, 3);
-            Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, DipStateStatus.Uninitialised);
-            Assert.IsFalse(statePricingB.IsDirty);
-            var statePricingBLogEntry =
-                statePricingB.Log.FirstOrDefault(
-                    e =>
-                        e.Message.Contains(String.Format("{0} has failed but is unable to transition",
-                            statePricingB.Name)));
-            Assert.IsNotNull(statePricingBLogEntry);
-        }
-
-        [TestMethod]
-        public void Run_FailOneSubStateAndCompleteAnother_OneSubStateFailedAndOneCompletedWithParentRemainingInProgress()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
-                .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
-
-            var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
-
-            // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Failed);
-
-            statePricingB = dipStateEngine.Run(statePricingB, DipStateStatus.Completed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.InProgress);
-            Assert.IsTrue(state.IsDirty);
-
-            Assert.AreEqual(statePricingA.Id, 2);
-            Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, DipStateStatus.Uninitialised);
-            Assert.IsFalse(statePricingA.IsDirty);
-            var logEntry =
-                statePricingA.Log.FirstOrDefault(
-                    e =>
-                        e.Message.Contains(String.Format("{0} has failed but is unable to transition",
-                            statePricingA.Name)));
-            Assert.IsNotNull(logEntry);
-
-            Assert.AreEqual(statePricingB.Id, 3);
-            Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, DipStateStatus.Completed);
-            Assert.IsTrue(statePricingB.IsDirty);
-        }
-
-        [TestMethod]
-        public void Run_FailStateAndTransitionToAntecedent_StateFailedAntecedentInitialised()
-        {
-            // Arrange
-            IDipState review = new DipState(2, "Review");
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddTransition(review);
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-            review = dipStateEngine.Run(state, review);
-            review = dipStateEngine.Run(review, DipStateStatus.InProgress);
-
-            // Act
-            state = dipStateEngine.Run(review, DipStateStatus.Failed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-            Assert.IsNull(state.Transition);
-            Assert.IsTrue(state.IsDirty);
-
-            Assert.AreEqual(review.Id, 2);
-            Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, DipStateStatus.Uninitialised);
-            Assert.IsNull(review.Antecedent);
-            Assert.IsNull(review.Transition);
-            Assert.IsFalse(review.IsDirty);
-        }
-
-        [TestMethod]
-        public void Run_FailStateTransitionToAnother_TransitionStateInitialisedFailedStateAndAntecedentsReset()
-        {
-            // Arrange
-            IDipState execution = new DipState(3, "Execution");
-            IDipState review = new DipState(2, "Review")
-                .AddTransition(execution);
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddTransition(review);
-
-            ((DipState) execution).AddTransition(state);
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-            review = dipStateEngine.Run(state, review);
-            execution = dipStateEngine.Run(review, execution);
-
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Completed);
-            Assert.AreEqual(state.Transition.Name, "Review");
-            Assert.IsTrue(state.IsDirty);
-
-            Assert.AreEqual(review.Id, 2);
-            Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, DipStateStatus.Completed);
-            Assert.AreEqual(review.Antecedent.Name, "Pricing Workflow");
-            Assert.AreEqual(review.Transition.Name, "Execution");
-            Assert.IsTrue(review.IsDirty);
-
-            Assert.AreEqual(execution.Id, 3);
-            Assert.AreEqual(execution.Name, "Execution");
-            Assert.AreEqual(execution.Status, DipStateStatus.Initialised);
-            Assert.AreEqual(execution.Antecedent.Name, "Review");
-            Assert.IsTrue(execution.IsDirty);
-
-            // Act
-            state = dipStateEngine.Run(execution, DipStateStatus.Failed, state);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-            Assert.IsNull(state.Transition);
-            Assert.IsTrue(state.IsDirty);
-
-            Assert.AreEqual(review.Id, 2);
-            Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, DipStateStatus.Uninitialised);
-            Assert.IsNull(review.Antecedent);
-            Assert.IsNull(review.Transition);
-            Assert.IsFalse(review.IsDirty);
-
-            Assert.AreEqual(execution.Id, 3);
-            Assert.AreEqual(execution.Name, "Execution");
-            Assert.AreEqual(execution.Status, DipStateStatus.Uninitialised);
-            Assert.IsNull(execution.Antecedent);
-            Assert.IsNull(execution.Transition);
-            Assert.IsFalse(execution.IsDirty);
-        }
-        
-        [TestMethod]
-        public void Run_CompleteStateWithoutTransition_StateCompleted()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
-
-            // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Completed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Completed);
-            Assert.IsNull(state.Transition);
-        }
-
-        [TestMethod]
-        public void Run_CompleteStateWithTransition_StateCompletedAndTransitionStateInitialised()
-        {
-            // Arrange
-            IDipState review = new DipState(2, "Review");
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddTransition(review);
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            // Act
-            review = dipStateEngine.Run(state, review);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Completed);
-            Assert.AreEqual(state.Transition.Name, "Review");
-
-            Assert.AreEqual(review.Id, 2);
-            Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, DipStateStatus.Initialised);
-            Assert.AreEqual(review.Antecedent.Name, "Pricing Workflow");
-        }
-
-        [TestMethod]
-        public void Run_CompleteSubStateAndTransitionParent_SubStateCompletedAndParentSompletedAndTransitionStateInitialised()
-        {
-            // Arrange
-            IDipState review = new DipState(3, "Review");
-            IDipState state = new DipState(1, "Pricing Workflow")
-                .AddSubState(new DipState(2, "Pricing", initialiseWithParent: true))
-                .AddTransition(review);
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            var pricing = state.SubStates.First();
-
-            // Act
-            review = dipStateEngine.Run(pricing, DipStateStatus.Completed);
-
-            // Assert
-            Assert.AreEqual(state.Id, 1);
-            Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Completed);
-            Assert.AreEqual(state.Transition.Name, "Review");
-
-            Assert.AreEqual(pricing.Id, 2);
-            Assert.AreEqual(pricing.Name, "Pricing");
-            Assert.AreEqual(pricing.Status, DipStateStatus.Completed);
-
-            Assert.AreEqual(review.Id, 3);
-            Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, DipStateStatus.Initialised);
-            Assert.AreEqual(review.Antecedent.Name, "Pricing Workflow");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(DipStateException))]
-        public void Run_TransitionToStateNotInTransitionList_ExceptionThrownTransitionAborted()
-        {
-            // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
-            IDipState review = new DipState(2, "Review");
-
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-
-            IDipState result = null;
-
-            // Act
-            try
-            {
-                result = dipStateEngine.Run(state, review);
-            }
-            catch (InvalidOperationException ex)
-            {
-                if (
-                    !ex.Message.Equals(
-                        "Run_InitialiseStateWithExceptionInEntryAction_ExceptionThrownStateNotInitialised"))
-                {
-                    throw;
-                }
-            }
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.Id, 2);
-            Assert.AreEqual(result.Name, "Pricing Workflow");
-            Assert.AreEqual(result.Status, DipStateStatus.Initialised);
-            Assert.IsNull(result.Transition);
-
-            var logEntry =
-                review.Log.FirstOrDefault(
-                    e =>
-                        e.Message.Contains(
-                            String.Format(
-                                "{0} cannot transition to {1} as it is not registered in the transition list.",
-                                result.Name, review.Name)));
-
-            Assert.IsNotNull(logEntry);
         }
     }
 }

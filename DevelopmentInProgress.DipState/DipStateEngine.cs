@@ -32,6 +32,15 @@ namespace DevelopmentInProgress.DipState
                 currentState.Transition = transitionState;
             }
 
+            if (state.Status.Equals(DipStateStatus.Uninitialised)
+                && !newStatus.Equals(DipStateStatus.Initialised))
+            {
+                throw new DipStateException(
+                    String.Format(
+                        "{0} {1} is Uninitialised and must first be set to Initialised before being set to {2}.",
+                        state.Id, state.Name, newStatus));
+            }
+
             switch (newStatus)
             {
                 case DipStateStatus.Completed:
@@ -84,17 +93,9 @@ namespace DevelopmentInProgress.DipState
 
         private IDipState Transition(IDipState state)
         {
-            if (state.Transition != null
-                && !state.Transitions.Exists(t => t.Id.Equals(state.Transition.Id)))
-            {
-                throw new DipStateException(
-                    String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",
-                        state.Name, state.Transition.Name));
-            }
-
             if (state.Status.Equals(DipStateStatus.Failed))
             {
-                var stateFailedTo = FailToTransitionState(state, state.Transition);
+                var stateFailedTo = GetFailTransitionState(state, state.Transition);
                 if (stateFailedTo != null)
                 {
                     return Initialise(stateFailedTo);
@@ -130,19 +131,11 @@ namespace DevelopmentInProgress.DipState
             return state;
         }
 
-        private IDipState FailToTransitionState(IDipState current, IDipState failTransitionState)
+        private IDipState GetFailTransitionState(IDipState current, IDipState failTransitionState)
         {
             if (current != null)
             {
-                if (current.Parent != null
-                    &&
-                    current.Parent.SubStates.Count(
-                        s =>
-                            s.Status.Equals(DipStateStatus.Uninitialised) ||
-                            s.Status.Equals(DipStateStatus.Failed)).Equals(current.Parent.SubStates.Count))
-                {
-                    current.Parent.Reset();
-                }
+                current.Reset();
 
                 if (failTransitionState != null)
                 {
@@ -150,22 +143,15 @@ namespace DevelopmentInProgress.DipState
                     {
                         return current;
                     }
-                    
-                    var tranitioState = FailToTransitionState(current.Antecedent, failTransitionState);
-                    current.Reset();
-                    tranitioState.Reset();
-                    return tranitioState;
+
+                    return GetFailTransitionState(current.Antecedent, failTransitionState);
                 }
 
                 if (current.Antecedent != null)
                 {
-                    var antecedent = current.Antecedent;                    
-                    current.Reset();
-                    antecedent.Reset();
-                    return antecedent;
+                    current.Antecedent.Reset();
+                    return current.Antecedent;
                 }
-
-                current.Reset();
             }
 
             return null;
