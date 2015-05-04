@@ -64,8 +64,6 @@ namespace DevelopmentInProgress.DipState
             
             ((DipState)state).Status = DipStateStatus.Initialised;
 
-            WriteLogEntry(state, String.Format("{0} initialised", state.Name));
-
             if (state.Type.Equals(DipStateType.Auto))
             {
                 return Transition(state);
@@ -213,7 +211,6 @@ namespace DevelopmentInProgress.DipState
                         .Equals(aggregate.SubStates.Count(s => s.Status.Equals(DipStateStatus.Completed)))))
             {
                 aggregate.Status = DipStateStatus.InProgress;
-                WriteLogEntry(state, String.Format("{0} in progress", aggregate.Status));
                 UpdateParentStatusToInProgress(aggregate);
             }
         }
@@ -224,12 +221,11 @@ namespace DevelopmentInProgress.DipState
             {
                 RunActions(state, DipStateActionType.Exit);
                 ((DipState)state).Status = DipStateStatus.Completed;
-                WriteLogEntry(state, String.Format("{0} has completed", state.Name));
                 UpdateParentStatusToInProgress(state);
                 return true;
             }
 
-            var message = String.Format("{0} is unable to completed", state.Name);
+            var message = String.Format("{0} is unable to complete", state.Name);
             WriteLogEntry(state, message);
             throw new DipStateException(message);
         }
