@@ -18,9 +18,10 @@ namespace DevelopmentInProgress.DipState
             this.status = status;            
             this.canComplete = canComplete;
             Transitions = new List<IDipState>();
-            Dependencies = new List<IDipState>();
             SubStates = new List<IDipState>();
             Actions = new List<StateAction>();
+            Dependencies = new List<IDipState>();
+            Dependants = new List<IDipState>();
             Log = new List<LogEntry>();
         }
 
@@ -34,6 +35,7 @@ namespace DevelopmentInProgress.DipState
         public IDipState Transition { get; set; }
         public List<IDipState> Transitions { get; private set; }
         public List<IDipState> Dependencies { get; private set; }
+        internal List<IDipState> Dependants { get; private set; }
         public List<IDipState> SubStates { get; private set; }
         public List<StateAction> Actions { get; private set; }
         public List<LogEntry> Log { get; private set; }
@@ -74,6 +76,7 @@ namespace DevelopmentInProgress.DipState
 
         public DipState AddDependency(IDipState dependency)
         {
+            ((DipState)dependency).Dependants.Add(this);
             Dependencies.Add(dependency);
             return this;
         }

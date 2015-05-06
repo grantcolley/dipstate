@@ -105,6 +105,13 @@ namespace DevelopmentInProgress.DipState
             // Run exit actions and set the state's status to complete.
             if (TryCompleteState(state))
             {
+                ((DipState) state).Dependants.ForEach(
+                    d =>
+                    {
+                        ((DipState) d).Antecedent = state;
+                        Initialise(d);
+                    });
+
                 // If we have a transition state then initialise and return it.
                 if (state.Transition != null)
                 {
