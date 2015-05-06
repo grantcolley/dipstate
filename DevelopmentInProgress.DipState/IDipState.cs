@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DevelopmentInProgress.DipState
 {
@@ -20,5 +21,9 @@ namespace DevelopmentInProgress.DipState
         List<LogEntry> Log { get; }
         bool CanComplete();
         void Reset();
+        DipState AddTransition(IDipState transition);
+        DipState AddDependency(IDipState dependency);
+        DipState AddSubState(IDipState subState);
+        DipState AddAction(DipStateActionType actionType, Action<IDipState> action);
     }
 }
