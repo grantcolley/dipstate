@@ -96,8 +96,99 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void TestMethod1()
+        public void CollateDataFail_ResetPricingWorkflow()
         {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void CollateDataComplete_TransitionToModelling()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void ModellingFailOneSubTask_FailModellingAndInitialiseCollateData()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void ModellingCompleteSubTasks_CompleteModellingTransitionToModellingReview()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void ModellingReviewFailToModelling_FailModellingReviewAndInitialiseModelling()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void ModellingReviewFailToCollateData_FailModellingReviewAndInitialiseCollateData()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void ModellingReviewComplete_CompleteModellingReviewAndTransitionToAdjustmentCheck_TransitionToAdjustment()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void AdjustmentComplete_CompleteAdjustmentAndTransitionToFinalReview()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void ModellingReviewComplete_CompleteModellingReviewAndTransitionToAdjustmentCheck_TransitionToFinalReview()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void FinalReviewFailToModelling_FailFinalReviewAndInitialiseModelling()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void FinalReviewFailToCollateData_FailFinalReviewAndInitialiseCollateData()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void FinalReviewComplete_CompleteFinalReviewAndCommunicationUpdateNotComplete_FinalCommunicationNotInitialised()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void FinalReviewComplete_CompleteFinalReviewAndFinalCommunicationInitialised()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void CommunicationUpdateComplete_CompleteCommunicationUpdateAndFinalCommunicationInitialised()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void FinalCommunicationComplete_CompleteFinalCommunicationAndCompletePricingWorkflow()
+        {
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void PricingWorkflowCompleteThenReset_ResetPricingWorkflow()
+        {
+            throw new NotImplementedException();
         }
 
         private void TraceWrite(IDipState state)
