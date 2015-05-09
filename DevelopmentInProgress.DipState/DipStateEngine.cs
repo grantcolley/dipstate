@@ -156,18 +156,10 @@ namespace DevelopmentInProgress.DipState
                         return current;
                     }
                     
-                    var tranitioState = FailToTransitionState(current.Antecedent, failTransitionState);
+                    var tranitionState = FailToTransitionState(current.Antecedent, failTransitionState);
                     current.Reset();
-                    tranitioState.Reset();
-                    return tranitioState;
-                }
-
-                if (current.Antecedent != null)
-                {
-                    var antecedent = current.Antecedent;                    
-                    current.Reset();
-                    antecedent.Reset();
-                    return antecedent;
+                    tranitionState.Reset();
+                    return tranitionState;
                 }
 
                 current.Reset();
@@ -227,7 +219,15 @@ namespace DevelopmentInProgress.DipState
             if (state.CanComplete())
             {
                 RunActions(state, DipStateActionType.Exit);
+                
                 ((DipState)state).Status = DipStateStatus.Completed;
+
+                if (state.Transition == null
+                    && state.Transitions.Count.Equals(1))
+                {
+                    ((DipState) state).Transition = state.Transitions.First();
+                }
+
                 UpdateParentStatusToInProgress(state);
                 return true;
             }
