@@ -2,8 +2,8 @@
 {
     public interface IDipStateEngine
     {
-        IDipState Run(IDipState state, DipStateStatus newStatus);
-        IDipState Run(IDipState state, IDipState transitionState);
-        IDipState Run(IDipState state, DipStateStatus newStatus, IDipState transitionState);
+        DipState Run(DipState state, DipStateStatus newStatus);
+        DipState Run(DipState state, DipState transitionState);
+        DipState Run(DipState state, DipStateStatus newStatus, DipState transitionState);
     }
 }

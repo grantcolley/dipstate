@@ -21,7 +21,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_InitialiseState_StateInitialised()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
+            var state = new DipState(1, "Pricing Workflow");
 
             // Act
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
@@ -36,9 +36,9 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_InitialiseStateWithEntryAction_StateInitialisedEntryActionExecuted()
         {
             // Arrange
-            var mockAction = new Mock<Action<IDipState>>();
+            var mockAction = new Mock<Action<DipState>>();
 
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddAction(DipStateActionType.Entry, mockAction.Object);
 
             // Act
@@ -56,9 +56,9 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_InitialiseStateWithExceptionInEntryAction_StateNotInitialisedExceptionThrown()
         {
             // Arrange 
-            var mockAction = new Mock<Action<IDipState>>();
+            var mockAction = new Mock<Action<DipState>>();
 
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddAction(DipStateActionType.Entry, mockAction.Object);
 
             mockAction.Setup(a => a(state))
@@ -92,7 +92,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_InitialiseStateWhenStateAlreadyInitialised_StateStatusUnchanged()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow", status: DipStateStatus.Initialised);
+            var state = new DipState(1, "Pricing Workflow", status: DipStateStatus.Initialised);
 
             // Act
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
@@ -109,7 +109,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             var dependency = new DipState(0, "Dependent State", status: DipStateStatus.Completed);
 
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddDependency(dependency);
 
             // Act
@@ -128,7 +128,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             var dependency = new DipState(0, "Dependent State", status: DipStateStatus.InProgress);
 
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddDependency(dependency);
 
             // Act
@@ -147,7 +147,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_AutoStateInitialisedAndCompleteWithoutTransition_AutoStateCompleted()
         {
             // Arrange
-            IDipState autoState = new DipState(1, "Close Case", DipStateType.Auto);
+            var autoState = new DipState(1, "Close Case", DipStateType.Auto);
 
             // Act
             autoState = dipStateEngine.Run(autoState, DipStateStatus.Initialised);
@@ -166,7 +166,7 @@ namespace DevelopmentInProgress.DipState.Test
             var finalState = new DipState(2, "Final Review");
             var overrideState = new DipState(3, "Override");
 
-            IDipState autoState = new DipState(1, "Override Decision", DipStateType.Auto)
+            var autoState = new DipState(1, "Override Decision", DipStateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = finalState; });
@@ -197,7 +197,7 @@ namespace DevelopmentInProgress.DipState.Test
             var finalState = new DipState(2, "Final");
             var overrideState = new DipState(3, "Override");
 
-            IDipState autoState = new DipState(1, "Override Decision", DipStateType.Auto)
+            var autoState = new DipState(1, "Override Decision", DipStateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = overrideState; });
@@ -223,7 +223,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_AggregateStateInitialised_AggregateStateInitialisedWithTwoSubStatesInitialised()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B"))
                 .AddSubState(new DipState(4, "Pricing C", initialiseWithParent: true));
@@ -257,7 +257,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_AggregateStateChangeSubStateToInProgress_SubSateAndParentSetToInProgress()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true));
 
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
@@ -281,7 +281,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_AggregateStateChangeOneSubStateToComplete_SubStateCompletedAndParentSetToInProgress()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
@@ -311,7 +311,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_AggregateStateChangeAllSubStatesToCompleted_SubStatesCompletedAndParentCompleted()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
@@ -344,7 +344,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_UninitialiseState_StateReset()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
+            var state = new DipState(1, "Pricing Workflow");
 
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
 
@@ -361,7 +361,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_FailStateWithoutTransition_StateFailedWithLogEntry()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
+            var state = new DipState(1, "Pricing Workflow");
 
             // Act
             state = dipStateEngine.Run(state, DipStateStatus.Failed);
@@ -383,7 +383,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_FailAllSubStatesFailsParent_SubStatesFailedAndParentFailed()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
@@ -431,7 +431,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_FailOneSubStateAndCompleteAnother_OneSubStateFailedAndOneCompletedWithParentRemainingInProgress()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
@@ -473,8 +473,8 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_FailStateAndTransitionToAntecedent_StateFailedAntecedentInitialised()
         {
             // Arrange
-            IDipState review = new DipState(2, "Review");
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var review = new DipState(2, "Review");
+            var state = new DipState(1, "Pricing Workflow")
                 .AddTransition(review);
 
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
@@ -503,13 +503,13 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_FailStateTransitionToAnother_TransitionStateInitialisedFailedStateAndAntecedentsReset()
         {
             // Arrange
-            IDipState execution = new DipState(3, "Execution");
-            IDipState review = new DipState(2, "Review")
+            var execution = new DipState(3, "Execution");
+            var review = new DipState(2, "Review")
                 .AddTransition(execution);
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var state = new DipState(1, "Pricing Workflow")
                 .AddTransition(review);
 
-            ((DipState) execution).AddTransition(state);
+            execution.AddTransition(state);
 
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
             review = dipStateEngine.Run(state, review);
@@ -563,7 +563,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_CompleteStateWithoutTransition_StateCompleted()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
+            var state = new DipState(1, "Pricing Workflow");
 
             // Act
             state = dipStateEngine.Run(state, DipStateStatus.Completed);
@@ -579,8 +579,8 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_CompleteStateWithTransition_StateCompletedAndTransitionStateInitialised()
         {
             // Arrange
-            IDipState review = new DipState(2, "Review");
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var review = new DipState(2, "Review");
+            var state = new DipState(1, "Pricing Workflow")
                 .AddTransition(review);
 
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
@@ -604,8 +604,8 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_CompleteSubStateAndTransitionParent_SubStateCompletedAndParentSompletedAndTransitionStateInitialised()
         {
             // Arrange
-            IDipState review = new DipState(3, "Review");
-            IDipState state = new DipState(1, "Pricing Workflow")
+            var review = new DipState(3, "Review");
+            var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing", initialiseWithParent: true))
                 .AddTransition(review);
 
@@ -637,12 +637,12 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_TransitionToStateNotInTransitionList_ExceptionThrownTransitionAborted()
         {
             // Arrange
-            IDipState state = new DipState(1, "Pricing Workflow");
-            IDipState review = new DipState(2, "Review");
+            var state = new DipState(1, "Pricing Workflow");
+            var review = new DipState(2, "Review");
 
             state = dipStateEngine.Run(state, DipStateStatus.Initialised);
 
-            IDipState result = null;
+            DipState result = null;
 
             // Act
             try
