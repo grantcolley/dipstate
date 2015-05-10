@@ -40,13 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LogEntry.cs" />
-    <Compile Include="StateAction.cs" />
+    <Compile Include="DipStateAction.cs" />
     <Compile Include="DipState.cs" />
     <Compile Include="DipStateActionType.cs" />
     <Compile Include="DipStateEngine.cs" />
     <Compile Include="DipStateException.cs" />
     <Compile Include="DipStateStatus.cs" />
-    <Compile Include="IDipState.cs" />
     <Compile Include="DipStateType.cs" />
     <Compile Include="IDipStateEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
