@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -141,6 +140,30 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);
+        }
+
+        [TestMethod]
+        public void Run_DependencyCompletedWithDependantInitialiseDependantWhenCompleteSetTrue_InitialiseDependant()
+        {
+            // Arrange
+
+            // Act
+
+            // Assert
+
+            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void Run_DependencyCompletedWithDependantInitialiseDependantWhenCompleteSetFalse_DependantNotInitialised()
+        {
+            // Arrange
+
+            // Act
+
+            // Assert
+
+            throw new NotImplementedException();
         }
 
         [TestMethod]
@@ -470,7 +493,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_FailStateAndTransitionToAntecedent_StateFailedAntecedentInitialised()
+        public void Run_FailStateAndTransition_StateReset()
         {
             // Arrange
             var review = new DipState(2, "Review");
@@ -482,13 +505,13 @@ namespace DevelopmentInProgress.DipState.Test
             review = dipStateEngine.Run(review, DipStateStatus.InProgress);
 
             // Act
-            state = dipStateEngine.Run(review, DipStateStatus.Failed);
+            review = dipStateEngine.Run(review, DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-            Assert.IsNull(state.Transition);
+            Assert.AreEqual(state.Status, DipStateStatus.Completed);
+            Assert.IsNotNull(state.Transition);
             Assert.IsTrue(state.IsDirty);
 
             Assert.AreEqual(review.Id, 2);
