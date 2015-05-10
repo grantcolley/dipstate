@@ -23,7 +23,7 @@ namespace DevelopmentInProgress.DipState
                 return state;
             }
 
-            var currentState = (DipState)state;
+            var currentState = state;
 
             if (transitionState != null
                 && (newStatus.Equals(DipStateStatus.Completed)
@@ -105,11 +105,12 @@ namespace DevelopmentInProgress.DipState
             // Run exit actions and set the state's status to complete.
             if (TryCompleteState(state))
             {
-                state.Dependants.ForEach(
+                var initialiseDependants = state.Dependants.Where(d => d.InitialiseDependantWhenComplete).ToList();
+                initialiseDependants.ForEach(
                     d =>
                     {
-                        d.Antecedent = state;
-                        Initialise(d);
+                        d.Dependant.Antecedent = state;
+                        Initialise(d.Dependant);
                     });
 
                 // If we have a transition state then initialise and return it.
@@ -119,12 +120,25 @@ namespace DevelopmentInProgress.DipState
                     return Initialise(state.Transition);
                 }
 
-                // If we don't have a transition state then assume we are just completing the state so check
-                // if all the parents sub states are complete, and if they are then transition the parent.
+                // If we don't have a transition state then assume we are just completing 
+                // the state so check if the parents needs to be completed too.               
                 if (state.Parent != null)
                 {
+                    // If all the parents sub states are complete then transition the parent.
                     if (state.Parent.SubStates.Count(s => s.Status.Equals(DipStateStatus.Completed))
                         .Equals(state.Parent.SubStates.Count()))
+                    {
+                        state.Parent.Transition = state.Parent.Transitions.FirstOrDefault();
+                        return Transition(state.Parent);
+                    }
+
+                    // If this state can complete its parent and all the parents substates 
+                    // having CanCompleteParent == true, then transition the parent.
+                    if (state.CanCompleteParent
+                        && state.Parent.SubStates.Count(s => s.CanCompleteParent)
+                            .Equals(
+                                state.Parent.SubStates.Count(
+                                    s => s.CanCompleteParent && s.Status.Equals(DipStateStatus.Completed))))
                     {
                         state.Parent.Transition = state.Parent.Transitions.FirstOrDefault();
                         return Transition(state.Parent);

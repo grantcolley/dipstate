@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DipStateDependant.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="DipStateAction.cs" />
     <Compile Include="DipState.cs" />
