@@ -2,9 +2,9 @@
 
 namespace DevelopmentInProgress.DipState
 {
-    public class StateAction
+    public class DipStateAction
     {
         public DipStateActionType ActionType { get; set; }
-        public Action<IDipState> Action { get; set; }
+        public Action<DipState> Action { get; set; }
     }
 }
