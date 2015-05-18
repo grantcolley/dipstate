@@ -63,13 +63,18 @@ namespace DevelopmentInProgress.DipState
             return canComplete == null || canComplete(this);
         }
 
-        public void Reset()
+        public void Reset(bool clearLogs = false)
         {
             Transition = null;
             Antecedent = null;
             Status = DipStateStatus.Uninitialised;
             SubStates.ForEach(s => s.Reset());
             IsDirty = false;
+
+            if (clearLogs)
+            {
+                Log.Clear();
+            }
         }
 
         public DipState AddSubState(DipState subState)
