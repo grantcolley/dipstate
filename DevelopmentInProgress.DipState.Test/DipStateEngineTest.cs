@@ -143,27 +143,49 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_DependencyCompletedWithDependantInitialiseDependantWhenCompleteSetTrue_InitialiseDependant()
+        public void Run_DependencyCompletedWhereDependantHasInitialiseDependantWhenCompleteSetTrue_InitialiseDependant()
         {
             // Arrange
+            var dependency = new DipState(0, "Dependent State", status: DipStateStatus.InProgress);
+
+            var state = new DipState(1, "Pricing Workflow")
+                .AddDependency(dependency, true);
 
             // Act
+            dependency = dipStateEngine.Run(dependency, DipStateStatus.Completed);
 
             // Assert
-
-            throw new NotImplementedException();
+            Assert.IsNotNull(dependency);
+            Assert.AreEqual(dependency.Id, 0);
+            Assert.AreEqual(dependency.Name, "Dependent State");
+            Assert.AreEqual(dependency.Status, DipStateStatus.Completed);
+            Assert.IsNotNull(state);
+            Assert.AreEqual(state.Id, 1);
+            Assert.AreEqual(state.Name, "Pricing Workflow");
+            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
         }
 
         [TestMethod]
-        public void Run_DependencyCompletedWithDependantInitialiseDependantWhenCompleteSetFalse_DependantNotInitialised()
+        public void Run_DependencyCompletedWhereDependantHasInitialiseDependantWhenCompleteSetFalse_DependantNotInitialised()
         {
             // Arrange
+            var dependency = new DipState(0, "Dependent State", status: DipStateStatus.InProgress);
+
+            var state = new DipState(1, "Pricing Workflow")
+                .AddDependency(dependency);
 
             // Act
+            dependency = dipStateEngine.Run(dependency, DipStateStatus.Completed);
 
             // Assert
-
-            throw new NotImplementedException();
+            Assert.IsNotNull(dependency);
+            Assert.AreEqual(dependency.Id, 0);
+            Assert.AreEqual(dependency.Name, "Dependent State");
+            Assert.AreEqual(dependency.Status, DipStateStatus.Completed);
+            Assert.IsNotNull(state);
+            Assert.AreEqual(state.Id, 1);
+            Assert.AreEqual(state.Name, "Pricing Workflow");
+            Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);
         }
 
         [TestMethod]
