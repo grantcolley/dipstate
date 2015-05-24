@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DipStateDependant.cs" />
+    <Compile Include="DipStateExtensions.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="DipStateAction.cs" />
     <Compile Include="DipState.cs" />

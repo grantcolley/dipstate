@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DevelopmentInProgress.DipState
 {
@@ -30,11 +29,11 @@ namespace DevelopmentInProgress.DipState
 
         public int Id { get; private set; }
         public string Name { get; private set; }
-        public bool IsDirty { get; private set; }
+        public bool IsDirty { get; internal set; }
         public bool InitialiseWithParent { get; private set; }
         public bool CanCompleteParent { get; private set; }
         public DipStateType Type { get; private set; }        
-        public DipState Parent { get; private set; }
+        public DipState Parent { get; internal set; }
         public DipState Antecedent { get; internal set; }
         public DipState Transition { get; set; }
         public List<DipState> Transitions { get; private set; }
@@ -61,69 +60,6 @@ namespace DevelopmentInProgress.DipState
         public bool CanComplete()
         {
             return canComplete == null || canComplete(this);
-        }
-
-        public void Reset(bool clearLogs = false)
-        {
-            Transition = null;
-            Antecedent = null;
-            Status = DipStateStatus.Uninitialised;
-            SubStates.ForEach(s => s.Reset());
-            IsDirty = false;
-
-            if (clearLogs)
-            {
-                Log.Clear();
-            }
-        }
-
-        public DipState AddSubState(DipState subState)
-        {
-            subState.Parent = this;
-            SubStates.Add(subState);
-            return this;
-        }
-
-        public DipState AddTransition(DipState transition)
-        {
-            Transitions.Add(transition);
-            return this;
-        }
-
-        public DipState AddAction(DipStateActionType actionType, Action<DipState> action)
-        {
-            Actions.Add(new DipStateAction() { ActionType = actionType, Action = action });
-            return this;
-        }
-
-        public DipState AddDependant(DipState dependant, bool initialiseDependantWhenComplete = false)
-        {
-            if (!dependant.Dependencies.Any(d => d.Equals(this)))
-            {
-                dependant.Dependencies.Add(this);
-            }
-
-            Dependants.Add(new DipStateDependant()
-            {
-                Dependant = dependant,
-                InitialiseDependantWhenComplete = initialiseDependantWhenComplete
-            });
-            return this;
-        }
-
-        public DipState AddDependency(DipState dependency, bool initialiseWhenDependencyCompleted = false)
-        {
-            if (!dependency.Dependants.Any(d => d.Dependant.Equals(this)))
-            {
-                dependency.Dependants.Add(new DipStateDependant()
-                {
-                    Dependant = this,
-                    InitialiseDependantWhenComplete = initialiseWhenDependencyCompleted
-                });
-            }
-
-            Dependencies.Add(dependency);
-            return this;
         }
     }
 }
