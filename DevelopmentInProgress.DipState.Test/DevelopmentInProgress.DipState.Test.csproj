@@ -53,10 +53,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DipStateContextTestClasses.cs" />
     <Compile Include="DipStateEngineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExampleWorkflowTest.cs" />
     <Compile Include="DipStateTest.cs" />
+    <Compile Include="GenericDipStateTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentInProgress.DipState\DevelopmentInProgress.DipState.csproj">
