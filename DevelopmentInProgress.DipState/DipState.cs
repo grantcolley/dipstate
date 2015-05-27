@@ -3,6 +3,26 @@ using System.Collections.Generic;
 
 namespace DevelopmentInProgress.DipState
 {
+    public class DipState<T> : DipState
+    {
+        public DipState(T context, int id = 0, string name = "", DipStateType type = DipStateType.Standard,
+            bool initialiseWithParent = false, bool canCompleteParent = false,
+            DipStateStatus status = DipStateStatus.Uninitialised, Predicate<DipState> canComplete = null)
+            : base(id, name, type, initialiseWithParent, canCompleteParent, status, canComplete)
+        {
+            Context = context;
+        }
+
+        public DipState(int id = 0, string name = "", DipStateType type = DipStateType.Standard,
+            bool initialiseWithParent = false, bool canCompleteParent = false,
+            DipStateStatus status = DipStateStatus.Uninitialised, Predicate<DipState> canComplete = null)
+            : base (id, name, type, initialiseWithParent, canCompleteParent, status, canComplete)
+        {            
+        }
+
+        public T Context { get; set; }
+    }
+
     public class DipState
     {
         private readonly Predicate<DipState> canComplete;
@@ -32,7 +52,7 @@ namespace DevelopmentInProgress.DipState
         public bool IsDirty { get; internal set; }
         public bool InitialiseWithParent { get; private set; }
         public bool CanCompleteParent { get; private set; }
-        public DipStateType Type { get; private set; }        
+        public DipStateType Type { get; private set; }
         public DipState Parent { get; internal set; }
         public DipState Antecedent { get; internal set; }
         public DipState Transition { get; set; }

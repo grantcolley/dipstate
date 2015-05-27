@@ -227,7 +227,7 @@ namespace DevelopmentInProgress.DipState
                 UpdateParentStatusToInProgress(aggregate);
             }
         }
-        
+
         private bool TryCompleteState(DipState state)
         {
             if (state.CanComplete())
