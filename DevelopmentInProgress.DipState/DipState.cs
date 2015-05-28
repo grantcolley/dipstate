@@ -20,7 +20,7 @@ namespace DevelopmentInProgress.DipState
         {            
         }
 
-        public T Context { get; set; }
+        public new T Context { get; set; }
     }
 
     public class DipState
@@ -52,6 +52,7 @@ namespace DevelopmentInProgress.DipState
         public bool IsDirty { get; internal set; }
         public bool InitialiseWithParent { get; private set; }
         public bool CanCompleteParent { get; private set; }
+        public object Context { get; set; }
         public DipStateType Type { get; private set; }
         public DipState Parent { get; internal set; }
         public DipState Antecedent { get; internal set; }
