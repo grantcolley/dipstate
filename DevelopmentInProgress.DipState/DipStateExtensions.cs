@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace DevelopmentInProgress.DipState
 {
@@ -71,20 +70,17 @@ namespace DevelopmentInProgress.DipState
             return state;
         }
 
-        public static IEnumerable<DipState> Flatten(DipState state)
+        public static List<DipState> Flatten(this DipState state)
         {
-            var states = new List<DipState>();
-
-            var rootState = GetRootState(state);
-
-            return states;
+            var rootState = GetRoot(state);
+            return FlattenStates(rootState);
         }
 
-        public static DipState GetRootState(DipState state)
+        public static DipState GetRoot(this DipState state)
         {
             if (state.Parent != null)
             {
-                return GetRootState(state.Parent);
+                return GetRoot(state.Parent);
             }
 
             return state;
