@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace DevelopmentInProgress.DipState
 {
@@ -67,6 +69,45 @@ namespace DevelopmentInProgress.DipState
 
             state.Dependencies.Add(dependency);
             return state;
+        }
+
+        public static IEnumerable<DipState> Flatten(DipState state)
+        {
+            var states = new List<DipState>();
+
+            var rootState = GetRootState(state);
+
+            return states;
+        }
+
+        public static DipState GetRootState(DipState state)
+        {
+            if (state.Parent != null)
+            {
+                return GetRootState(state.Parent);
+            }
+
+            return state;
+        }
+
+        private static List<DipState> FlattenStates(DipState state, List<DipState> states = null)
+        {
+            if (states == null)
+            {
+                states = new List<DipState>();    
+            }
+
+            if (!states.Contains(state))
+            {
+                states.Add(state);
+            }
+
+            if (state.SubStates.Any())
+            {
+                state.SubStates.ForEach(s => FlattenStates(s, states));
+            }
+
+            return states;
         }
     }
 }

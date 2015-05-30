@@ -90,7 +90,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.IsTrue(state.SubStates.Count.Equals(1));
             Assert.AreEqual(state.SubStates.First(), subState);
-            Assert.IsInstanceOfType(state.Context, typeof(DipStateContextNumber));
+            //Assert.IsInstanceOfType(state.Context, typeof(DipStateContextNumber));
             
             Assert.AreEqual(subState.Id, 2);
             Assert.AreEqual(subState.Name, "Data Capture");
