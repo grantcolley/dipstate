@@ -233,5 +233,158 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.IsTrue(state.Dependencies.Count.Equals(1));
             Assert.AreEqual(state.Dependencies.First(), dependency);
         }
+
+        [TestMethod]
+        public void GetRoot_FindRootStateFromNestedSubState_ReturnRoot()
+        {
+            // Arrange
+            var subState1 = new DipState(2, "Sub State 1");
+            var SubState2 = new DipState(3, "Sub State 2");
+            var SubState3 = new DipState(6, "Sub State 3");
+
+            var SubState2_1 = new DipState(4, "Sub State 2_1");
+            var SubState2_2 = new DipState(5, "Sub State 2_2");
+
+            SubState2
+                .AddSubState(SubState2_1)
+                .AddSubState(SubState2_2);
+
+            var rootState = new DipState(1, "Root")
+                .AddSubState(subState1)
+                .AddSubState(SubState2)
+                .AddSubState(SubState3);
+
+            // Act
+            var root = SubState2_2.GetRoot();
+
+            // Assert
+            Assert.IsTrue(root.Name.Equals("Root"));
+        }
+
+        [TestMethod]
+        public void GetRoot_FindRootStateFromRootState_ReturnRoot()
+        {
+            // Arrange
+            var subState1 = new DipState(2, "Sub State 1");
+            var SubState2 = new DipState(3, "Sub State 2");
+            var SubState3 = new DipState(6, "Sub State 3");
+
+            var SubState2_1 = new DipState(4, "Sub State 2_1");
+            var SubState2_2 = new DipState(5, "Sub State 2_2");
+
+            SubState2
+                .AddSubState(SubState2_1)
+                .AddSubState(SubState2_2);
+
+            var rootState = new DipState(1, "Root")
+                .AddSubState(subState1)
+                .AddSubState(SubState2)
+                .AddSubState(SubState3);
+
+            // Act
+            var root = rootState.GetRoot();
+
+            // Assert
+            Assert.IsTrue(root.Name.Equals("Root"));
+        }
+
+        [TestMethod]
+        public void FlattenHierarchy_FlattenWorkflowHierarchyFromNestedSubState_ReturnFLattenedList()
+        {
+            // Arrange
+            var subState1 = new DipState(2, "Sub State 1");
+            var SubState2 = new DipState(3, "Sub State 2");
+            var SubState3 = new DipState(6, "Sub State 3");
+
+            var SubState2_1 = new DipState(4, "Sub State 2_1");
+            var SubState2_2 = new DipState(5, "Sub State 2_2");
+
+            SubState2
+                .AddSubState(SubState2_1)
+                .AddSubState(SubState2_2);
+
+            var rootState = new DipState(1, "Root")
+                .AddSubState(subState1)
+                .AddSubState(SubState2)
+                .AddSubState(SubState3);
+
+            // Act
+            var states = SubState2.Flatten();
+
+            // Assert
+            Assert.IsTrue(states.Count.Equals(6));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Root")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 1")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2_1")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2_2")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 3")));
+        }
+
+        [TestMethod]
+        public void FlattenHierarchy_FlattenWorkflowHierarchyFromRoot_ReturnFLattenedList()
+        {
+            // Arrange
+            var subState1 = new DipState(2, "Sub State 1");
+            var SubState2 = new DipState(3, "Sub State 2");
+            var SubState3 = new DipState(6, "Sub State 3");
+
+            var SubState2_1 = new DipState(4, "Sub State 2_1");
+            var SubState2_2 = new DipState(5, "Sub State 2_2");
+
+            SubState2
+                .AddSubState(SubState2_1)
+                .AddSubState(SubState2_2);
+
+            var rootState = new DipState(1, "Root")
+                .AddSubState(subState1)
+                .AddSubState(SubState2)
+                .AddSubState(SubState3);
+
+            // Act
+            var states = rootState.Flatten();
+
+            // Assert
+            Assert.IsTrue(states.Count.Equals(6));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Root")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 1")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2_1")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2_2")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 3")));
+        }
+
+        [TestMethod]
+        public void FlattenHierarchy_FlattenWorkflowHierarchyFromLowestLevel_ReturnFLattenedList()
+        {
+            // Arrange
+            var subState1 = new DipState(2, "Sub State 1");
+            var SubState2 = new DipState(3, "Sub State 2");
+            var SubState3 = new DipState(6, "Sub State 3");
+
+            var SubState2_1 = new DipState(4, "Sub State 2_1");
+            var SubState2_2 = new DipState(5, "Sub State 2_2");
+
+            SubState2
+                .AddSubState(SubState2_1)
+                .AddSubState(SubState2_2);
+
+            var rootState = new DipState(1, "Root")
+                .AddSubState(subState1)
+                .AddSubState(SubState2)
+                .AddSubState(SubState3);
+
+            // Act
+            var states = SubState2_2.Flatten();
+
+            // Assert
+            Assert.IsTrue(states.Count.Equals(6));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Root")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 1")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2_1")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2_2")));
+            Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 3")));
+        }
     }
 }
