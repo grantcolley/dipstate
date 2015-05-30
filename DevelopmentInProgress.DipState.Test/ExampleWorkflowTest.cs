@@ -26,13 +26,13 @@ namespace DevelopmentInProgress.DipState.Test
             dipStateEngine = new DipStateEngine();
 
             pricingWorkflow = new DipState(1000, "Pricing Workflow");
-            collateData = new DipState(1100, "Collate Date", initialiseWithParent: true);
+            collateData = new DipState(1100, "Collate Date", true);
             communicationUpdate = new DipState(1200, "Communication Update");
             modelling = new DipState(1300, "Modelling");
-            modelling1 = new DipState(1310, "Modelling 1", initialiseWithParent: true);
-            modelling2 = new DipState(1320, "Modelling 2", initialiseWithParent: true);
+            modelling1 = new DipState(1310, "Modelling 1", true);
+            modelling2 = new DipState(1320, "Modelling 2", true);
             modellingReview = new DipState(1400, "Modelling Review");
-            adjustmentCheck = new DipState(1500, "Adjustment Check", DipStateType.Auto);
+            adjustmentCheck = new DipState(1500, "Adjustment Check", type: DipStateType.Auto);
             adjustments = new DipState(1600, "Adjustments");
             finalReview = new DipState(1700, "Final Review");
             finalCommunication = new DipState(1800, "Final Communication", canCompleteParent: true);

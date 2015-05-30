@@ -192,7 +192,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_AutoStateInitialisedAndCompleteWithoutTransition_AutoStateCompleted()
         {
             // Arrange
-            var autoState = new DipState(1, "Close Case", DipStateType.Auto);
+            var autoState = new DipState(1, "Close Case", type: DipStateType.Auto);
 
             // Act
             autoState = dipStateEngine.Run(autoState, DipStateStatus.Initialised);
@@ -211,7 +211,7 @@ namespace DevelopmentInProgress.DipState.Test
             var finalState = new DipState(2, "Final Review");
             var overrideState = new DipState(3, "Override");
 
-            var autoState = new DipState(1, "Override Decision", DipStateType.Auto)
+            var autoState = new DipState(1, "Override Decision", type: DipStateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = finalState; });
@@ -242,7 +242,7 @@ namespace DevelopmentInProgress.DipState.Test
             var finalState = new DipState(2, "Final");
             var overrideState = new DipState(3, "Override");
 
-            var autoState = new DipState(1, "Override Decision", DipStateType.Auto)
+            var autoState = new DipState(1, "Override Decision", type: DipStateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = overrideState; });
