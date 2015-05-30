@@ -5,18 +5,18 @@ namespace DevelopmentInProgress.DipState
 {
     public class DipState<T> : DipState
     {
-        public DipState(T context, int id = 0, string name = "", DipStateType type = DipStateType.Standard,
-            bool initialiseWithParent = false, bool canCompleteParent = false,
+        public DipState(T context, int id = 0, string name = "", bool initialiseWithParent = false,
+            bool canCompleteParent = false, DipStateType type = DipStateType.Standard,
             DipStateStatus status = DipStateStatus.Uninitialised, Predicate<DipState> canComplete = null)
-            : base(id, name, type, initialiseWithParent, canCompleteParent, status, canComplete)
+            : base(id, name, initialiseWithParent, canCompleteParent, type, status, canComplete)
         {
             Context = context;
         }
 
-        public DipState(int id = 0, string name = "", DipStateType type = DipStateType.Standard,
-            bool initialiseWithParent = false, bool canCompleteParent = false,
+        public DipState(int id = 0, string name = "", bool initialiseWithParent = false,
+            bool canCompleteParent = false, DipStateType type = DipStateType.Standard,
             DipStateStatus status = DipStateStatus.Uninitialised, Predicate<DipState> canComplete = null)
-            : base (id, name, type, initialiseWithParent, canCompleteParent, status, canComplete)
+            : base(id, name, initialiseWithParent, canCompleteParent, type, status, canComplete)
         {            
         }
 
@@ -28,8 +28,8 @@ namespace DevelopmentInProgress.DipState
         private readonly Predicate<DipState> canComplete;
         private DipStateStatus status;
 
-        public DipState(int id = 0, string name = "", DipStateType type = DipStateType.Standard, 
-            bool initialiseWithParent = false, bool canCompleteParent = false, 
+        public DipState(int id = 0, string name = "", bool initialiseWithParent = false, 
+            bool canCompleteParent = false, DipStateType type = DipStateType.Standard, 
             DipStateStatus status = DipStateStatus.Uninitialised, Predicate<DipState> canComplete = null)
         {
             Id = id;
