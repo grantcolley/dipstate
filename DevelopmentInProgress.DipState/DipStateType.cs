@@ -8,6 +8,9 @@ namespace DevelopmentInProgress.DipState
         Standard = 1,
 
         [XmlEnum("2")]
-        Auto = 3
+        Auto = 2,
+
+        [XmlEnum("3")]
+        Root = 3
     }
 }
