@@ -47,13 +47,13 @@ namespace DevelopmentInProgress.DipState
             Log = new List<LogEntry>();
         }
 
-        public int Id { get; private set; }
-        public string Name { get; private set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
         public bool IsDirty { get; internal set; }
-        public bool InitialiseWithParent { get; private set; }
-        public bool CanCompleteParent { get; private set; }
+        public bool InitialiseWithParent { get; set; }
+        public bool CanCompleteParent { get; set; }
         public object Context { get; set; }
-        public DipStateType Type { get; private set; }
+        public DipStateType Type { get; set; }
         public DipState Parent { get; internal set; }
         public DipState Antecedent { get; internal set; }
         public DipState Transition { get; set; }
