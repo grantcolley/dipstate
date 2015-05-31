@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace DevelopmentInProgress.DipState.Test
 {
@@ -69,7 +68,6 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-            //Assert.IsInstanceOfType(state.Context, typeof(DipStateContextText));
             Assert.AreEqual(((DipState<DipStateContextText>)state).Context.Text, "Entry Action");
         }
 
@@ -90,7 +88,6 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.IsTrue(state.SubStates.Count.Equals(1));
             Assert.AreEqual(state.SubStates.First(), subState);
-            //Assert.IsInstanceOfType(state.Context, typeof(DipStateContextNumber));
             
             Assert.AreEqual(subState.Id, 2);
             Assert.AreEqual(subState.Name, "Data Capture");
