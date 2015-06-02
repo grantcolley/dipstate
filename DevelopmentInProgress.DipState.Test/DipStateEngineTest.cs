@@ -515,7 +515,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_FailStateAndTransition_StateReset()
+        public void Run_FailState_StateReset()
         {
             // Arrange
             var review = new DipState(2, "Review");

@@ -106,12 +106,7 @@ namespace DevelopmentInProgress.DipState
             if (TryCompleteState(state))
             {
                 var initialiseDependants = state.Dependants.Where(d => d.InitialiseDependantWhenComplete).ToList();
-                initialiseDependants.ForEach(
-                    d =>
-                    {
-                        d.Dependant.Antecedent = state;
-                        Initialise(d.Dependant);
-                    });
+                initialiseDependants.ForEach(d => Initialise(d.Dependant));
 
                 // If we have a transition state then initialise and return it.
                 if (state.Transition != null)
