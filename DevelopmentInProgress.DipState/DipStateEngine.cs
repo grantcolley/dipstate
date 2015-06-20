@@ -85,9 +85,11 @@ namespace DevelopmentInProgress.DipState
             if (state.Transition != null
                 && !state.Transitions.Exists(t => t.Id.Equals(state.Transition.Id)))
             {
-                throw new DipStateException(
+                var message =
                     String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",
-                        state.Name, state.Transition.Name));
+                        state.Name, state.Transition.Name);
+                WriteLogEntry(state, message);
+                throw new DipStateException(state, message);
             }
 
             if (state.Status.Equals(DipStateStatus.Failed))
@@ -207,9 +209,11 @@ namespace DevelopmentInProgress.DipState
             var aggregate = state.Parent;
             if (aggregate.Status.Equals(DipStateStatus.Completed))
             {
-                throw new DipStateException(
+                var message =
                     String.Format("{0} {1} cannot be set to InProgress because it has already been set to Completed.",
-                        aggregate.Id, aggregate.Name));
+                        aggregate.Id, aggregate.Name);
+                WriteLogEntry(aggregate, message);
+                throw new DipStateException(aggregate, message);
             }
 
             if (aggregate.SubStates.Any(s => s.Status.Equals(DipStateStatus.InProgress))
@@ -241,9 +245,13 @@ namespace DevelopmentInProgress.DipState
                 return true;
             }
 
-            var message = String.Format("{0} is unable to complete", state.Name);
-            WriteLogEntry(state, message);
-            throw new DipStateException(message);
+            if (state.Log.Count.Equals(0))
+            {
+                var message = String.Format("{0} is unable to complete", state.Name);
+                WriteLogEntry(state, message);
+            }
+
+            throw new DipStateException(state, state.Log.Last().Message);
         }
 
         private void RunActions(DipState state, DipStateActionType actionType)
