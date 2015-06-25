@@ -1,11 +1,11 @@
 ﻿namespace DevelopmentInProgress.DipState.Test
 {
-    public class DipStateContextText
+    public class ContextText
     {
         public string Text { get; set; }
     }
 
-    public class DipStateContextNumber
+    public class ContextNumber
     {
         public int Number { get; set; }
     }
