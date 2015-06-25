@@ -1,11 +1,27 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DevelopmentInProgress.DipState
 {
     public class DipStateEngine : IDipStateEngine
     {
+        public Task<DipState> RunAsync(DipState state, DipStateStatus newStatus)
+        {
+            return RunAsync(state, newStatus, null);
+        }
+
+        public Task<DipState> RunAsync(DipState state, DipState transitionState)
+        {
+            return RunAsync(state, DipStateStatus.Completed, transitionState);
+        }
+
+        public Task<DipState> RunAsync(DipState state, DipStateStatus newStatus, DipState transitionState)
+        {
+            return Task.Run(() => Run(state, newStatus, transitionState));
+        }
+
         public DipState Run(DipState state, DipStateStatus newStatus)
         {
             return Run(state, newStatus, null);
