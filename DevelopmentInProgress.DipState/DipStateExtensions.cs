@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DevelopmentInProgress.DipState
 {
@@ -36,6 +37,12 @@ namespace DevelopmentInProgress.DipState
         public static DipState AddAction(this DipState state, DipStateActionType actionType, Action<DipState> action)
         {
             state.Actions.Add(new DipStateAction() { ActionType = actionType, Action = action });
+            return state;
+        }
+
+        public static DipState AddActionAsync(this DipState state, DipStateActionType actionType, Func<DipState, Task<DipState>> action)
+        {
+            state.Actions.Add(new DipStateAction() { ActionType = actionType, ActionAsync = action });
             return state;
         }
 
