@@ -40,7 +40,7 @@ namespace DevelopmentInProgress.DipState
             return state;
         }
 
-        public static DipState AddActionAsync(this DipState state, DipStateActionType actionType, Func<DipState, Task<DipState>> action)
+        public static DipState AddActionAsync(this DipState state, DipStateActionType actionType, Func<DipState, Task> action)
         {
             state.Actions.Add(new DipStateAction() { ActionType = actionType, ActionAsync = action });
             return state;

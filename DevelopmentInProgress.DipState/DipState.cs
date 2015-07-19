@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace DevelopmentInProgress.DipState
 {
@@ -26,11 +28,13 @@ namespace DevelopmentInProgress.DipState
     public class DipState
     {
         private readonly Predicate<DipState> canComplete;
+        private readonly Func<DipState, Task<bool>> canCompleteAsync;
         private DipStateStatus status;
 
         public DipState(int id = 0, string name = "", bool initialiseWithParent = false, 
             bool canCompleteParent = false, DipStateType type = DipStateType.Standard, 
-            DipStateStatus status = DipStateStatus.Uninitialised, Predicate<DipState> canComplete = null)
+            DipStateStatus status = DipStateStatus.Uninitialised, Predicate<DipState> canComplete = null,
+            Func<DipState, Task<bool>> canCompleteAsync = null)
         {
             Id = id;
             Name = name;
@@ -39,6 +43,7 @@ namespace DevelopmentInProgress.DipState
             CanCompleteParent = canCompleteParent;
             this.status = status;            
             this.canComplete = canComplete;
+            this.canCompleteAsync = canCompleteAsync;
             Transitions = new List<DipState>();
             SubStates = new List<DipState>();
             Actions = new List<DipStateAction>();
@@ -73,7 +78,14 @@ namespace DevelopmentInProgress.DipState
                 {
                     status = value;
                     IsDirty = true;
-                    Log.Add(new LogEntry(String.Format("{0} - {1}", Name ?? String.Empty, status)));
+                    var logEntry = new LogEntry(String.Format("{0} - {1}", Name ?? String.Empty, status));
+                    Log.Add(logEntry);
+
+                    #if DEBUG
+
+                    Debug.WriteLine(logEntry);
+
+                    #endif
                 }
             }
         }
@@ -81,6 +93,16 @@ namespace DevelopmentInProgress.DipState
         public bool CanComplete()
         {
             return canComplete == null || canComplete(this);
+        }
+
+        public async Task<bool> CanCompleteAsync()
+        {
+            if (canCompleteAsync != null)
+            {
+                return await canCompleteAsync(this);
+            }
+
+            return true;
         }
     }
 }
