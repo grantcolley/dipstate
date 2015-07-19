@@ -5,9 +5,12 @@ namespace DevelopmentInProgress.DipState
     public enum DipStateActionType
     {
         [XmlEnum("1")]
-        Entry,
+        Status,
 
         [XmlEnum("2")]
+        Entry,
+
+        [XmlEnum("3")]
         Exit
     }
 }
