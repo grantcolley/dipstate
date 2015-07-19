@@ -57,6 +57,7 @@
     <Compile Include="AsyncDipStateEngineTest.cs" />
     <Compile Include="AsyncDipStateTest.cs" />
     <Compile Include="AsyncExampleWorkflowTest.cs" />
+    <Compile Include="AsyncGenericDipStateTest.cs" />
     <Compile Include="AsyncTestMethods.cs" />
     <Compile Include="ContextTestClasses.cs" />
     <Compile Include="DipStateEngineTest.cs" />

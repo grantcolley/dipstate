@@ -190,5 +190,18 @@ namespace DevelopmentInProgress.DipState.Test
                 Trace.WriteLine(String.Format("     {0}", logEntry.Message));
             }
         }
+
+        public static async Task AsyncGenericEntryAction(DipState state)
+        {
+            await Task.Run(async delegate
+            {
+                var random = new Random();
+                int milliseconds = random.Next(3)*1000;
+                await Task.Delay(milliseconds);
+            });
+
+            var contextClass = state as DipState<ContextText>;
+            contextClass.Context.Text = "Entry Action";
+        }
     }
 }
