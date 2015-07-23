@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,10 +20,12 @@ namespace DevelopmentInProgress.DipState
 
         public async Task<DipState> RunAsync(DipState state, DipStateStatus newStatus, DipState transitionState)
         {
-            if (!CanRun(state, newStatus, transitionState))
+            if (!state.CanRun(newStatus))
             {
                 return state;
             }
+
+            state.PreRunSetup(newStatus, transitionState);
 
             switch (newStatus)
             {
@@ -32,7 +35,7 @@ namespace DevelopmentInProgress.DipState
                 case DipStateStatus.Initialised:
                     return await InitialiseAsync(state).ConfigureAwait(false);
                 case DipStateStatus.Uninitialised:
-                    state.Reset();
+                    await state.ResetAsync();
                     return state;
                 default:
                     return await ChangeStatusAsync(state, newStatus).ConfigureAwait(false);
@@ -51,10 +54,12 @@ namespace DevelopmentInProgress.DipState
 
         public DipState Run(DipState state, DipStateStatus newStatus, DipState transitionState)
         {
-            if (!CanRun(state, newStatus, transitionState))
+            if (!state.CanRun(newStatus))
             {
                 return state;
             }
+
+            state.PreRunSetup(newStatus, transitionState);
 
             switch (newStatus)
             {
@@ -78,24 +83,21 @@ namespace DevelopmentInProgress.DipState
                 return state;
             }
 
-            await RunActionsAsync(state, DipStateActionType.Entry).ConfigureAwait(false);
+            await state.RunActionsAsync(DipStateActionType.Entry).ConfigureAwait(false);
 
             state.Status = DipStateStatus.Initialised;
+
+            await state.RunActionsAsync(DipStateActionType.Status).ConfigureAwait(false);
 
             if (state.Type.Equals(DipStateType.Auto))
             {
                 return await TransitionAsync(state).ConfigureAwait(false);
             }
 
-            if (state.SubStates.Any())
+            var subStates = state.SubStatesToInitialiseWithParent();
+            foreach (var subState in subStates)
             {
-                var subStates = state.SubStates
-                    .Where(s => s.InitialiseWithParent)
-                    .ToList();
-                foreach (var subState in subStates)
-                {
-                    await InitialiseAsync(subState).ConfigureAwait(false);
-                }
+                await InitialiseAsync(subState).ConfigureAwait(false);
             }
 
             return state;
@@ -108,22 +110,18 @@ namespace DevelopmentInProgress.DipState
                 return state;
             }
 
-            RunActions(state, DipStateActionType.Entry);
+            state.RunActions(DipStateActionType.Entry);
             
             state.Status = DipStateStatus.Initialised;
+
+            state.RunActions(DipStateActionType.Status);
 
             if (state.Type.Equals(DipStateType.Auto))
             {
                 return Transition(state);
             }
 
-            if (state.SubStates.Any())
-            {
-                state.SubStates
-                    .Where(s => s.InitialiseWithParent)
-                    .ToList()
-                    .ForEach(s => Initialise(s));
-            }
+            state.SubStatesToInitialiseWithParent().ForEach(s => Initialise(s));
 
             return state;
         }
@@ -260,7 +258,11 @@ namespace DevelopmentInProgress.DipState
             }
 
             state.Status = newStatus;
-            UpdateParentStatusToInProgress(state);
+
+            await state.RunActionsAsync(DipStateActionType.Status).ConfigureAwait(false);
+
+            state.UpdateParentStatusToInProgress();
+
             return state;
         }
 
@@ -274,70 +276,62 @@ namespace DevelopmentInProgress.DipState
             }
 
             state.Status = newStatus;
-            UpdateParentStatusToInProgress(state);
+
+            state.RunActions(DipStateActionType.Status);
+
+            state.UpdateParentStatusToInProgress();
+
             return state;
         }
 
         private async Task<bool> TryCompleteStateAsync(DipState state)
         {
             var canComplete = await state.CanCompleteAsync().ConfigureAwait(false);
-            if (canComplete)
+            if (!canComplete)
             {
-                await RunActionsAsync(state, DipStateActionType.Exit).ConfigureAwait(false);
+                var message = String.Format("{0} is unable to complete", state.Name);
+
+                state.WriteLogEntry(message);
+
+                throw new DipStateException(state, state.Log.Last().Message);
             }
 
-            return CanComplete(state, canComplete);
+            await state.RunActionsAsync(DipStateActionType.Exit).ConfigureAwait(false);
+
+            state.Status = DipStateStatus.Completed;
+
+            await state.RunActionsAsync(DipStateActionType.Status);
+
+            state.SetDefaultTransition();
+
+            state.UpdateParentStatusToInProgress();
+
+            return true;
         }
 
         private bool TryCompleteState(DipState state)
         {
             var canComplete = state.CanComplete();
-            if (canComplete)
-            {
-                RunActions(state, DipStateActionType.Exit);
-            }
-
-            return CanComplete(state, canComplete);
-        }
-
-        private bool CanComplete(DipState state, bool canComplete)
-        {
-            if (canComplete)
-            {
-                state.Status = DipStateStatus.Completed;
-
-                if (state.Transition == null
-                    && state.Transitions.Count.Equals(1))
-                {
-                    state.Transition = state.Transitions.First();
-                }
-
-                UpdateParentStatusToInProgress(state);
-                return true;
-            }
-
-            if (state.Log.Count.Equals(0))
+            if (!canComplete)
             {
                 var message = String.Format("{0} is unable to complete", state.Name);
-                WriteLogEntry(state, message);
+
+                state.WriteLogEntry(message);
+
+                throw new DipStateException(state, state.Log.Last().Message);
             }
 
-            throw new DipStateException(state, state.Log.Last().Message);           
-        }
+            state.RunActions(DipStateActionType.Exit);
 
-        private void RunActions(DipState state, DipStateActionType actionType)
-        {
-            var actions = state.Actions.Where(a => a.ActionType.Equals(actionType)).ToList();
-            actions.ForEach(a => a.Action(state));
-        }
+            state.Status = DipStateStatus.Completed;
 
-        private async Task RunActionsAsync(DipState state, DipStateActionType actionType)
-        {
-            var actions = state.Actions.Where(a => a.ActionType.Equals(actionType)).ToList();
-            foreach (var action in actions)
-            {
-                await action.ActionAsync(state).ConfigureAwait(false);
-            }
+            state.RunActions(DipStateActionType.Status);
+
+            state.SetDefaultTransition();
+
+            state.UpdateParentStatusToInProgress();
+
+            return true;
         }
 
         private void TransitionCheck(DipState state)
@@ -348,7 +342,7 @@ namespace DevelopmentInProgress.DipState
                 var message =
                     String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",
                         state.Name, state.Transition.Name);
-                WriteLogEntry(state, message);
+                state.WriteLogEntry(message);
                 throw new DipStateException(state, message);
             }
         }
@@ -361,35 +355,13 @@ namespace DevelopmentInProgress.DipState
                 stateFailedTo = FailToTransitionState(state, state.Transition);
                 if (stateFailedTo == null)
                 {
-                    WriteLogEntry(state, String.Format("{0} has failed but is unable to transition", state.Name));
+                    state.WriteLogEntry(String.Format("{0} has failed but is unable to transition", state.Name));
                 }
 
                 return true;
             }
 
             return false;
-        }
-
-        private bool CanRun(DipState state, DipStateStatus newStatus, DipState transitionState)
-        {
-            if (state.Status.Equals(newStatus))
-            {
-                return false;
-            }
-
-            if (newStatus.Equals(DipStateStatus.Failed))
-            {
-                state.Status = DipStateStatus.Failed;
-            }
-
-            if (transitionState != null
-                && (newStatus.Equals(DipStateStatus.Completed)
-                    || newStatus.Equals(DipStateStatus.Failed)))
-            {
-                state.Transition = transitionState;
-            }
-
-            return true;
         }
 
         private bool HasDependencies(DipState state)
@@ -399,7 +371,7 @@ namespace DevelopmentInProgress.DipState
             {
                 var dependencyStates = from d in dependencies select String.Format("{0} - {1}", d.Name, d.Status);
                 var dependentStateList = String.Join(",", dependencyStates.ToArray());
-                WriteLogEntry(state, String.Format("{0} is dependent on {1}", state.Name, dependentStateList));
+                state.WriteLogEntry(String.Format("{0} is dependent on {1}", state.Name, dependentStateList));
                 return true;
             }
 
@@ -437,52 +409,6 @@ namespace DevelopmentInProgress.DipState
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Set the parent (aggregate) state to InProgress if any of its sub states are
-        /// In Progress or if at least one, but not all, of its sub states are Complete.
-        /// </summary>
-        /// <param name="state">The state whose parent status will be set to InProgress.</param>
-        private void UpdateParentStatusToInProgress(DipState state)
-        {
-            if (state.Parent == null
-                || state.Parent.Status.Equals(DipStateStatus.InProgress))
-            {
-                return;
-            }
-
-            var aggregate = state.Parent;
-            if (aggregate.Status.Equals(DipStateStatus.Completed))
-            {
-                var message =
-                    String.Format("{0} {1} cannot be set to InProgress because it has already been set to Completed.",
-                        aggregate.Id, aggregate.Name);
-                WriteLogEntry(aggregate, message);
-                throw new DipStateException(aggregate, message);
-            }
-
-            if (aggregate.SubStates.Any(s => s.Status.Equals(DipStateStatus.InProgress))
-                || (aggregate.SubStates.Any(s => s.Status.Equals(DipStateStatus.Completed))
-                    &&
-                    !aggregate.SubStates.Count()
-                        .Equals(aggregate.SubStates.Count(s => s.Status.Equals(DipStateStatus.Completed)))))
-            {
-                aggregate.Status = DipStateStatus.InProgress;
-                UpdateParentStatusToInProgress(aggregate);
-            }
-        }
-
-        private void WriteLogEntry(DipState state, string message)
-        {
-            var logEntry = new LogEntry(message);
-            state.Log.Add(logEntry);
-
-            #if DEBUG
-            
-            Debug.WriteLine(logEntry);
-
-            #endif
         }
     }
 }

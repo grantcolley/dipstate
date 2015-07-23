@@ -30,8 +30,12 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Arrange
             var state = new DipState(1, "Pricing Workflow")
-                .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction);
-
+                .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
+                .AddAction(DipStateActionType.Entry,
+                    dipState =>
+                        Debug.WriteLine("{0}   Synchronous Entry action for {1}",
+                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), dipState.Name));
+            
             // Act
             state = await dipStateEngine.RunAsync(state, DipStateStatus.Initialised);
 

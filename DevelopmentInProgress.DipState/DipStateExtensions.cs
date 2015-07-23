@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,15 +10,61 @@ namespace DevelopmentInProgress.DipState
     {
         public static void Reset(this DipState state, bool clearLogs = false)
         {
+            state.SubStates.ForEach(s => s.Reset(clearLogs));
             state.Transition = null;
             state.Antecedent = null;
+
             state.Status = DipStateStatus.Uninitialised;
-            state.SubStates.ForEach(s => s.Reset());
+            state.RunActions(DipStateActionType.Status);
+
             state.IsDirty = false;
 
             if (clearLogs)
             {
                 state.Log.Clear();
+            }
+        }
+
+        public static async Task ResetAsync(this DipState state, bool clearLogs = false)
+        {
+            foreach (var subState in state.SubStates)
+            {
+                await subState.ResetAsync(clearLogs);
+            }
+
+            state.Transition = null;
+            state.Antecedent = null;
+
+            state.Status = DipStateStatus.Uninitialised;
+            await state.RunActionsAsync(DipStateActionType.Status).ConfigureAwait(false);
+
+            state.IsDirty = false;
+
+            if (clearLogs)
+            {
+                state.Log.Clear();
+            }
+        }
+
+        public static void RunActions(this DipState state, DipStateActionType actionType)
+        {
+            var actions = state.Actions.Where(a => a.ActionType.Equals(actionType)).ToList();
+            actions.ForEach(a => a.Action(state));
+        }
+
+        public static async Task RunActionsAsync(this DipState state, DipStateActionType actionType)
+        {
+            var actions = state.Actions.Where(a => a.ActionType.Equals(actionType)).ToList();
+            foreach (var action in actions)
+            {
+                if (action.IsActionAsync)
+                {
+                    await action.ActionAsync(state).ConfigureAwait(false);
+                }
+                else
+                {
+                    action.Action(state);
+                }
             }
         }
 
@@ -75,6 +122,86 @@ namespace DevelopmentInProgress.DipState
 
             state.Dependencies.Add(dependency);
             return state;
+        }
+
+        public static List<DipState> SubStatesToInitialiseWithParent(this DipState state)
+        {
+            return state.SubStates.Where(s => s.InitialiseWithParent).ToList();
+        }
+
+        public static bool CanRun(this DipState state, DipStateStatus newStatus)
+        {
+            return !state.Status.Equals(newStatus);
+        }
+
+        public static void PreRunSetup(this DipState state, DipStateStatus newStatus, DipState transitionState)
+        {
+            if (newStatus.Equals(DipStateStatus.Failed))
+            {
+                state.Status = DipStateStatus.Failed;
+            }
+
+            if (transitionState != null
+                && (newStatus.Equals(DipStateStatus.Completed)
+                    || newStatus.Equals(DipStateStatus.Failed)))
+            {
+                state.Transition = transitionState;
+            }
+        }
+
+        public static void SetDefaultTransition(this DipState state)
+        {
+            if (state.Transition == null
+                && state.Transitions.Count.Equals(1))
+            {
+                state.Transition = state.Transitions.First();
+            }
+        }
+
+        /// <summary>
+        /// Set the parent (aggregate) state to InProgress if any of its sub states are
+        /// In Progress or if at least one, but not all, of its sub states are Complete.
+        /// </summary>
+        /// <param name="state">The state whose parent status will be set to InProgress.</param>
+        public static void UpdateParentStatusToInProgress(this DipState state)
+        {
+            if (state.Parent == null
+                || state.Parent.Status.Equals(DipStateStatus.InProgress))
+            {
+                return;
+            }
+
+            var aggregate = state.Parent;
+            if (aggregate.Status.Equals(DipStateStatus.Completed))
+            {
+                var message =
+                    String.Format("{0} {1} cannot be set to InProgress because it has already been set to Completed.",
+                        aggregate.Id, aggregate.Name);
+                aggregate.WriteLogEntry(message);
+                throw new DipStateException(aggregate, message);
+            }
+
+            if (aggregate.SubStates.Any(s => s.Status.Equals(DipStateStatus.InProgress))
+                || (aggregate.SubStates.Any(s => s.Status.Equals(DipStateStatus.Completed))
+                    &&
+                    !aggregate.SubStates.Count()
+                        .Equals(aggregate.SubStates.Count(s => s.Status.Equals(DipStateStatus.Completed)))))
+            {
+                aggregate.Status = DipStateStatus.InProgress;
+                UpdateParentStatusToInProgress(aggregate);
+            }
+        }
+
+        public static void WriteLogEntry(this DipState state, string message)
+        {
+            var logEntry = new LogEntry(message);
+            state.Log.Add(logEntry);
+
+#if DEBUG
+
+            Debug.WriteLine(logEntry);
+
+#endif
         }
 
         public static List<DipState> Flatten(this DipState state)
