@@ -192,6 +192,35 @@ namespace DevelopmentInProgress.DipState
             }
         }
 
+        public static bool HasDependencies(this DipState state)
+        {
+            var dependencies = state.Dependencies.Where(d => !d.Status.Equals(DipStateStatus.Completed)).ToList();
+            if (dependencies.Any())
+            {
+                var dependencyStates = from d in dependencies select String.Format("{0} - {1}", d.Name, d.Status);
+                var dependentStateList = String.Join(",", dependencyStates.ToArray());
+                state.WriteLogEntry(String.Format("{0} is dependent on {1}", state.Name, dependentStateList));
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool CanTransition(this DipState state)
+        {
+            if (state.Transition != null
+                && !state.Transitions.Exists(t => t.Id.Equals(state.Transition.Id)))
+            {
+                var message =
+                    String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",
+                        state.Name, state.Transition.Name);
+                state.WriteLogEntry(message);
+                return false;
+            }
+
+            return true;
+        }
+
         public static void WriteLogEntry(this DipState state, string message)
         {
             var logEntry = new LogEntry(message);
@@ -218,6 +247,72 @@ namespace DevelopmentInProgress.DipState
             }
 
             return state;
+        }
+
+        public static async Task<DipState> FailToTransitionStateAsync(this DipState state, DipState failTransitionState)
+        {
+            if (state != null)
+            {
+                if (state.Parent != null
+                    &&
+                    state.Parent.SubStates.Count(
+                        s =>
+                            s.Status.Equals(DipStateStatus.Uninitialised) ||
+                            s.Status.Equals(DipStateStatus.Failed)).Equals(state.Parent.SubStates.Count))
+                {
+                    await state.Parent.ResetAsync();
+                }
+
+                if (failTransitionState != null)
+                {
+                    if (state.Id.Equals(failTransitionState.Id))
+                    {
+                        return state;
+                    }
+
+                    var tranitionState = await FailToTransitionStateAsync(state.Antecedent, failTransitionState);
+                    await state.ResetAsync();
+                    await tranitionState.ResetAsync();
+                    return tranitionState;
+                }
+
+                await state.ResetAsync();
+            }
+
+            return null;
+        }
+
+        public static DipState FailToTransitionState(this DipState current, DipState failTransitionState)
+        {
+            if (current != null)
+            {
+                if (current.Parent != null
+                    &&
+                    current.Parent.SubStates.Count(
+                        s =>
+                            s.Status.Equals(DipStateStatus.Uninitialised) ||
+                            s.Status.Equals(DipStateStatus.Failed)).Equals(current.Parent.SubStates.Count))
+                {
+                    current.Parent.Reset();
+                }
+
+                if (failTransitionState != null)
+                {
+                    if (current.Id.Equals(failTransitionState.Id))
+                    {
+                        return current;
+                    }
+
+                    var tranitionState = FailToTransitionState(current.Antecedent, failTransitionState);
+                    current.Reset();
+                    tranitionState.Reset();
+                    return tranitionState;
+                }
+
+                current.Reset();
+            }
+
+            return null;
         }
 
         private static List<DipState> FlattenStates(DipState state, List<DipState> states = null)

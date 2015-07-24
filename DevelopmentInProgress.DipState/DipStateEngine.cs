@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -78,7 +76,7 @@ namespace DevelopmentInProgress.DipState
 
         private async Task<DipState> InitialiseAsync(DipState state)
         {
-            if (HasDependencies(state))
+            if (state.HasDependencies())
             {
                 return state;
             }
@@ -105,7 +103,7 @@ namespace DevelopmentInProgress.DipState
 
         private DipState Initialise(DipState state)
         {
-            if (HasDependencies(state))
+            if (state.HasDependencies())
             {
                 return state;
             }
@@ -128,16 +126,20 @@ namespace DevelopmentInProgress.DipState
 
         private async Task<DipState> TransitionAsync(DipState state)
         {
-            TransitionCheck(state);
-
-            DipState stateFailedTo;
-            if (IsFailure(state, out stateFailedTo))
+            if (!state.CanTransition())
             {
-                if (stateFailedTo != null)
+                throw new Exception(String.Format("{0} failed to transition.", state.Name));
+            }
+
+            if (state.Status.Equals(DipStateStatus.Failed))
+            {
+                var stateFailedTo = await state.FailToTransitionStateAsync(state.Transition);
+                if (stateFailedTo == null)
                 {
                     return await InitialiseAsync(stateFailedTo).ConfigureAwait(false);
                 }
 
+                state.WriteLogEntry(String.Format("{0} has failed but is unable to transition", state.Name));
                 return state;
             }
 
@@ -191,16 +193,20 @@ namespace DevelopmentInProgress.DipState
 
         private DipState Transition(DipState state)
         {
-            TransitionCheck(state);
-
-            DipState stateFailedTo;
-            if (IsFailure(state, out stateFailedTo))
+            if (!state.CanTransition())
             {
+                throw new Exception(String.Format("{0} failed to transition.", state.Name));
+            }
+            
+            if (state.Status.Equals(DipStateStatus.Failed))
+            {
+                var stateFailedTo = state.FailToTransitionState(state.Transition);
                 if (stateFailedTo != null)
                 {
                     return Initialise(stateFailedTo);
                 }
 
+                state.WriteLogEntry(String.Format("{0} has failed but is unable to transition", state.Name));
                 return state;
             }
 
@@ -332,83 +338,6 @@ namespace DevelopmentInProgress.DipState
             state.UpdateParentStatusToInProgress();
 
             return true;
-        }
-
-        private void TransitionCheck(DipState state)
-        {
-            if (state.Transition != null
-                && !state.Transitions.Exists(t => t.Id.Equals(state.Transition.Id)))
-            {
-                var message =
-                    String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",
-                        state.Name, state.Transition.Name);
-                state.WriteLogEntry(message);
-                throw new DipStateException(state, message);
-            }
-        }
-
-        private bool IsFailure(DipState state, out DipState stateFailedTo)
-        {
-            stateFailedTo = new DipState();
-            if (state.Status.Equals(DipStateStatus.Failed))
-            {
-                stateFailedTo = FailToTransitionState(state, state.Transition);
-                if (stateFailedTo == null)
-                {
-                    state.WriteLogEntry(String.Format("{0} has failed but is unable to transition", state.Name));
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool HasDependencies(DipState state)
-        {
-            var dependencies = state.Dependencies.Where(d => !d.Status.Equals(DipStateStatus.Completed)).ToList();
-            if (dependencies.Any())
-            {
-                var dependencyStates = from d in dependencies select String.Format("{0} - {1}", d.Name, d.Status);
-                var dependentStateList = String.Join(",", dependencyStates.ToArray());
-                state.WriteLogEntry(String.Format("{0} is dependent on {1}", state.Name, dependentStateList));
-                return true;
-            }
-
-            return false;
-        }
-
-        private DipState FailToTransitionState(DipState current, DipState failTransitionState)
-        {
-            if (current != null)
-            {
-                if (current.Parent != null
-                    &&
-                    current.Parent.SubStates.Count(
-                        s =>
-                            s.Status.Equals(DipStateStatus.Uninitialised) ||
-                            s.Status.Equals(DipStateStatus.Failed)).Equals(current.Parent.SubStates.Count))
-                {
-                    current.Parent.Reset();
-                }
-
-                if (failTransitionState != null)
-                {
-                    if (current.Id.Equals(failTransitionState.Id))
-                    {
-                        return current;
-                    }
-                    
-                    var tranitionState = FailToTransitionState(current.Antecedent, failTransitionState);
-                    current.Reset();
-                    tranitionState.Reset();
-                    return tranitionState;
-                }
-
-                current.Reset();
-            }
-
-            return null;
         }
     }
 }
