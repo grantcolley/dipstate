@@ -27,6 +27,26 @@ namespace DevelopmentInProgress.DipState.Test
             Debug.WriteLine(endLogEntry.ToString());
         }
 
+        public static async Task AsyncStatusAction(DipState state)
+        {
+            var startLogEntry = new LogEntry(String.Format("Start Status Async Action - {0}", state.Name));
+            state.Log.Add(startLogEntry);
+
+            Debug.WriteLine(startLogEntry.ToString());
+
+            await Task.Run(async delegate
+            {
+                var random = new Random();
+                int milliseconds = random.Next(3) * 1000;
+                await Task.Delay(milliseconds);
+            });
+
+            var endLogEntry = new LogEntry(String.Format("End Status Async Action - {0}", state.Name));
+            state.Log.Add(endLogEntry);
+
+            Debug.WriteLine(endLogEntry.ToString());
+        }
+
         public static async Task AsyncExitAction(DipState state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Exit Async Action - {0}", state.Name));

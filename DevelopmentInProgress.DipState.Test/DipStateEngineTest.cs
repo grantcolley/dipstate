@@ -88,6 +88,26 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
+        public void Run_InitialiseStateWithStatusAction_StateInitialisedStatusActionExecuted()
+        {
+            // Arrange
+            var mockAction = new Mock<Action<DipState>>();
+
+            var state = new DipState(1, "Pricing Workflow")
+                .AddAction(DipStateActionType.Status, mockAction.Object);
+
+            // Act
+            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+
+            // Assert
+            mockAction.Verify(a => a(state), Times.Once);
+            Assert.IsNotNull(state);
+            Assert.AreEqual(state.Id, 1);
+            Assert.AreEqual(state.Name, "Pricing Workflow");
+            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
+        }
+
+        [TestMethod]
         public void Run_InitialiseStateWhenStateAlreadyInitialised_StateStatusUnchanged()
         {
             // Arrange

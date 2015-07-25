@@ -95,6 +95,43 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
+        public async Task Run_InitialiseStateWithAsyncStatusAction_StateInitialisedAsyncStatusActionExecuted()
+        {
+            // Arrange
+            var mockAction = new Mock<Func<DipState, Task>>();
+
+            var state = new DipState(1, "Pricing Workflow")
+                .AddActionAsync(DipStateActionType.Status, mockAction.Object);
+
+            // Act
+            state = await dipStateEngine.RunAsync(state, DipStateStatus.Initialised);
+
+            // Assert
+            mockAction.Verify(a => a(state), Times.Once);
+            Assert.IsNotNull(state);
+            Assert.AreEqual(state.Id, 1);
+            Assert.AreEqual(state.Name, "Pricing Workflow");
+            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
+        }
+
+        [TestMethod]
+        public async Task RunAsync_InitialiseStateWithAsyncStatusAction_StateInitialisedAsyncStatusActionExecuted()
+        {
+            // Arrange
+            var state = new DipState(1, "Pricing Workflow")
+                .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncStatusAction);
+
+            // Act
+            state = await dipStateEngine.RunAsync(state, DipStateStatus.Initialised);
+
+            // Assert
+            Assert.IsNotNull(state);
+            Assert.AreEqual(state.Id, 1);
+            Assert.AreEqual(state.Name, "Pricing Workflow");
+            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
+        }
+
+        [TestMethod]
         public async Task RunAsync_InitialiseStateWhenStateAlreadyInitialised_StateStatusUnchanged()
         {
             // Arrange
