@@ -128,13 +128,13 @@ namespace DevelopmentInProgress.DipState
         {
             if (!state.CanTransition())
             {
-                throw new Exception(String.Format("{0} failed to transition.", state.Name));
+                throw new DipStateException(state, String.Format("{0} failed to transition.", state.Name));
             }
 
             if (state.Status.Equals(DipStateStatus.Failed))
             {
                 var stateFailedTo = await state.FailToTransitionStateAsync(state.Transition);
-                if (stateFailedTo == null)
+                if (stateFailedTo != null)
                 {
                     return await InitialiseAsync(stateFailedTo).ConfigureAwait(false);
                 }
@@ -195,7 +195,7 @@ namespace DevelopmentInProgress.DipState
         {
             if (!state.CanTransition())
             {
-                throw new Exception(String.Format("{0} failed to transition.", state.Name));
+                throw new DipStateException(state, String.Format("{0} failed to transition.", state.Name));
             }
             
             if (state.Status.Equals(DipStateStatus.Failed))
