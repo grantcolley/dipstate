@@ -1,22 +1,33 @@
-﻿using System.Xml.Serialization;
-
-namespace DevelopmentInProgress.DipState
+﻿namespace DevelopmentInProgress.DipState
 {
+    /// <summary>
+    /// The status of the state.
+    /// </summary>
     public enum DipStateStatus
     {
-        [XmlEnum("1")]
+        /// <summary>
+        /// Indicates the state has not been entered.
+        /// </summary>
         Uninitialised = 1,
 
-        [XmlEnum("2")]
+        /// <summary>
+        /// Indicates the state has been entered and is active.
+        /// </summary>
         Initialised = 2,
 
-        [XmlEnum("3")]
+        /// <summary>
+        /// Indicates the state is active and in progress.
+        /// </summary>
         InProgress = 3,
 
-        [XmlEnum("4")]
+        /// <summary>
+        /// Indiactes the state has been successfully completed.
+        /// </summary>
         Completed = 4,
 
-        [XmlEnum("5")]
+        /// <summary>
+        /// Indiactes the state has failed.
+        /// </summary>
         Failed = 5
     }
 }

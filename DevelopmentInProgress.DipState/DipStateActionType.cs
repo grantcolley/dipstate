@@ -1,16 +1,26 @@
-﻿using System.Xml.Serialization;
-
-namespace DevelopmentInProgress.DipState
+﻿namespace DevelopmentInProgress.DipState
 {
+    /// <summary>
+    /// The type of action which determines when the action gets executed in the lifecycle of the state.
+    /// </summary>
     public enum DipStateActionType
     {
-        [XmlEnum("1")]
+        /// <summary>
+        /// Indicates the action is executed when the state's status changes.
+        /// The action is executed after the status has changed.
+        /// </summary>
         Status,
 
-        [XmlEnum("2")]
+        /// <summary>
+        /// Indicates the action is executed when the state's is initialised.
+        /// The action is executed prior to actual initialisation.
+        /// </summary>
         Entry,
 
-        [XmlEnum("3")]
+        /// <summary>
+        /// Indicates the action is executed when the state's is completed.
+        /// The action is executed after the status has completed.
+        /// </summary>
         Exit
     }
 }
