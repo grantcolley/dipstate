@@ -45,7 +45,6 @@
     <Compile Include="DipStateAction.cs" />
     <Compile Include="DipState.cs" />
     <Compile Include="DipStateActionType.cs" />
-    <Compile Include="DipStateEngine.cs" />
     <Compile Include="DipStateException.cs" />
     <Compile Include="DipStateStatus.cs" />
     <Compile Include="DipStateType.cs" />
