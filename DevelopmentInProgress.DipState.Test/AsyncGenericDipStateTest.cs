@@ -6,14 +6,6 @@ namespace DevelopmentInProgress.DipState.Test
     [TestClass]
     public class AsyncGenericDipStateTest
     {
-        private DipStateEngine dipStateEngine;
-
-        [TestInitialize]
-        public void Initialise()
-        {
-            dipStateEngine = new DipStateEngine();
-        }
-
         [TestMethod]
         public async Task Run_InitialiseStateWithEntryAction_StateInitialisedEntryActionExecuted()
         {
@@ -23,7 +15,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncGenericEntryAction);
 
             // Act
-            state = await dipStateEngine.RunAsync(state, DipStateStatus.Initialised);
+            state = await state.RunAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);

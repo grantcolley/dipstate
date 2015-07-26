@@ -7,14 +7,6 @@ namespace DevelopmentInProgress.DipState.Test
     [TestClass]
     public class GenericDipStateTest
     {
-        private DipStateEngine dipStateEngine;
-
-        [TestInitialize]
-        public void Initialise()
-        {
-            dipStateEngine = new DipStateEngine();
-        }
-
         [TestMethod]
         public void CreateNewState_AssignContext_StateCreatedContextSet()
         {
@@ -61,7 +53,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(DipStateActionType.Entry, entryAction);
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);

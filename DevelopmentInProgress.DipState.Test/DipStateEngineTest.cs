@@ -8,14 +8,6 @@ namespace DevelopmentInProgress.DipState.Test
     [TestClass]
     public class DipStateEngineTest
     {
-        private DipStateEngine dipStateEngine;
-
-        [TestInitialize]
-        public void Initialise()
-        {
-            dipStateEngine = new DipStateEngine();
-        }
-
         [TestMethod]
         public void Run_InitialiseState_StateInitialised()
         {
@@ -23,7 +15,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow");
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -41,7 +33,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(DipStateActionType.Entry, mockAction.Object);
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             mockAction.Verify(a => a(state), Times.Once);
@@ -68,7 +60,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Act
             try
             {
-                state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+                state = state.Run(DipStateStatus.Initialised);
             }
             catch (InvalidOperationException ex)
             {
@@ -97,7 +89,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(DipStateActionType.Status, mockAction.Object);
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             mockAction.Verify(a => a(state), Times.Once);
@@ -114,7 +106,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow", status: DipStateStatus.Initialised);
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -132,7 +124,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
@@ -151,7 +143,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             var logEntry = state.Log.First();
@@ -172,7 +164,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency, true);
 
             // Act
-            dependency = dipStateEngine.Run(dependency, DipStateStatus.Completed);
+            dependency = dependency.Run(DipStateStatus.Completed);
 
             // Assert
             Assert.IsNotNull(dependency);
@@ -195,7 +187,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            dependency = dipStateEngine.Run(dependency, DipStateStatus.Completed);
+            dependency = dependency.Run(DipStateStatus.Completed);
 
             // Assert
             Assert.IsNotNull(dependency);
@@ -215,7 +207,7 @@ namespace DevelopmentInProgress.DipState.Test
             var autoState = new DipState(1, "Close Case", type: DipStateType.Auto);
 
             // Act
-            autoState = dipStateEngine.Run(autoState, DipStateStatus.Initialised);
+            autoState = autoState.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
@@ -237,7 +229,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = finalState; });
 
             // Act
-            var state = dipStateEngine.Run(autoState, DipStateStatus.Initialised);
+            var state = autoState.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
@@ -268,7 +260,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(DipStateActionType.Entry, s => { s.Transition = overrideState; });
 
             // Act
-            var state = dipStateEngine.Run(autoState, DipStateStatus.Initialised);
+            var state = autoState.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
@@ -294,7 +286,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new DipState(4, "Pricing C", initialiseWithParent: true));
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
@@ -325,12 +317,12 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow")
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true));
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.InProgress);
+            statePricingA = statePricingA.Run(DipStateStatus.InProgress);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -350,12 +342,12 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Completed);
+            statePricingA = statePricingA.Run(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -380,16 +372,16 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Completed);
+            statePricingA = statePricingA.Run(DipStateStatus.Completed);
 
-            state = dipStateEngine.Run(statePricingB, DipStateStatus.Completed);
+            state = statePricingB.Run(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -411,10 +403,10 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             var state = new DipState(1, "Pricing Workflow");
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Uninitialised);
+            state = state.Run(DipStateStatus.Uninitialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -429,7 +421,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow");
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Failed);
+            state = state.Run(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -452,16 +444,16 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Failed);
+            statePricingA = statePricingA.Run(DipStateStatus.Failed);
 
-            statePricingB = dipStateEngine.Run(statePricingB, DipStateStatus.Failed);
+            statePricingB = statePricingB.Run(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -500,16 +492,16 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new DipState(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new DipState(3, "Pricing B", initialiseWithParent: true));
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = dipStateEngine.Run(statePricingA, DipStateStatus.Failed);
+            statePricingA = statePricingA.Run(DipStateStatus.Failed);
 
-            statePricingB = dipStateEngine.Run(statePricingB, DipStateStatus.Completed);
+            statePricingB = statePricingB.Run(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -542,12 +534,12 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow")
                 .AddTransition(review);
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-            review = dipStateEngine.Run(state, review);
-            review = dipStateEngine.Run(review, DipStateStatus.InProgress);
+            state = state.Run(DipStateStatus.Initialised);
+            review = state.Run(review);
+            review = review.Run(DipStateStatus.InProgress);
 
             // Act
-            review = dipStateEngine.Run(review, DipStateStatus.Failed);
+            review = review.Run(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -576,9 +568,9 @@ namespace DevelopmentInProgress.DipState.Test
 
             execution.AddTransition(state);
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
-            review = dipStateEngine.Run(state, review);
-            execution = dipStateEngine.Run(review, execution);
+            state = state.Run(DipStateStatus.Initialised);
+            review = state.Run(review);
+            execution = review.Run(execution);
 
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
@@ -600,7 +592,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.IsTrue(execution.IsDirty);
 
             // Act
-            state = dipStateEngine.Run(execution, DipStateStatus.Failed, state);
+            state = execution.Run(DipStateStatus.Failed, state);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -631,7 +623,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow");
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Completed);
+            state = state.Run(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -648,10 +640,10 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow")
                 .AddTransition(review);
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Act
-            review = dipStateEngine.Run(state, review);
+            review = state.Run(review);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -674,12 +666,12 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new DipState(2, "Pricing", initialiseWithParent: true))
                 .AddTransition(review);
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             var pricing = state.SubStates.First();
 
             // Act
-            review = dipStateEngine.Run(pricing, DipStateStatus.Completed);
+            review = pricing.Run(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -705,14 +697,14 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow");
             var review = new DipState(2, "Review");
 
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             DipState result = null;
 
             // Act
             try
             {
-                result = dipStateEngine.Run(state, review);
+                result = state.Run(review);
             }
             catch (InvalidOperationException ex)
             {

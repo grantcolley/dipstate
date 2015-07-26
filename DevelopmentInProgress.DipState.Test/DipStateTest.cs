@@ -8,14 +8,6 @@ namespace DevelopmentInProgress.DipState.Test
     [TestClass]
     public class DipStateTest
     {
-        private DipStateEngine dipStateEngine;
-
-        [TestInitialize]
-        public void Initialise()
-        {
-            dipStateEngine = new DipStateEngine();
-        }
-
         [TestMethod]
         public void Status_ChangeStatus_StatusChangedAndIsDirtySetTrueAndLogEntry()
         {
@@ -23,7 +15,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow");
 
             // Act
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -76,7 +68,7 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Arrange
             var state = new DipState(1, "Pricing Workflow");
-            state = dipStateEngine.Run(state, DipStateStatus.Initialised);
+            state = state.Run(DipStateStatus.Initialised);
 
             // Act
             state.Reset(true);
@@ -239,23 +231,23 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Arrange
             var subState1 = new DipState(2, "Sub State 1");
-            var SubState2 = new DipState(3, "Sub State 2");
-            var SubState3 = new DipState(6, "Sub State 3");
+            var subState2 = new DipState(3, "Sub State 2");
+            var subState3 = new DipState(6, "Sub State 3");
 
-            var SubState2_1 = new DipState(4, "Sub State 2_1");
-            var SubState2_2 = new DipState(5, "Sub State 2_2");
+            var subState2_1 = new DipState(4, "Sub State 2_1");
+            var subState2_2 = new DipState(5, "Sub State 2_2");
 
-            SubState2
-                .AddSubState(SubState2_1)
-                .AddSubState(SubState2_2);
+            subState2
+                .AddSubState(subState2_1)
+                .AddSubState(subState2_2);
 
             var rootState = new DipState(1, "Root")
                 .AddSubState(subState1)
-                .AddSubState(SubState2)
-                .AddSubState(SubState3);
+                .AddSubState(subState2)
+                .AddSubState(subState3);
 
             // Act
-            var root = SubState2_2.GetRoot();
+            var root = subState2_2.GetRoot();
 
             // Assert
             Assert.IsTrue(root.Name.Equals("Root"));

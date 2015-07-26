@@ -9,13 +9,9 @@ namespace DevelopmentInProgress.DipState.Test
     [TestClass]
     public class AsyncDipStateTest
     {
-        private DipStateEngine dipStateEngine;
-
         [TestInitialize]
         public void Initialise()
         {
-            dipStateEngine = new DipStateEngine();
-
             Debug.WriteLine(String.Format("AsyncDipStateEngineTest Start Act {0}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));
         }
 
@@ -37,7 +33,7 @@ namespace DevelopmentInProgress.DipState.Test
                             DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), dipState.Name));
             
             // Act
-            state = await dipStateEngine.RunAsync(state, DipStateStatus.Initialised);
+            state = await state.RunAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
