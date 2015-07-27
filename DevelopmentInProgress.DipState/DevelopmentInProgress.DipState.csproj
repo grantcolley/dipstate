@@ -48,7 +48,6 @@
     <Compile Include="DipStateException.cs" />
     <Compile Include="DipStateStatus.cs" />
     <Compile Include="DipStateType.cs" />
-    <Compile Include="IDipStateEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
