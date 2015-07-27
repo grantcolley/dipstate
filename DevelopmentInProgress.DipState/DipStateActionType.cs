@@ -21,6 +21,11 @@
         /// Indicates the action is executed when the state's is completed.
         /// The action is executed after the status has completed.
         /// </summary>
-        Exit
+        Exit,
+
+        /// <summary>
+        /// Indicates the action is executed when the state is reset.
+        /// </summary>
+        Reset
     }
 }

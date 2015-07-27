@@ -23,7 +23,7 @@ namespace DevelopmentInProgress.DipState
             state.Antecedent = null;
 
             state.Status = DipStateStatus.Uninitialised;
-            state.RunActions(DipStateActionType.Status);
+            state.RunActions(DipStateActionType.Reset);
 
             state.IsDirty = false;
 
@@ -50,7 +50,7 @@ namespace DevelopmentInProgress.DipState
             state.Antecedent = null;
 
             state.Status = DipStateStatus.Uninitialised;
-            await state.RunActionsAsync(DipStateActionType.Status).ConfigureAwait(false);
+            await state.RunActionsAsync(DipStateActionType.Reset).ConfigureAwait(false);
 
             state.IsDirty = false;
 
