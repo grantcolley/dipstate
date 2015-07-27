@@ -33,7 +33,7 @@ namespace DevelopmentInProgress.DipState.Test
                             DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), dipState.Name));
             
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);

@@ -15,7 +15,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncGenericEntryAction);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);

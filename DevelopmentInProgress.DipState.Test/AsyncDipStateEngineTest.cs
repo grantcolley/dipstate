@@ -29,7 +29,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow");
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -45,7 +45,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
@@ -71,7 +71,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Act
             try
             {
-                state = await state.RunAsync(DipStateStatus.Initialised);
+                state = await state.ExecuteAsync(DipStateStatus.Initialised);
             }
             catch (InvalidOperationException ex)
             {
@@ -100,7 +100,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Status, mockAction.Object);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             mockAction.Verify(a => a(state), Times.Once);
@@ -118,7 +118,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncStatusAction);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
@@ -135,7 +135,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -154,7 +154,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
@@ -174,7 +174,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             var logEntry = state.Log.First();
@@ -195,7 +195,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency, true);
 
             // Act
-            dependency = await dependency.RunAsync(DipStateStatus.Completed);
+            dependency = await dependency.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.IsNotNull(dependency);
@@ -222,7 +222,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            dependency = await dependency.RunAsync(DipStateStatus.Completed);
+            dependency = await dependency.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.IsNotNull(dependency);
@@ -244,7 +244,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
             // Act
-            autoState = await autoState.RunAsync(DipStateStatus.Initialised);
+            autoState = await autoState.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
@@ -272,7 +272,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
             // Act
-            var state = await autoState.RunAsync(DipStateStatus.Initialised);
+            var state = await autoState.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
@@ -309,7 +309,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
             // Act
-            var state = await autoState.RunAsync(DipStateStatus.Initialised);
+            var state = await autoState.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
@@ -343,7 +343,7 @@ namespace DevelopmentInProgress.DipState.Test
                     .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction));
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
@@ -378,12 +378,12 @@ namespace DevelopmentInProgress.DipState.Test
                     .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                     .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction));
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             // Act
-            statePricingA = await statePricingA.RunAsync(DipStateStatus.InProgress);
+            statePricingA = await statePricingA.ExecuteAsync(DipStateStatus.InProgress);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -409,12 +409,12 @@ namespace DevelopmentInProgress.DipState.Test
                     .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                     .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction));
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             // Act
-            statePricingA = await statePricingA.RunAsync(DipStateStatus.Completed);
+            statePricingA = await statePricingA.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -445,16 +445,16 @@ namespace DevelopmentInProgress.DipState.Test
                     .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                     .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction));
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = await statePricingA.RunAsync(DipStateStatus.Completed);
+            statePricingA = await statePricingA.ExecuteAsync(DipStateStatus.Completed);
 
-            state = await statePricingB.RunAsync(DipStateStatus.Completed);
+            state = await statePricingB.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -478,10 +478,10 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Uninitialised);
+            state = await state.ExecuteAsync(DipStateStatus.Uninitialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -498,7 +498,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Failed);
+            state = await state.ExecuteAsync(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -527,16 +527,16 @@ namespace DevelopmentInProgress.DipState.Test
                     .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                     .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction));
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = await statePricingA.RunAsync(DipStateStatus.Failed);
+            statePricingA = await statePricingA.ExecuteAsync(DipStateStatus.Failed);
 
-            statePricingB = await statePricingB.RunAsync(DipStateStatus.Failed);
+            statePricingB = await statePricingB.ExecuteAsync(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -581,16 +581,16 @@ namespace DevelopmentInProgress.DipState.Test
                     .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                     .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction));
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = await statePricingA.RunAsync(DipStateStatus.Failed);
+            statePricingA = await statePricingA.ExecuteAsync(DipStateStatus.Failed);
 
-            statePricingB = await statePricingB.RunAsync(DipStateStatus.Completed);
+            statePricingB = await statePricingB.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -628,12 +628,12 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
-            review = await state.RunAsync(review);
-            review = await review.RunAsync(DipStateStatus.InProgress);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
+            review = await state.ExecuteAsync(review);
+            review = await review.ExecuteAsync(DipStateStatus.InProgress);
 
             // Act
-            review = await review.RunAsync(DipStateStatus.Failed);
+            review = await review.ExecuteAsync(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -670,9 +670,9 @@ namespace DevelopmentInProgress.DipState.Test
 
             execution.AddTransition(state);
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
-            review = await state.RunAsync(review);
-            execution = await review.RunAsync(execution);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
+            review = await state.ExecuteAsync(review);
+            execution = await review.ExecuteAsync(execution);
 
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
@@ -694,7 +694,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.IsTrue(execution.IsDirty);
 
             // Act
-            state = await execution.RunAsync(DipStateStatus.Failed, state);
+            state = await execution.ExecuteAsync(DipStateStatus.Failed, state);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -727,7 +727,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
             // Act
-            state = await state.RunAsync(DipStateStatus.Completed);
+            state = await state.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -749,10 +749,10 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             // Act
-            review = await state.RunAsync(review);
+            review = await state.ExecuteAsync(review);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -782,12 +782,12 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             var pricing = state.SubStates.First();
 
             // Act
-            review = await pricing.RunAsync(DipStateStatus.Completed);
+            review = await pricing.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -818,14 +818,14 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncEntryAction)
                 .AddActionAsync(DipStateActionType.Exit, AsyncTestMethods.AsyncExitAction);
 
-            state = await state.RunAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(DipStateStatus.Initialised);
 
             DipState result = null;
 
             // Act
             try
             {
-                result = await state.RunAsync(review);
+                result = await state.ExecuteAsync(review);
             }
             catch (InvalidOperationException ex)
             {

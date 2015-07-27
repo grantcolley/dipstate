@@ -99,7 +99,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("PricingWorkflowInitialised");
 
             // Act 
-            await collateData.RunAsync(DipStateStatus.Failed);
+            await collateData.ExecuteAsync(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.Uninitialised);
@@ -122,7 +122,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("PricingWorkflowInitialised");
 
             // Act
-            await collateData.RunAsync(DipStateStatus.Completed);
+            await collateData.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -145,8 +145,8 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("CollateDataComplete");
 
             // Act
-            await modelling1.RunAsync(DipStateStatus.Failed);
-            await modelling2.RunAsync(DipStateStatus.Failed);
+            await modelling1.ExecuteAsync(DipStateStatus.Failed);
+            await modelling2.ExecuteAsync(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -169,8 +169,8 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("CollateDataComplete");
 
             // Act 
-            await modelling1.RunAsync(DipStateStatus.Completed);
-            await modelling2.RunAsync(DipStateStatus.Failed);
+            await modelling1.ExecuteAsync(DipStateStatus.Completed);
+            await modelling2.ExecuteAsync(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -193,8 +193,8 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("CollateDataComplete");
 
             // Act 
-            await modelling1.RunAsync(DipStateStatus.Completed);
-            await modelling2.RunAsync(DipStateStatus.Completed);
+            await modelling1.ExecuteAsync(DipStateStatus.Completed);
+            await modelling2.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -217,7 +217,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("ModellingComplete");
 
             // Act 
-            await modellingReview.RunAsync(DipStateStatus.Failed);
+            await modellingReview.ExecuteAsync(DipStateStatus.Failed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -240,7 +240,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("ModellingComplete");
 
             // Act 
-            await modellingReview.RunAsync(DipStateStatus.Failed, modelling);
+            await modellingReview.ExecuteAsync(DipStateStatus.Failed, modelling);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -263,7 +263,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("ModellingComplete");
 
             // Act 
-            await modellingReview.RunAsync(DipStateStatus.Failed, collateData);
+            await modellingReview.ExecuteAsync(DipStateStatus.Failed, collateData);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -289,7 +289,7 @@ namespace DevelopmentInProgress.DipState.Test
                 AsyncTestMethods.AsyncAutoEnrtyActionTransitionToAdjustments);
 
             // Act 
-            await modellingReview.RunAsync(DipStateStatus.Completed, adjustmentCheck);
+            await modellingReview.ExecuteAsync(DipStateStatus.Completed, adjustmentCheck);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -315,9 +315,9 @@ namespace DevelopmentInProgress.DipState.Test
                 AsyncTestMethods.AsyncAutoEnrtyActionTransitionToAdjustments);
 
             // Act 
-            await modellingReview.RunAsync(DipStateStatus.Completed, adjustmentCheck);
+            await modellingReview.ExecuteAsync(DipStateStatus.Completed, adjustmentCheck);
 
-            await adjustments.RunAsync(DipStateStatus.Completed);
+            await adjustments.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -343,7 +343,7 @@ namespace DevelopmentInProgress.DipState.Test
                 AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview);
 
             // Act 
-            await modellingReview.RunAsync(DipStateStatus.Completed, adjustmentCheck);
+            await modellingReview.ExecuteAsync(DipStateStatus.Completed, adjustmentCheck);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -366,7 +366,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("ModellingReviewComplete");
 
             // Act 
-            await finalReview.RunAsync(DipStateStatus.Failed, modelling);
+            await finalReview.ExecuteAsync(DipStateStatus.Failed, modelling);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -389,7 +389,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("ModellingReviewComplete");
 
             // Act 
-            await finalReview.RunAsync(DipStateStatus.Failed, collateData);
+            await finalReview.ExecuteAsync(DipStateStatus.Failed, collateData);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -412,7 +412,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("ModellingReviewComplete");
 
             // Act 
-            await finalReview.RunAsync(DipStateStatus.Completed, finalCommunication);
+            await finalReview.ExecuteAsync(DipStateStatus.Completed, finalCommunication);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -434,10 +434,10 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             await Arrange("ModellingReviewComplete");
 
-            await communicationUpdate.RunAsync(DipStateStatus.Completed);
+            await communicationUpdate.ExecuteAsync(DipStateStatus.Completed);
 
             // Act 
-            await finalReview.RunAsync(DipStateStatus.Completed, finalCommunication);
+            await finalReview.ExecuteAsync(DipStateStatus.Completed, finalCommunication);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
@@ -460,7 +460,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange("FinalReviewComplete");
 
             // Act 
-            await finalCommunication.RunAsync(DipStateStatus.Completed);
+            await finalCommunication.ExecuteAsync(DipStateStatus.Completed);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.Completed);
@@ -501,7 +501,7 @@ namespace DevelopmentInProgress.DipState.Test
 
         private async Task Arrange(string instruction)
         {
-            await pricingWorkflow.RunAsync(DipStateStatus.Initialised);
+            await pricingWorkflow.ExecuteAsync(DipStateStatus.Initialised);
 
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.Initialised);
             Assert.AreEqual(collateData.Status, DipStateStatus.Initialised);
@@ -520,7 +520,7 @@ namespace DevelopmentInProgress.DipState.Test
                 return;
             }
 
-            await collateData.RunAsync(DipStateStatus.Completed);
+            await collateData.ExecuteAsync(DipStateStatus.Completed);
 
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
             Assert.AreEqual(collateData.Status, DipStateStatus.Completed);
@@ -539,8 +539,8 @@ namespace DevelopmentInProgress.DipState.Test
                 return;
             }
 
-            await modelling1.RunAsync(DipStateStatus.Completed);
-            await modelling2.RunAsync(DipStateStatus.Completed);
+            await modelling1.ExecuteAsync(DipStateStatus.Completed);
+            await modelling2.ExecuteAsync(DipStateStatus.Completed);
 
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
             Assert.AreEqual(collateData.Status, DipStateStatus.Completed);
@@ -562,7 +562,7 @@ namespace DevelopmentInProgress.DipState.Test
             adjustmentCheck.AddActionAsync(DipStateActionType.Entry,
                 AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview);
 
-            await modellingReview.RunAsync(DipStateStatus.Completed, adjustmentCheck);
+            await modellingReview.ExecuteAsync(DipStateStatus.Completed, adjustmentCheck);
 
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
             Assert.AreEqual(collateData.Status, DipStateStatus.Completed);
@@ -581,7 +581,7 @@ namespace DevelopmentInProgress.DipState.Test
                 return;
             }
 
-            await communicationUpdate.RunAsync(DipStateStatus.Completed);
+            await communicationUpdate.ExecuteAsync(DipStateStatus.Completed);
 
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
             Assert.AreEqual(collateData.Status, DipStateStatus.Completed);
@@ -595,7 +595,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(finalReview.Status, DipStateStatus.Initialised);
             Assert.AreEqual(finalCommunication.Status, DipStateStatus.Uninitialised);
 
-            await finalReview.RunAsync(DipStateStatus.Completed, finalCommunication);
+            await finalReview.ExecuteAsync(DipStateStatus.Completed, finalCommunication);
 
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.InProgress);
             Assert.AreEqual(collateData.Status, DipStateStatus.Completed);
@@ -614,7 +614,7 @@ namespace DevelopmentInProgress.DipState.Test
                 return;
             }
 
-            await finalCommunication.RunAsync(DipStateStatus.Completed);
+            await finalCommunication.ExecuteAsync(DipStateStatus.Completed);
 
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.Completed);
             Assert.AreEqual(collateData.Status, DipStateStatus.Completed);

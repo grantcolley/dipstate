@@ -53,7 +53,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(DipStateActionType.Entry, entryAction);
 
             // Act
-            state = state.Run(DipStateStatus.Initialised);
+            state = state.Execute(DipStateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);

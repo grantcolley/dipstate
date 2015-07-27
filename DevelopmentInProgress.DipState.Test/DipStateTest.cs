@@ -15,7 +15,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new DipState(1, "Pricing Workflow");
 
             // Act
-            state = state.Run(DipStateStatus.Initialised);
+            state = state.Execute(DipStateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -68,7 +68,7 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Arrange
             var state = new DipState(1, "Pricing Workflow");
-            state = state.Run(DipStateStatus.Initialised);
+            state = state.Execute(DipStateStatus.Initialised);
 
             // Act
             state.Reset(true);
