@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DevelopmentInProgress.DipState.Test
 {
@@ -67,13 +68,18 @@ namespace DevelopmentInProgress.DipState.Test
         public void Reset_StateIsReset()
         {
             // Arrange
-            var state = new DipState(1, "Pricing Workflow");
+            var mockAction = new Mock<Action<DipState>>();
+
+            var state = new DipState(1, "Pricing Workflow")
+                .AddAction(DipStateActionType.Reset, mockAction.Object);
+
             state = state.Execute(DipStateStatus.Initialised);
 
             // Act
             state.Reset(true);
 
             // Assert
+            mockAction.Verify(a => a(state), Times.Once);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);

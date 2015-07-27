@@ -483,7 +483,7 @@ namespace DevelopmentInProgress.DipState.Test
             await Arrange(String.Empty);
 
             // Act 
-            pricingWorkflow.Reset();
+            await pricingWorkflow.ResetAsync();
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, DipStateStatus.Uninitialised);

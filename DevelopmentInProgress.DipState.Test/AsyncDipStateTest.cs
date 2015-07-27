@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DevelopmentInProgress.DipState.Test
 {
@@ -19,6 +20,29 @@ namespace DevelopmentInProgress.DipState.Test
         public void Cleanup()
         {
             Debug.WriteLine(String.Format("AsyncDipStateEngineTest End Act {0}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));
+        }
+
+        [TestMethod]
+        public async Task Reset_StateIsReset()
+        {
+            // Arrange
+            var mockAction = new Mock<Func<DipState,Task>>();
+
+            var state = new DipState(1, "Pricing Workflow")
+                .AddActionAsync(DipStateActionType.Reset, mockAction.Object);
+
+            state = state.Execute(DipStateStatus.Initialised);
+
+            // Act
+            await state.ResetAsync(true);
+
+            // Assert
+            mockAction.Verify(a => a(state), Times.Once);
+            Assert.AreEqual(state.Id, 1);
+            Assert.AreEqual(state.Name, "Pricing Workflow");
+            Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);
+            Assert.IsFalse(state.IsDirty);
+            Assert.IsTrue(state.Log.Count.Equals(0));
         }
 
         [TestMethod]
