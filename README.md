@@ -1,4 +1,4 @@
-# Dipstate
+# dipstate
 A simple state machine for line-of-business applications.
 
 # Motivation
