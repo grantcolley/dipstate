@@ -33,7 +33,7 @@ Dipstate provides a simple mechanism to maintain state for activities that are t
 #### Example Workflow
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
 
-### Setup
+### Workflow Setup
 ```C#
             var remediationWorkflow = new State(100, "Remediation Workflow", type: StateType.Root);
 
