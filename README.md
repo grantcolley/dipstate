@@ -1,5 +1,5 @@
 # dipstate
-Dipstate provides a simple mechanism to maintain state for activities that are transitioned up and down a state based workflow.
+Dipstate provides a simple mechanism to maintain state for an activity based workflow.
 
 ## Code Snippet 
 ```C#
