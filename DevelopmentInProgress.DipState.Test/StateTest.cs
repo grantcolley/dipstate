@@ -7,32 +7,32 @@ using Moq;
 namespace DevelopmentInProgress.DipState.Test
 {
     [TestClass]
-    public class DipStateTest
+    public class StateTest
     {
         [TestMethod]
         public void Status_ChangeStatus_StatusChangedAndIsDirtySetTrueAndLogEntry()
         {
             // Arrange
-            var state = new DipState(1, "Pricing Workflow");
+            var state = new State(1, "Pricing Workflow");
 
             // Act
-            state = state.Execute(DipStateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialised);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialised);
             Assert.IsTrue(state.IsDirty);
 
             var logEntry = state.Log.First();
-            Assert.IsTrue(logEntry.Message.StartsWith(String.Format("{0} - {1}", state.Name, DipStateStatus.Initialised)));
+            Assert.IsTrue(logEntry.Message.StartsWith(String.Format("{0} - {1}", state.Name, StateStatus.Initialised)));
         }
 
         [TestMethod]
         public void CanComplete_NoCanCompletePredicate_CanCompleteReturnsTrue()
         {
             // Arrange
-            var state = new DipState(1, "Pricing Workflow");
+            var state = new State(1, "Pricing Workflow");
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -44,7 +44,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void CanComplete_PredicateReturnsTrue_CanCompleteReturnsTrue()
         {
             // Arrange
-            var state = new DipState(1, "Pricing Workflow", canComplete: s => true);
+            var state = new State(1, "Pricing Workflow", canComplete: s => true);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -56,7 +56,7 @@ namespace DevelopmentInProgress.DipState.Test
         public void CanComplete_PredicateReturnsFalse_CanCompleteReturnsFalse()
         {
             // Arrange
-            var state = new DipState(1, "Pricing Workflow", canComplete: s => false);
+            var state = new State(1, "Pricing Workflow", canComplete: s => false);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -68,12 +68,12 @@ namespace DevelopmentInProgress.DipState.Test
         public void Reset_StateIsReset()
         {
             // Arrange
-            var mockAction = new Mock<Action<DipState>>();
+            var mockAction = new Mock<Action<State>>();
 
-            var state = new DipState(1, "Pricing Workflow")
-                .AddAction(DipStateActionType.Reset, mockAction.Object);
+            var state = new State(1, "Pricing Workflow")
+                .AddAction(StateActionType.Reset, mockAction.Object);
 
-            state = state.Execute(DipStateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialised);
 
             // Act
             state.Reset(true);
@@ -82,7 +82,7 @@ namespace DevelopmentInProgress.DipState.Test
             mockAction.Verify(a => a(state), Times.Once);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
             Assert.IsFalse(state.IsDirty);
             Assert.IsTrue(state.Log.Count.Equals(0));
         }
@@ -91,9 +91,9 @@ namespace DevelopmentInProgress.DipState.Test
         public void AddSubState_SubStateAddedAndSubStateParentSet()
         {
             // Arrange
-            var subState = new DipState(2, "Data Capture");
+            var subState = new State(2, "Data Capture");
 
-            var state = new DipState(1, "Pricing Workflow")
+            var state = new State(1, "Pricing Workflow")
                 .AddSubState(subState);
 
             // Assert
@@ -110,9 +110,9 @@ namespace DevelopmentInProgress.DipState.Test
         public void AddTransition_TransitionAdded()
         {
             // Arrange
-            var review = new DipState(2, "Review");
+            var review = new State(2, "Review");
 
-            var state = new DipState(1, "Pricing Workflow")
+            var state = new State(1, "Pricing Workflow")
                 .AddTransition(review);
 
             // Assert
@@ -128,37 +128,37 @@ namespace DevelopmentInProgress.DipState.Test
         public void AddAction_AddEntryAction_EntryActionAdded()
         {
             // Arrange
-            var state = new DipState(1, "Pricing Workflow")
-                .AddAction(DipStateActionType.Entry, dipState => Debug.Write(dipState.Name));
+            var state = new State(1, "Pricing Workflow")
+                .AddAction(StateActionType.Entry, s => Debug.Write(s.Name));
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.IsTrue(state.Actions.Count().Equals(1));
-            Assert.IsTrue(state.Actions.Count(a => a.ActionType.Equals(DipStateActionType.Entry)).Equals(1));
+            Assert.IsTrue(state.Actions.Count(a => a.ActionType.Equals(StateActionType.Entry)).Equals(1));
         }
 
         [TestMethod]
         public void AddAction_AddExitAction_ExitActionAdded()
         {
             // Arrange
-            var state = new DipState(1, "Pricing Workflow")
-                .AddAction(DipStateActionType.Exit, dipState => Debug.Write(dipState.Name));
+            var state = new State(1, "Pricing Workflow")
+                .AddAction(StateActionType.Exit, s => Debug.Write(s.Name));
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.IsTrue(state.Actions.Count().Equals(1));
-            Assert.IsTrue(state.Actions.Count(a => a.ActionType.Equals(DipStateActionType.Exit)).Equals(1));
+            Assert.IsTrue(state.Actions.Count(a => a.ActionType.Equals(StateActionType.Exit)).Equals(1));
         }
 
         [TestMethod]
         public void AddDependant_WithInitialiseDependantWhenCompleteSetTrue_DependentAndDependcyReferencesSet()
         {
             // Arrange
-            var dependant = new DipState(0, "Dependant");
+            var dependant = new State(0, "Dependant");
 
-            var state = new DipState(1, "Pricing Workflow")
+            var state = new State(1, "Pricing Workflow")
                 .AddDependant(dependant, true);
 
             // Assert
@@ -176,9 +176,9 @@ namespace DevelopmentInProgress.DipState.Test
         public void AddDependant_WithInitialiseDependantWhenCompleteSetFalse_DependentAndDependcyReferencesSet()
         {
             // Arrange
-            var dependant = new DipState(2, "Dependant");
+            var dependant = new State(2, "Dependant");
 
-            var state = new DipState(1, "Pricing Workflow")
+            var state = new State(1, "Pricing Workflow")
                 .AddDependant(dependant);
 
             // Assert
@@ -196,9 +196,9 @@ namespace DevelopmentInProgress.DipState.Test
         public void AddDependency_WithInitialiseWhenDependencyCompletedSetTrue_DependentAndDependcyReferencesSet()
         {
             // Arrange
-            var dependency = new DipState(0, "Dependency");
+            var dependency = new State(0, "Dependency");
 
-            var state = new DipState(1, "Pricing Workflow")
+            var state = new State(1, "Pricing Workflow")
                 .AddDependency(dependency, true);
             
             // Assert
@@ -216,9 +216,9 @@ namespace DevelopmentInProgress.DipState.Test
         public void AddDependency_WithInitialiseWhenDependencyCompletedSetFalse_DependentAndDependcyReferencesSet()
         {
             // Arrange
-            var dependency = new DipState(0, "Dependency");
+            var dependency = new State(0, "Dependency");
 
-            var state = new DipState(1, "Pricing Workflow")
+            var state = new State(1, "Pricing Workflow")
                 .AddDependency(dependency);
 
             // Assert
@@ -236,18 +236,18 @@ namespace DevelopmentInProgress.DipState.Test
         public void GetRoot_FindRootStateFromNestedSubState_ReturnRoot()
         {
             // Arrange
-            var subState1 = new DipState(2, "Sub State 1");
-            var subState2 = new DipState(3, "Sub State 2");
-            var subState3 = new DipState(6, "Sub State 3");
+            var subState1 = new State(2, "Sub State 1");
+            var subState2 = new State(3, "Sub State 2");
+            var subState3 = new State(6, "Sub State 3");
 
-            var subState2_1 = new DipState(4, "Sub State 2_1");
-            var subState2_2 = new DipState(5, "Sub State 2_2");
+            var subState2_1 = new State(4, "Sub State 2_1");
+            var subState2_2 = new State(5, "Sub State 2_2");
 
             subState2
                 .AddSubState(subState2_1)
                 .AddSubState(subState2_2);
 
-            var rootState = new DipState(1, "Root")
+            var rootState = new State(1, "Root")
                 .AddSubState(subState1)
                 .AddSubState(subState2)
                 .AddSubState(subState3);
@@ -263,18 +263,18 @@ namespace DevelopmentInProgress.DipState.Test
         public void GetRoot_FindRootStateFromRootState_ReturnRoot()
         {
             // Arrange
-            var subState1 = new DipState(2, "Sub State 1");
-            var SubState2 = new DipState(3, "Sub State 2");
-            var SubState3 = new DipState(6, "Sub State 3");
+            var subState1 = new State(2, "Sub State 1");
+            var SubState2 = new State(3, "Sub State 2");
+            var SubState3 = new State(6, "Sub State 3");
 
-            var SubState2_1 = new DipState(4, "Sub State 2_1");
-            var SubState2_2 = new DipState(5, "Sub State 2_2");
+            var SubState2_1 = new State(4, "Sub State 2_1");
+            var SubState2_2 = new State(5, "Sub State 2_2");
 
             SubState2
                 .AddSubState(SubState2_1)
                 .AddSubState(SubState2_2);
 
-            var rootState = new DipState(1, "Root")
+            var rootState = new State(1, "Root")
                 .AddSubState(subState1)
                 .AddSubState(SubState2)
                 .AddSubState(SubState3);
@@ -290,18 +290,18 @@ namespace DevelopmentInProgress.DipState.Test
         public void FlattenHierarchy_FlattenWorkflowHierarchyFromNestedSubState_ReturnFLattenedList()
         {
             // Arrange
-            var subState1 = new DipState(2, "Sub State 1");
-            var SubState2 = new DipState(3, "Sub State 2");
-            var SubState3 = new DipState(6, "Sub State 3");
+            var subState1 = new State(2, "Sub State 1");
+            var SubState2 = new State(3, "Sub State 2");
+            var SubState3 = new State(6, "Sub State 3");
 
-            var SubState2_1 = new DipState(4, "Sub State 2_1");
-            var SubState2_2 = new DipState(5, "Sub State 2_2");
+            var SubState2_1 = new State(4, "Sub State 2_1");
+            var SubState2_2 = new State(5, "Sub State 2_2");
 
             SubState2
                 .AddSubState(SubState2_1)
                 .AddSubState(SubState2_2);
 
-            var rootState = new DipState(1, "Root")
+            var rootState = new State(1, "Root")
                 .AddSubState(subState1)
                 .AddSubState(SubState2)
                 .AddSubState(SubState3);
@@ -323,18 +323,18 @@ namespace DevelopmentInProgress.DipState.Test
         public void FlattenHierarchy_FlattenWorkflowHierarchyFromRoot_ReturnFLattenedList()
         {
             // Arrange
-            var subState1 = new DipState(2, "Sub State 1");
-            var SubState2 = new DipState(3, "Sub State 2");
-            var SubState3 = new DipState(6, "Sub State 3");
+            var subState1 = new State(2, "Sub State 1");
+            var SubState2 = new State(3, "Sub State 2");
+            var SubState3 = new State(6, "Sub State 3");
 
-            var SubState2_1 = new DipState(4, "Sub State 2_1");
-            var SubState2_2 = new DipState(5, "Sub State 2_2");
+            var SubState2_1 = new State(4, "Sub State 2_1");
+            var SubState2_2 = new State(5, "Sub State 2_2");
 
             SubState2
                 .AddSubState(SubState2_1)
                 .AddSubState(SubState2_2);
 
-            var rootState = new DipState(1, "Root")
+            var rootState = new State(1, "Root")
                 .AddSubState(subState1)
                 .AddSubState(SubState2)
                 .AddSubState(SubState3);
@@ -356,18 +356,18 @@ namespace DevelopmentInProgress.DipState.Test
         public void FlattenHierarchy_FlattenWorkflowHierarchyFromLowestLevel_ReturnFLattenedList()
         {
             // Arrange
-            var subState1 = new DipState(2, "Sub State 1");
-            var SubState2 = new DipState(3, "Sub State 2");
-            var SubState3 = new DipState(6, "Sub State 3");
+            var subState1 = new State(2, "Sub State 1");
+            var SubState2 = new State(3, "Sub State 2");
+            var SubState3 = new State(6, "Sub State 3");
 
-            var SubState2_1 = new DipState(4, "Sub State 2_1");
-            var SubState2_2 = new DipState(5, "Sub State 2_2");
+            var SubState2_1 = new State(4, "Sub State 2_1");
+            var SubState2_2 = new State(5, "Sub State 2_2");
 
             SubState2
                 .AddSubState(SubState2_1)
                 .AddSubState(SubState2_2);
 
-            var rootState = new DipState(1, "Root")
+            var rootState = new State(1, "Root")
                 .AddSubState(subState1)
                 .AddSubState(SubState2)
                 .AddSubState(SubState3);

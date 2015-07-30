@@ -4,25 +4,25 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevelopmentInProgress.DipState.Test
 {
     [TestClass]
-    public class AsyncGenericDipStateTest
+    public class AsyncGenericStateTest
     {
         [TestMethod]
         public async Task Run_InitialiseStateWithEntryAction_StateInitialisedEntryActionExecuted()
         {
             // Arrange
-            var state = new DipState<ContextText>(
+            var state = new State<ContextText>(
                 new ContextText() {Text = "Uninitialised"}, 1, "Pricing Workflow")
-                .AddActionAsync(DipStateActionType.Entry, AsyncTestMethods.AsyncGenericEntryAction);
+                .AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncGenericEntryAction);
 
             // Act
-            state = await state.ExecuteAsync(DipStateStatus.Initialised);
+            state = await state.ExecuteAsync(StateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-            Assert.AreEqual(((DipState<ContextText>)state).Context.Text, "Entry Action");
+            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(((State<ContextText>)state).Context.Text, "Entry Action");
         }
     }
 }

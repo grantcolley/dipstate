@@ -5,14 +5,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevelopmentInProgress.DipState.Test
 {
     [TestClass]
-    public class GenericDipStateTest
+    public class GenericStateTest
     {
         [TestMethod]
         public void CreateNewState_AssignContext_StateCreatedContextSet()
         {
             // Arrange
             var testContext = new ContextText() { Text = "Pricing Workflow Context" };
-            var state = new DipState<ContextText>(1, "Pricing Workflow");
+            var state = new State<ContextText>(1, "Pricing Workflow");
 
             // Act
             state.Context = testContext;
@@ -30,7 +30,7 @@ namespace DevelopmentInProgress.DipState.Test
             var testContext = new ContextText() { Text = "Pricing Workflow Context" };
 
             // Act
-            var state = new DipState<ContextText>(testContext, 1, "Pricing Workflow");
+            var state = new State<ContextText>(testContext, 1, "Pricing Workflow");
 
             // Assert
             Assert.IsNotNull(state.Context);
@@ -42,25 +42,25 @@ namespace DevelopmentInProgress.DipState.Test
         public void Run_InitialiseStateWithEntryAction_StateInitialisedEntryActionExecuted()
         {
             // Arrange
-            var entryAction = new Action<DipState>(a =>
+            var entryAction = new Action<State>(a =>
             {
-                var contextClass = a as DipState<ContextText>;
+                var contextClass = a as State<ContextText>;
                 contextClass.Context.Text = "Entry Action";
             });
 
-            var state = new DipState<ContextText>(
+            var state = new State<ContextText>(
                 new ContextText() {Text = "Uninitialised"}, 1, "Pricing Workflow")
-                .AddAction(DipStateActionType.Entry, entryAction);
+                .AddAction(StateActionType.Entry, entryAction);
 
             // Act
-            state = state.Execute(DipStateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialised);
 
             // Assert
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, DipStateStatus.Initialised);
-            Assert.AreEqual(((DipState<ContextText>)state).Context.Text, "Entry Action");
+            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(((State<ContextText>)state).Context.Text, "Entry Action");
         }
 
         [TestMethod]
@@ -70,9 +70,9 @@ namespace DevelopmentInProgress.DipState.Test
             var textContext = new ContextText() {Text = "Pricing Workflow Context"};
             var numberContext = new ContextNumber() {Number = 123};
 
-            var subState = new DipState<ContextText>(textContext, 2, "Data Capture");
+            var subState = new State<ContextText>(textContext, 2, "Data Capture");
 
-            var state = new DipState<ContextNumber>(numberContext, 1, "Pricing Workflow")
+            var state = new State<ContextNumber>(numberContext, 1, "Pricing Workflow")
                 .AddSubState(subState);
 
             // Assert

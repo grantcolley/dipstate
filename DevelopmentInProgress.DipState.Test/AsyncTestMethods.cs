@@ -7,7 +7,7 @@ namespace DevelopmentInProgress.DipState.Test
 {
     public static class AsyncTestMethods
     {
-        public static async Task AsyncEntryAction(DipState state)
+        public static async Task AsyncEntryAction(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Entry Async Action - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -27,7 +27,7 @@ namespace DevelopmentInProgress.DipState.Test
             Debug.WriteLine(endLogEntry.ToString());
         }
 
-        public static async Task AsyncStatusAction(DipState state)
+        public static async Task AsyncStatusAction(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Status Async Action - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -47,7 +47,7 @@ namespace DevelopmentInProgress.DipState.Test
             Debug.WriteLine(endLogEntry.ToString());
         }
 
-        public static async Task AsyncExitAction(DipState state)
+        public static async Task AsyncExitAction(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Exit Async Action - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -67,7 +67,7 @@ namespace DevelopmentInProgress.DipState.Test
             Debug.WriteLine(endLogEntry.ToString());
         }
 
-        public static async Task<bool> AsyncCanCompleteTrue(DipState state)
+        public static async Task<bool> AsyncCanCompleteTrue(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Can Complete Async True - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -89,7 +89,7 @@ namespace DevelopmentInProgress.DipState.Test
             return true;
         }
 
-        public static async Task<bool> AsyncCanCompleteFalse(DipState state)
+        public static async Task<bool> AsyncCanCompleteFalse(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Can Complete Async False - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -111,7 +111,7 @@ namespace DevelopmentInProgress.DipState.Test
             return false;
         }
 
-        public static async Task AsyncAutoEnrtyActionTransitionToFinalReview(DipState state)
+        public static async Task AsyncAutoEnrtyActionTransitionToFinalReview(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Auto Entry Async Transition - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -139,7 +139,7 @@ namespace DevelopmentInProgress.DipState.Test
             Debug.WriteLine(endLogEntry.ToString());
         }
 
-        public static async Task AsyncAutoEnrtyActionTransitionToOverride(DipState state)
+        public static async Task AsyncAutoEnrtyActionTransitionToOverride(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Auto Entry Async Transition - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -167,7 +167,7 @@ namespace DevelopmentInProgress.DipState.Test
             Debug.WriteLine(endLogEntry.ToString());
         }
 
-        public static async Task AsyncAutoEnrtyActionTransitionToAdjustments(DipState state)
+        public static async Task AsyncAutoEnrtyActionTransitionToAdjustments(State state)
         {
             var startLogEntry = new LogEntry(String.Format("Start Auto Entry Async Transition - {0}", state.Name));
             state.Log.Add(startLogEntry);
@@ -195,7 +195,7 @@ namespace DevelopmentInProgress.DipState.Test
             Debug.WriteLine(endLogEntry.ToString());
         }
 
-        public static async Task TraceWrite(DipState state)
+        public static async Task TraceWrite(State state)
         {
             await Task.Run(async delegate
             {
@@ -211,7 +211,7 @@ namespace DevelopmentInProgress.DipState.Test
             }
         }
 
-        public static async Task AsyncGenericEntryAction(DipState state)
+        public static async Task AsyncGenericEntryAction(State state)
         {
             await Task.Run(async delegate
             {
@@ -220,7 +220,7 @@ namespace DevelopmentInProgress.DipState.Test
                 await Task.Delay(milliseconds);
             });
 
-            var contextClass = state as DipState<ContextText>;
+            var contextClass = state as State<ContextText>;
             contextClass.Context.Text = "Entry Action";
         }
     }
