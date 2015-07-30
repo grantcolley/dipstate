@@ -35,7 +35,8 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
 ### Workflow Setup
 ```C#
-            var remediationWorkflow = new State(100, "Remediation Workflow", type: StateType.Root);
+            var remediationWorkflow = new State(100, "Remediation Workflow", 
+                type: StateType.Root);
 
             var communication = new State(200, "Communication", initialiseWithParent: true);
 
@@ -50,7 +51,8 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
             
             var collateData = new State(300, "Collate Data", true);
             
-            var adjustmentDecision = new State(400, "Adjustment Decision", type: StateType.Auto);
+            var adjustmentDecision = new State(400, "Adjustment Decision", 
+                type: StateType.Auto);
 
             var adjustment = new State(500, "Adjustment");
 
