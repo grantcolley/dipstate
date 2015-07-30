@@ -77,7 +77,8 @@ Dipstate provides a simple mechanism to maintain state for activities that are t
                 .AddTransition(autoTransitionToRedressReview)
                 .AddAction(StateActionType.Entry, (s =>
                 {
-                    // Determine whether to transition to Adjustment or AutoTransitionToReview
+                    // Determine at runtime whether to transition 
+                    // to Adjustment or AutoTransitionToReview
                 }));
 
             collateData
