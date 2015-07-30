@@ -31,7 +31,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow")
                 .AddActionAsync(StateActionType.Reset, mockAction.Object);
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Act
             await state.ResetAsync(true);
@@ -40,7 +40,7 @@ namespace DevelopmentInProgress.DipState.Test
             mockAction.Verify(a => a(state), Times.Once);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
             Assert.IsFalse(state.IsDirty);
             Assert.IsTrue(state.Log.Count.Equals(0));
         }
@@ -57,17 +57,17 @@ namespace DevelopmentInProgress.DipState.Test
                             DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), s.Name));
             
             // Act
-            state = await state.ExecuteAsync(StateStatus.Initialised);
+            state = await state.ExecuteAsync(StateStatus.Initialise);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
             Assert.IsTrue(state.IsDirty);
 
             Assert.IsTrue(
                 state.Log.Any(
-                    l => l.Message.StartsWith(String.Format("{0} - {1}", state.Name, StateStatus.Initialised))));
+                    l => l.Message.StartsWith(String.Format("{0} - {1}", state.Name, StateStatus.Initialise))));
         }
 
         [TestMethod]
@@ -89,7 +89,8 @@ namespace DevelopmentInProgress.DipState.Test
         public async Task CanComplete_PredicateReturnsTrue_CanCompleteReturnsTrue()
         {
             // Arrange
-            var state = new State(1, "Pricing Workflow", canCompleteAsync: AsyncTestMethods.AsyncCanCompleteTrue);
+            var state = new State(1, "Pricing Workflow")
+                .AddCanCompletePredicateAsync(AsyncTestMethods.AsyncCanCompleteTrue);
 
             // Act
             var canComplete = await state.CanCompleteAsync();
@@ -104,7 +105,8 @@ namespace DevelopmentInProgress.DipState.Test
         public async Task CanComplete_PredicateReturnsFalse_CanCompleteReturnsFalse()
         {
             // Arrange
-            var state = new State(1, "Pricing Workflow", canCompleteAsync: AsyncTestMethods.AsyncCanCompleteFalse);
+            var state = new State(1, "Pricing Workflow")
+                .AddCanCompletePredicateAsync(AsyncTestMethods.AsyncCanCompleteFalse);
 
             // Act
             var canComplete = await state.CanCompleteAsync();

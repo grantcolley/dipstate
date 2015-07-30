@@ -99,20 +99,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("PricingWorkflowInitialised");
 
             // Act 
-            collateData.Execute(StateStatus.Failed);
+            collateData.Execute(StateStatus.Fail);
 
             // Assert
-            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(collateData.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(collateData.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -122,20 +122,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("PricingWorkflowInitialised");
 
             // Act
-            collateData.Execute(StateStatus.Completed);
+            collateData.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Initialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Initialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -145,21 +145,21 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("CollateDataComplete");
 
             // Act
-            modelling1.Execute(StateStatus.Failed);
-            modelling2.Execute(StateStatus.Failed);
+            modelling1.Execute(StateStatus.Fail);
+            modelling2.Execute(StateStatus.Fail);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -169,21 +169,21 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("CollateDataComplete");
 
             // Act 
-            modelling1.Execute(StateStatus.Completed);
-            modelling2.Execute(StateStatus.Failed);
+            modelling1.Execute(StateStatus.Complete);
+            modelling2.Execute(StateStatus.Fail);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
             Assert.AreEqual(modelling.Status, StateStatus.InProgress);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -193,21 +193,21 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("CollateDataComplete");
 
             // Act 
-            modelling1.Execute(StateStatus.Completed);
-            modelling2.Execute(StateStatus.Completed);
+            modelling1.Execute(StateStatus.Complete);
+            modelling2.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Initialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Initialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -217,20 +217,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("ModellingComplete");
 
             // Act 
-            modellingReview.Execute(StateStatus.Failed);
+            modellingReview.Execute(StateStatus.Fail);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -240,20 +240,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("ModellingComplete");
 
             // Act 
-            modellingReview.Execute(StateStatus.Failed, modelling);
+            modellingReview.Execute(StateStatus.Fail, modelling);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Initialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Initialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -263,20 +263,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("ModellingComplete");
 
             // Act 
-            modellingReview.Execute(StateStatus.Failed, collateData);
+            modellingReview.Execute(StateStatus.Fail, collateData);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialise);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -291,20 +291,20 @@ namespace DevelopmentInProgress.DipState.Test
             });
 
             // Act 
-            modellingReview.Execute(StateStatus.Completed, adjustmentCheck);
+            modellingReview.Execute(StateStatus.Complete, adjustmentCheck);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Initialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Initialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -319,22 +319,22 @@ namespace DevelopmentInProgress.DipState.Test
             });
 
             // Act 
-            modellingReview.Execute(StateStatus.Completed, adjustmentCheck);
+            modellingReview.Execute(StateStatus.Complete, adjustmentCheck);
 
-            adjustments.Execute(StateStatus.Completed);
+            adjustments.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Completed);
-            Assert.AreEqual(finalReview.Status, StateStatus.Initialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Complete);
+            Assert.AreEqual(finalReview.Status, StateStatus.Initialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -349,20 +349,20 @@ namespace DevelopmentInProgress.DipState.Test
             });
 
             // Act 
-            modellingReview.Execute(StateStatus.Completed, adjustmentCheck);
+            modellingReview.Execute(StateStatus.Complete, adjustmentCheck);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Initialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Initialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -372,20 +372,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("ModellingReviewComplete");
 
             // Act 
-            finalReview.Execute(StateStatus.Failed, modelling);
+            finalReview.Execute(StateStatus.Fail, modelling);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Initialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Initialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -395,20 +395,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("ModellingReviewComplete");
 
             // Act 
-            finalReview.Execute(StateStatus.Failed, collateData);
+            finalReview.Execute(StateStatus.Fail, collateData);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialise);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -418,20 +418,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("ModellingReviewComplete");
 
             // Act 
-            finalReview.Execute(StateStatus.Completed, finalCommunication);
+            finalReview.Execute(StateStatus.Complete, finalCommunication);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Completed);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Complete);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -440,23 +440,23 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             Arrange("ModellingReviewComplete");
 
-            communicationUpdate.Execute(StateStatus.Completed);
+            communicationUpdate.Execute(StateStatus.Complete);
 
             // Act 
-            finalReview.Execute(StateStatus.Completed, finalCommunication);
+            finalReview.Execute(StateStatus.Complete, finalCommunication);
 
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Completed);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Initialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Complete);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -466,20 +466,20 @@ namespace DevelopmentInProgress.DipState.Test
             Arrange("FinalReviewComplete");
 
             // Act 
-            finalCommunication.Execute(StateStatus.Completed);
+            finalCommunication.Execute(StateStatus.Complete);
 
             // Assert
-            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Completed);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Completed);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Completed);
+            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Complete);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Complete);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Complete);
         }
 
         [TestMethod]
@@ -492,17 +492,17 @@ namespace DevelopmentInProgress.DipState.Test
             pricingWorkflow.Reset();
 
             // Assert
-            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(collateData.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(collateData.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
         }
 
         private void TraceWrite(State state)
@@ -516,58 +516,58 @@ namespace DevelopmentInProgress.DipState.Test
 
         private void Arrange(string instruction)
         {
-            pricingWorkflow.Execute(StateStatus.Initialised);
+            pricingWorkflow.Execute(StateStatus.Initialise);
 
-            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Initialised);
-            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Initialise);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialise);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
 
             if (instruction.Equals("PricingWorkflowInitialised"))
             {
                 return;
             }
 
-            collateData.Execute(StateStatus.Completed);
+            collateData.Execute(StateStatus.Complete);
 
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling1.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling2.Status, StateStatus.Initialised);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling1.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling2.Status, StateStatus.Initialise);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
 
             if (instruction.Equals("CollateDataComplete"))
             {
                 return;
             }
 
-            modelling1.Execute(StateStatus.Completed);
-            modelling2.Execute(StateStatus.Completed);
+            modelling1.Execute(StateStatus.Complete);
+            modelling2.Execute(StateStatus.Complete);
 
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Initialised);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Initialise);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
 
             if (instruction.Equals("ModellingComplete"))
             {
@@ -579,71 +579,71 @@ namespace DevelopmentInProgress.DipState.Test
                 a.Transition = finalReview;
             });
 
-            modellingReview.Execute(StateStatus.Completed, adjustmentCheck);
+            modellingReview.Execute(StateStatus.Complete, adjustmentCheck);
 
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialised);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Initialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Initialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
 
             if (instruction.Equals("ModellingReviewComplete"))
             {
                 return;
             }
 
-            communicationUpdate.Execute(StateStatus.Completed);
+            communicationUpdate.Execute(StateStatus.Complete);
 
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Initialised);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Initialise);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Uninitialise);
 
-            finalReview.Execute(StateStatus.Completed, finalCommunication);
+            finalReview.Execute(StateStatus.Complete, finalCommunication);
 
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Completed);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Initialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Complete);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Initialise);
 
             if (instruction.Equals("FinalReviewComplete"))
             {
                 return;
             }
 
-            finalCommunication.Execute(StateStatus.Completed);
+            finalCommunication.Execute(StateStatus.Complete);
 
-            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Completed);
-            Assert.AreEqual(collateData.Status, StateStatus.Completed);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling1.Status, StateStatus.Completed);
-            Assert.AreEqual(modelling2.Status, StateStatus.Completed);
-            Assert.AreEqual(modellingReview.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Completed);
-            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialised);
-            Assert.AreEqual(finalReview.Status, StateStatus.Completed);
-            Assert.AreEqual(finalCommunication.Status, StateStatus.Completed);
+            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Complete);
+            Assert.AreEqual(collateData.Status, StateStatus.Complete);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling1.Status, StateStatus.Complete);
+            Assert.AreEqual(modelling2.Status, StateStatus.Complete);
+            Assert.AreEqual(modellingReview.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustmentCheck.Status, StateStatus.Complete);
+            Assert.AreEqual(adjustments.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(finalReview.Status, StateStatus.Complete);
+            Assert.AreEqual(finalCommunication.Status, StateStatus.Complete);
         }
     }
 }

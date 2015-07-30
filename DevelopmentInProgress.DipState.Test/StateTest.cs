@@ -16,16 +16,16 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow");
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
             Assert.IsTrue(state.IsDirty);
 
             var logEntry = state.Log.First();
-            Assert.IsTrue(logEntry.Message.StartsWith(String.Format("{0} - {1}", state.Name, StateStatus.Initialised)));
+            Assert.IsTrue(logEntry.Message.StartsWith(String.Format("{0} - {1}", state.Name, StateStatus.Initialise)));
         }
 
         [TestMethod]
@@ -44,7 +44,8 @@ namespace DevelopmentInProgress.DipState.Test
         public void CanComplete_PredicateReturnsTrue_CanCompleteReturnsTrue()
         {
             // Arrange
-            var state = new State(1, "Pricing Workflow", canComplete: s => true);
+            var state = new State(1, "Pricing Workflow")
+                .AddCanCompletePredicate(s => true);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -56,7 +57,8 @@ namespace DevelopmentInProgress.DipState.Test
         public void CanComplete_PredicateReturnsFalse_CanCompleteReturnsFalse()
         {
             // Arrange
-            var state = new State(1, "Pricing Workflow", canComplete: s => false);
+            var state = new State(1, "Pricing Workflow")
+                .AddCanCompletePredicate(s => false);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -73,7 +75,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow")
                 .AddAction(StateActionType.Reset, mockAction.Object);
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Act
             state.Reset(true);
@@ -82,7 +84,7 @@ namespace DevelopmentInProgress.DipState.Test
             mockAction.Verify(a => a(state), Times.Once);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
             Assert.IsFalse(state.IsDirty);
             Assert.IsTrue(state.Log.Count.Equals(0));
         }

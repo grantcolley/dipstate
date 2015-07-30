@@ -1,70 +1,121 @@
 ﻿//using System;
-//using System.Diagnostics;
-//using System.Linq;
-//using Microsoft.VisualStudio.TestTools.UnitTesting;
+//using System.Threading.Tasks;
 
 //namespace DevelopmentInProgress.DipState.Test
 //{
-//    [TestClass]
 //    public class Class1
 //    {
-//        [TestMethod]
-//        public void Test()
+//        public static async Task<bool> LetterChecked(State state)
 //        {
-//            var remediationWorkflow = new State.DipState(1, "Remediation Workflow", type: StateType.Root);
-//            var communication = new Communication() { Id = 2, Name = "Communication", InitialiseWithParent = true };
-//            var collateData = new CollateData() { Id = 3, Name = "Collate Date", InitialiseWithParent = true };
-//            var adjustmentDecision = new AdjustmentDecision() { Id = 4, Name = "Adjustment Decision", Type = StateType.Auto };
-//            var adjustment = new Adjustment() { Id = 5, Name = "Adjustment" };
-//            var autoTransitionRedressReview = new AutoTransitionRedressReview() { Id = 6, Name = "Auto Transition Redress Review", Type = StateType.Auto };
-//            var redressReview = new RedressReview() { Id = 6, Name = "Redress Review" };
-//            var payment = new Payment() { Id = 7, Name = "Payment", CanCompleteParent = true };
+  
+//            return false;
+//        }
+
+//        private static async Task SaveStatusAsync(State context)
+//        {
+
+//        }
+
+//        private static async Task NotifyDispatchAsync(State context)
+//        {
+
+//        }
+
+//        public static async Task GenerateLetterAsync(State state)
+//        {
+
+//        }
+
+//        public async Task<State> CommunicationWorkflowSetup()
+//        {
+//            var response = new State(220, "Response Received", canCompleteParent: true)
+//                .AddActionAsync(StateActionType.Status, SaveStatusAsync);
+
+//            var letterSent = new State(210, "Letter Sent", initialiseWithParent: true)
+//                .AddActionAsync(StateActionType.Entry, GenerateLetterAsync)
+//                .AddActionAsync(StateActionType.Status, SaveStatusAsync)
+//                .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
+//                .AddCanCompletePredicateAsync(LetterChecked)
+//                .AddTransition(response);
+
+//            var communication = new State(200, "Communication")
+//                .AddSubState(letterSent)
+//                .AddSubState(response);
+
+//            await communication.ExecuteAsync(StateStatus.Initialise);
+
+//            return communication;
+//        }
+
+//        public async Task<State> RemediationWorkflowSetup()
+//        {
+//            var remediationWorkflow = new State(100, "Remediation Workflow", type: StateType.Root);
+
+//            var communication = new State(200, "Communication", initialiseWithParent: true);
+
+//            var letterSent = new State(210, "Letter Sent", initialiseWithParent: true)
+//                .AddActionAsync(StateActionType.Entry, GenerateLetterAsync)
+//                .AddActionAsync(StateActionType.Status, SaveStatusAsync)
+//                .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
+//                .AddCanCompletePredicateAsync(LetterChecked);
+
+//            var response = new State(220, "Response Received", canCompleteParent: true)
+//                .AddActionAsync(StateActionType.Status, SaveStatusAsync);
+            
+//            var collateData = new State(300, "Collate Data", true);
+            
+//            var adjustmentDecision = new State(400, "Adjustment Decision", type: StateType.Auto);
+
+//            var adjustment = new State(500, "Adjustment");
+
+//            var autoTransitionToRedressReview 
+//                = new State(600, "Auto Transition To Redress Review", type: StateType.Auto);
+
+//            var redressReview = new State(700, "Redress Review");
+
+//            var payment = new State(800, "Payment", canCompleteParent: true);
+
+//            redressReview
+//                .AddTransition(payment)
+//                .AddTransition(collateData)
+//                .AddDependency(communication)
+//                .AddDependency(autoTransitionToRedressReview);
+
+//            autoTransitionToRedressReview
+//                .AddTransition(redressReview);
+
+//            adjustment.AddTransition(autoTransitionToRedressReview);
+
+//            adjustmentDecision
+//                .AddTransition(adjustment)
+//                .AddTransition(autoTransitionToRedressReview)
+//                .AddAction(StateActionType.Entry, (s =>
+//                {
+//                    // Determine at runtime whether to transition 
+//                    // to Adjustment or AutoTransitionToReview
+//                }));
+
+//            collateData
+//                .AddTransition(adjustmentDecision);
+
+//            letterSent.AddTransition(response);
+
+//            communication.AddDependant(redressReview, true)
+//                .AddSubState(letterSent)
+//                .AddSubState(response);
 
 //            remediationWorkflow
 //                .AddSubState(communication)
 //                .AddSubState(collateData)
 //                .AddSubState(adjustmentDecision)
 //                .AddSubState(adjustment)
-//                .AddSubState(autoTransitionRedressReview)
+//                .AddSubState(autoTransitionToRedressReview)
 //                .AddSubState(redressReview)
 //                .AddSubState(payment);
 
-//            communication.AddDependant(redressReview, true);
+//            await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
 
-//            collateData
-//                .AddTransition(adjustmentDecision);
-
-//            adjustmentDecision
-//                .AddTransition(adjustment)
-//                .AddTransition(autoTransitionRedressReview)
-//                .AddAction(StateActionType.Entry, (s =>
-//                {
-//                    var collData = s.Antecedent as CollateData;
-//                    if (collData.RedressAmount == null
-//                        || collateData.RedressAmount.Value < 100)
-//                    {
-//                        // If the calculated redress amount is less
-//                        // than 100 transition to adjustment.
-//                        s.Transition = s.Transitions[0];
-//                    }
-//                    else
-//                    {
-//                        // If the calculated redress amount is greater 
-//                        // or equal to 100 transition to redress review.
-//                        s.Transition = s.Transitions[1];
-//                    }
-//                }));
-
-//            adjustment.AddTransition(autoTransitionRedressReview);
-
-//            autoTransitionRedressReview
-//                .AddTransition(redressReview);
-//            //.AddDependant(redressReview);
-
-//            redressReview
-//                .AddTransition(payment)
-//                .AddTransition(collateData)
-//                .AddDependency(communication);
+//            return remediationWorkflow;
 //        }
 //    }
 //}

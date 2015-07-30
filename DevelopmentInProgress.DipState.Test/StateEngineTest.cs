@@ -15,12 +15,12 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow");
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -33,14 +33,14 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(StateActionType.Entry, mockAction.Object);
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             mockAction.Verify(a => a(state), Times.Once);
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Act
             try
             {
-                state = state.Execute(StateStatus.Initialised);
+                state = state.Execute(StateStatus.Initialise);
             }
             catch (InvalidOperationException ex)
             {
@@ -76,7 +76,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -89,48 +89,48 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(StateActionType.Status, mockAction.Object);
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             mockAction.Verify(a => a(state), Times.Once);
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
         public void Run_InitialiseStateWhenStateAlreadyInitialised_StateStatusUnchanged()
         {
             // Arrange
-            var state = new State(1, "Pricing Workflow", status: StateStatus.Initialised);
+            var state = new State(1, "Pricing Workflow", status: StateStatus.Initialise);
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
         public void Run_InitialiseStateWithDependencyComplete_StateInitialised()
         {
             // Arrange
-            var dependency = new State(0, "Dependent State", status: StateStatus.Completed);
+            var dependency = new State(0, "Dependent State", status: StateStatus.Complete);
 
             var state = new State(1, "Pricing Workflow")
                 .AddDependency(dependency);
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -143,7 +143,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             var logEntry = state.Log.First();
@@ -151,7 +151,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -164,17 +164,17 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency, true);
 
             // Act
-            dependency = dependency.Execute(StateStatus.Completed);
+            dependency = dependency.Execute(StateStatus.Complete);
 
             // Assert
             Assert.IsNotNull(dependency);
             Assert.AreEqual(dependency.Id, 0);
             Assert.AreEqual(dependency.Name, "Dependent State");
-            Assert.AreEqual(dependency.Status, StateStatus.Completed);
+            Assert.AreEqual(dependency.Status, StateStatus.Complete);
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -187,17 +187,17 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(dependency);
 
             // Act
-            dependency = dependency.Execute(StateStatus.Completed);
+            dependency = dependency.Execute(StateStatus.Complete);
 
             // Assert
             Assert.IsNotNull(dependency);
             Assert.AreEqual(dependency.Id, 0);
             Assert.AreEqual(dependency.Name, "Dependent State");
-            Assert.AreEqual(dependency.Status, StateStatus.Completed);
+            Assert.AreEqual(dependency.Status, StateStatus.Complete);
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -207,12 +207,12 @@ namespace DevelopmentInProgress.DipState.Test
             var autoState = new State(1, "Close Case", type: StateType.Auto);
 
             // Act
-            autoState = autoState.Execute(StateStatus.Initialised);
+            autoState = autoState.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
             Assert.AreEqual(autoState.Name, "Close Case");
-            Assert.AreEqual(autoState.Status, StateStatus.Completed);
+            Assert.AreEqual(autoState.Status, StateStatus.Complete);
             Assert.IsNull(autoState.Transition);
         }
 
@@ -229,22 +229,22 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(StateActionType.Entry, s => { s.Transition = finalState; });
 
             // Act
-            var state = autoState.Execute(StateStatus.Initialised);
+            var state = autoState.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
             Assert.AreEqual(autoState.Name, "Override Decision");
-            Assert.AreEqual(autoState.Status, StateStatus.Completed);
+            Assert.AreEqual(autoState.Status, StateStatus.Complete);
             Assert.AreEqual(autoState.Transition.Name, "Final Review");
 
             Assert.AreEqual(state.Id, 2);
             Assert.AreEqual(state.Name, "Final Review");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
             Assert.AreEqual(state.Antecedent.Name, "Override Decision");
 
             Assert.AreEqual(overrideState.Id, 3);
             Assert.AreEqual(overrideState.Name, "Override");
-            Assert.AreEqual(overrideState.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(overrideState.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -260,20 +260,20 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddAction(StateActionType.Entry, s => { s.Transition = overrideState; });
 
             // Act
-            var state = autoState.Execute(StateStatus.Initialised);
+            var state = autoState.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.AreEqual(autoState.Id, 1);
             Assert.AreEqual(autoState.Name, "Override Decision");
-            Assert.AreEqual(autoState.Status, StateStatus.Completed);
+            Assert.AreEqual(autoState.Status, StateStatus.Complete);
 
             Assert.AreEqual(finalState.Id, 2);
             Assert.AreEqual(finalState.Name, "Final");
-            Assert.AreEqual(finalState.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(finalState.Status, StateStatus.Uninitialise);
 
             Assert.AreEqual(state.Id, 3);
             Assert.AreEqual(state.Name, "Override");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -286,28 +286,28 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new State(4, "Pricing C", initialiseWithParent: true));
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
 
             var pricingA = state.SubStates.First(pa => pa.Name.Equals("Pricing A"));
             Assert.AreEqual(pricingA.Id, 2);
             Assert.AreEqual(pricingA.Name, "Pricing A");
-            Assert.AreEqual(pricingA.Status, StateStatus.Initialised);
+            Assert.AreEqual(pricingA.Status, StateStatus.Initialise);
 
             var pricingB = state.SubStates.First(pa => pa.Name.Equals("Pricing B"));
             Assert.AreEqual(pricingB.Id, 3);
             Assert.AreEqual(pricingB.Name, "Pricing B");
-            Assert.AreEqual(pricingB.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(pricingB.Status, StateStatus.Uninitialise);
 
             var pricingC = state.SubStates.First(pa => pa.Name.Equals("Pricing C"));
             Assert.AreEqual(pricingC.Id, 4);
             Assert.AreEqual(pricingC.Name, "Pricing C");
-            Assert.AreEqual(pricingC.Status, StateStatus.Initialised);
+            Assert.AreEqual(pricingC.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -317,7 +317,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow")
                 .AddSubState(new State(2, "Pricing A", initialiseWithParent: true));
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
@@ -342,12 +342,12 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new State(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new State(3, "Pricing B", initialiseWithParent: true));
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             // Act
-            statePricingA = statePricingA.Execute(StateStatus.Completed);
+            statePricingA = statePricingA.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -356,12 +356,12 @@ namespace DevelopmentInProgress.DipState.Test
 
             Assert.AreEqual(statePricingA.Id, 2);
             Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, StateStatus.Completed);
+            Assert.AreEqual(statePricingA.Status, StateStatus.Complete);
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
             Assert.AreEqual(statePricingB.Id, 3);
             Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, StateStatus.Initialised);
+            Assert.AreEqual(statePricingB.Status, StateStatus.Initialise);
         }
 
         [TestMethod]
@@ -372,29 +372,29 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new State(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new State(3, "Pricing B", initialiseWithParent: true));
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = statePricingA.Execute(StateStatus.Completed);
+            statePricingA = statePricingA.Execute(StateStatus.Complete);
 
-            state = statePricingB.Execute(StateStatus.Completed);
+            state = statePricingB.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Completed);
+            Assert.AreEqual(state.Status, StateStatus.Complete);
 
             Assert.AreEqual(statePricingA.Id, 2);
             Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, StateStatus.Completed);
+            Assert.AreEqual(statePricingA.Status, StateStatus.Complete);
 
             Assert.AreEqual(statePricingB.Id, 3);
             Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, StateStatus.Completed);
+            Assert.AreEqual(statePricingB.Status, StateStatus.Complete);
         }
 
         [TestMethod]
@@ -403,15 +403,15 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             var state = new State(1, "Pricing Workflow");
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Act
-            state = state.Execute(StateStatus.Uninitialised);
+            state = state.Execute(StateStatus.Uninitialise);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
         }
 
         [TestMethod]
@@ -421,12 +421,12 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow");
 
             // Act
-            state = state.Execute(StateStatus.Failed);
+            state = state.Execute(StateStatus.Fail);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
             Assert.IsNull(state.Transition);
             Assert.IsFalse(state.IsDirty);
 
@@ -444,26 +444,26 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new State(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new State(3, "Pricing B", initialiseWithParent: true));
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = statePricingA.Execute(StateStatus.Failed);
+            statePricingA = statePricingA.Execute(StateStatus.Fail);
 
-            statePricingB = statePricingB.Execute(StateStatus.Failed);
+            statePricingB = statePricingB.Execute(StateStatus.Fail);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
             Assert.IsFalse(state.IsDirty);
 
             Assert.AreEqual(statePricingA.Id, 2);
             Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(statePricingA.Status, StateStatus.Uninitialise);
             Assert.IsFalse(statePricingA.IsDirty);
             var statePricingALogEntry =
                 statePricingA.Log.FirstOrDefault(
@@ -474,7 +474,7 @@ namespace DevelopmentInProgress.DipState.Test
 
             Assert.AreEqual(statePricingB.Id, 3);
             Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(statePricingB.Status, StateStatus.Uninitialise);
             Assert.IsFalse(statePricingB.IsDirty);
             var statePricingBLogEntry =
                 statePricingB.Log.FirstOrDefault(
@@ -492,16 +492,16 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new State(2, "Pricing A", initialiseWithParent: true))
                 .AddSubState(new State(3, "Pricing B", initialiseWithParent: true));
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             var statePricingA = state.SubStates.Single(s => s.Name.Equals("Pricing A"));
 
             var statePricingB = state.SubStates.Single(s => s.Name.Equals("Pricing B"));
 
             // Act
-            statePricingA = statePricingA.Execute(StateStatus.Failed);
+            statePricingA = statePricingA.Execute(StateStatus.Fail);
 
-            statePricingB = statePricingB.Execute(StateStatus.Completed);
+            statePricingB = statePricingB.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -511,7 +511,7 @@ namespace DevelopmentInProgress.DipState.Test
 
             Assert.AreEqual(statePricingA.Id, 2);
             Assert.AreEqual(statePricingA.Name, "Pricing A");
-            Assert.AreEqual(statePricingA.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(statePricingA.Status, StateStatus.Uninitialise);
             Assert.IsFalse(statePricingA.IsDirty);
             var logEntry =
                 statePricingA.Log.FirstOrDefault(
@@ -522,7 +522,7 @@ namespace DevelopmentInProgress.DipState.Test
 
             Assert.AreEqual(statePricingB.Id, 3);
             Assert.AreEqual(statePricingB.Name, "Pricing B");
-            Assert.AreEqual(statePricingB.Status, StateStatus.Completed);
+            Assert.AreEqual(statePricingB.Status, StateStatus.Complete);
             Assert.IsTrue(statePricingB.IsDirty);
         }
 
@@ -534,23 +534,23 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow")
                 .AddTransition(review);
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
             review = state.Execute(review);
             review = review.Execute(StateStatus.InProgress);
 
             // Act
-            review = review.Execute(StateStatus.Failed);
+            review = review.Execute(StateStatus.Fail);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Completed);
+            Assert.AreEqual(state.Status, StateStatus.Complete);
             Assert.IsNotNull(state.Transition);
             Assert.IsTrue(state.IsDirty);
 
             Assert.AreEqual(review.Id, 2);
             Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(review.Status, StateStatus.Uninitialise);
             Assert.IsNull(review.Antecedent);
             Assert.IsNull(review.Transition);
             Assert.IsFalse(review.IsDirty);
@@ -568,49 +568,49 @@ namespace DevelopmentInProgress.DipState.Test
 
             execution.AddTransition(state);
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
             review = state.Execute(review);
             execution = review.Execute(execution);
 
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Completed);
+            Assert.AreEqual(state.Status, StateStatus.Complete);
             Assert.AreEqual(state.Transition.Name, "Review");
             Assert.IsTrue(state.IsDirty);
 
             Assert.AreEqual(review.Id, 2);
             Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, StateStatus.Completed);
+            Assert.AreEqual(review.Status, StateStatus.Complete);
             Assert.AreEqual(review.Antecedent.Name, "Pricing Workflow");
             Assert.AreEqual(review.Transition.Name, "Execution");
             Assert.IsTrue(review.IsDirty);
 
             Assert.AreEqual(execution.Id, 3);
             Assert.AreEqual(execution.Name, "Execution");
-            Assert.AreEqual(execution.Status, StateStatus.Initialised);
+            Assert.AreEqual(execution.Status, StateStatus.Initialise);
             Assert.AreEqual(execution.Antecedent.Name, "Review");
             Assert.IsTrue(execution.IsDirty);
 
             // Act
-            state = execution.Execute(StateStatus.Failed, state);
+            state = execution.Execute(StateStatus.Fail, state);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
             Assert.IsNull(state.Transition);
             Assert.IsTrue(state.IsDirty);
 
             Assert.AreEqual(review.Id, 2);
             Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(review.Status, StateStatus.Uninitialise);
             Assert.IsNull(review.Antecedent);
             Assert.IsNull(review.Transition);
             Assert.IsFalse(review.IsDirty);
 
             Assert.AreEqual(execution.Id, 3);
             Assert.AreEqual(execution.Name, "Execution");
-            Assert.AreEqual(execution.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(execution.Status, StateStatus.Uninitialise);
             Assert.IsNull(execution.Antecedent);
             Assert.IsNull(execution.Transition);
             Assert.IsFalse(execution.IsDirty);
@@ -623,12 +623,12 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow");
 
             // Act
-            state = state.Execute(StateStatus.Completed);
+            state = state.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Completed);
+            Assert.AreEqual(state.Status, StateStatus.Complete);
             Assert.IsNull(state.Transition);
         }
 
@@ -640,7 +640,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow")
                 .AddTransition(review);
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Act
             review = state.Execute(review);
@@ -648,12 +648,12 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Completed);
+            Assert.AreEqual(state.Status, StateStatus.Complete);
             Assert.AreEqual(state.Transition.Name, "Review");
 
             Assert.AreEqual(review.Id, 2);
             Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, StateStatus.Initialised);
+            Assert.AreEqual(review.Status, StateStatus.Initialise);
             Assert.AreEqual(review.Antecedent.Name, "Pricing Workflow");
         }
 
@@ -666,26 +666,26 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(new State(2, "Pricing", initialiseWithParent: true))
                 .AddTransition(review);
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             var pricing = state.SubStates.First();
 
             // Act
-            review = pricing.Execute(StateStatus.Completed);
+            review = pricing.Execute(StateStatus.Complete);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Completed);
+            Assert.AreEqual(state.Status, StateStatus.Complete);
             Assert.AreEqual(state.Transition.Name, "Review");
 
             Assert.AreEqual(pricing.Id, 2);
             Assert.AreEqual(pricing.Name, "Pricing");
-            Assert.AreEqual(pricing.Status, StateStatus.Completed);
+            Assert.AreEqual(pricing.Status, StateStatus.Complete);
 
             Assert.AreEqual(review.Id, 3);
             Assert.AreEqual(review.Name, "Review");
-            Assert.AreEqual(review.Status, StateStatus.Initialised);
+            Assert.AreEqual(review.Status, StateStatus.Initialise);
             Assert.AreEqual(review.Antecedent.Name, "Pricing Workflow");
         }
 
@@ -697,7 +697,7 @@ namespace DevelopmentInProgress.DipState.Test
             var state = new State(1, "Pricing Workflow");
             var review = new State(2, "Review");
 
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             State result = null;
 
@@ -720,7 +720,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Id, 2);
             Assert.AreEqual(result.Name, "Pricing Workflow");
-            Assert.AreEqual(result.Status, StateStatus.Initialised);
+            Assert.AreEqual(result.Status, StateStatus.Initialise);
             Assert.IsNull(result.Transition);
 
             var logEntry =

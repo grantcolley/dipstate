@@ -49,17 +49,17 @@ namespace DevelopmentInProgress.DipState.Test
             });
 
             var state = new State<ContextText>(
-                new ContextText() {Text = "Uninitialised"}, 1, "Pricing Workflow")
+                new ContextText() {Text = "Uninitialise"}, 1, "Pricing Workflow")
                 .AddAction(StateActionType.Entry, entryAction);
 
             // Act
-            state = state.Execute(StateStatus.Initialised);
+            state = state.Execute(StateStatus.Initialise);
 
             // Assert
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialised);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
             Assert.AreEqual(((State<ContextText>)state).Context.Text, "Entry Action");
         }
 
