@@ -22,7 +22,7 @@ namespace DevelopmentInProgress.DipState
             state.Transition = null;
             state.Antecedent = null;
 
-            state.Status = StateStatus.Uninitialised;
+            state.Status = StateStatus.Uninitialise;
             state.ExecuteActions(StateActionType.Reset);
 
             state.IsDirty = false;
@@ -49,7 +49,7 @@ namespace DevelopmentInProgress.DipState
             state.Transition = null;
             state.Antecedent = null;
 
-            state.Status = StateStatus.Uninitialised;
+            state.Status = StateStatus.Uninitialise;
             await state.ExecuteActionsAsync(StateActionType.Reset).ConfigureAwait(false);
 
             state.IsDirty = false;
@@ -185,14 +185,14 @@ namespace DevelopmentInProgress.DipState
         /// <param name="transitionState">The state to be transitioned to.</param>
         public static void PreExecuteSetup(this State state, StateStatus newStatus, State transitionState)
         {
-            if (newStatus.Equals(StateStatus.Failed))
+            if (newStatus.Equals(StateStatus.Fail))
             {
-                state.Status = StateStatus.Failed;
+                state.Status = StateStatus.Fail;
             }
 
             if (transitionState != null
-                && (newStatus.Equals(StateStatus.Completed)
-                    || newStatus.Equals(StateStatus.Failed)))
+                && (newStatus.Equals(StateStatus.Complete)
+                    || newStatus.Equals(StateStatus.Fail)))
             {
                 state.Transition = transitionState;
             }
@@ -225,20 +225,20 @@ namespace DevelopmentInProgress.DipState
             }
 
             var aggregate = state.Parent;
-            if (aggregate.Status.Equals(StateStatus.Completed))
+            if (aggregate.Status.Equals(StateStatus.Complete))
             {
                 var message =
-                    String.Format("{0} {1} cannot be set to InProgress because it has already been set to Completed.",
+                    String.Format("{0} {1} cannot be set to InProgress because it has already been set to Complete.",
                         aggregate.Id, aggregate.Name);
                 aggregate.WriteLogEntry(message);
                 throw new StateException(aggregate, message);
             }
 
             if (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.InProgress))
-                || (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.Completed))
+                || (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.Complete))
                     &&
                     !aggregate.SubStates.Count()
-                        .Equals(aggregate.SubStates.Count(s => s.Status.Equals(StateStatus.Completed)))))
+                        .Equals(aggregate.SubStates.Count(s => s.Status.Equals(StateStatus.Complete)))))
             {
                 aggregate.Status = StateStatus.InProgress;
                 aggregate.UpdateParentStatusToInProgress();
@@ -252,7 +252,7 @@ namespace DevelopmentInProgress.DipState
         /// <returns>True if the state has any dependencies that are not yet complete, else returns false.</returns>
         public static bool HasDependencies(this State state)
         {
-            var dependencies = state.Dependencies.Where(d => !d.Status.Equals(StateStatus.Completed)).ToList();
+            var dependencies = state.Dependencies.Where(d => !d.Status.Equals(StateStatus.Complete)).ToList();
             if (dependencies.Any())
             {
                 var dependencyStates = from d in dependencies select String.Format("{0} - {1}", d.Name, d.Status);
@@ -342,8 +342,8 @@ namespace DevelopmentInProgress.DipState
                     &&
                     state.Parent.SubStates.Count(
                         s =>
-                            s.Status.Equals(StateStatus.Uninitialised) ||
-                            s.Status.Equals(StateStatus.Failed)).Equals(state.Parent.SubStates.Count))
+                            s.Status.Equals(StateStatus.Uninitialise) ||
+                            s.Status.Equals(StateStatus.Fail)).Equals(state.Parent.SubStates.Count))
                 {
                     await state.Parent.ResetAsync().ConfigureAwait(false);
                 }
@@ -381,8 +381,8 @@ namespace DevelopmentInProgress.DipState
                     &&
                     state.Parent.SubStates.Count(
                         s =>
-                            s.Status.Equals(StateStatus.Uninitialised) ||
-                            s.Status.Equals(StateStatus.Failed)).Equals(state.Parent.SubStates.Count))
+                            s.Status.Equals(StateStatus.Uninitialise) ||
+                            s.Status.Equals(StateStatus.Fail)).Equals(state.Parent.SubStates.Count))
                 {
                     state.Parent.Reset();
                 }
@@ -425,7 +425,7 @@ namespace DevelopmentInProgress.DipState
         /// <returns>An awaitable task of type <see cref="State"/>. Typically this is the state that has been transitioned to.</returns>
         public static async Task<State> ExecuteAsync(this State state, State transitionState)
         {
-            return await state.ExecuteAsync(StateStatus.Completed, transitionState).ConfigureAwait(false);
+            return await state.ExecuteAsync(StateStatus.Complete, transitionState).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -446,12 +446,12 @@ namespace DevelopmentInProgress.DipState
 
             switch (newStatus)
             {
-                case StateStatus.Completed:
-                case StateStatus.Failed:
+                case StateStatus.Complete:
+                case StateStatus.Fail:
                     return await state.TransitionAsync().ConfigureAwait(false);
-                case StateStatus.Initialised:
+                case StateStatus.Initialise:
                     return await state.InitialiseAsync().ConfigureAwait(false);
-                case StateStatus.Uninitialised:
+                case StateStatus.Uninitialise:
                     await state.ResetAsync().ConfigureAwait(false);
                     return state;
                 default:
@@ -478,7 +478,7 @@ namespace DevelopmentInProgress.DipState
         /// <returns>The state that has been transitioned to.</returns>
         public static State Execute(this State state, State transitionState)
         {
-            return state.Execute(StateStatus.Completed, transitionState);
+            return state.Execute(StateStatus.Complete, transitionState);
         }
 
         /// <summary>
@@ -499,12 +499,12 @@ namespace DevelopmentInProgress.DipState
 
             switch (newStatus)
             {
-                case StateStatus.Completed:
-                case StateStatus.Failed:
+                case StateStatus.Complete:
+                case StateStatus.Fail:
                     return state.Transition();
-                case StateStatus.Initialised:
+                case StateStatus.Initialise:
                     return state.Initialise();
-                case StateStatus.Uninitialised:
+                case StateStatus.Uninitialise:
                     state.Reset();
                     return state;
                 default:
@@ -521,7 +521,7 @@ namespace DevelopmentInProgress.DipState
 
             await state.ExecuteActionsAsync(StateActionType.Entry).ConfigureAwait(false);
 
-            state.Status = StateStatus.Initialised;
+            state.Status = StateStatus.Initialise;
 
             await state.ExecuteActionsAsync(StateActionType.Status).ConfigureAwait(false);
 
@@ -548,7 +548,7 @@ namespace DevelopmentInProgress.DipState
 
             state.ExecuteActions(StateActionType.Entry);
 
-            state.Status = StateStatus.Initialised;
+            state.Status = StateStatus.Initialise;
 
             state.ExecuteActions(StateActionType.Status);
 
@@ -569,7 +569,7 @@ namespace DevelopmentInProgress.DipState
                 throw new StateException(state, String.Format("{0} failed to transition.", state.Name));
             }
 
-            if (state.Status.Equals(StateStatus.Failed))
+            if (state.Status.Equals(StateStatus.Fail))
             {
                 var stateFailedTo = await state.FailToTransitionStateAsync(state.Transition).ConfigureAwait(false);
                 if (stateFailedTo != null)
@@ -606,7 +606,7 @@ namespace DevelopmentInProgress.DipState
             if (state.Parent != null)
             {
                 // If all the parents sub states are complete then transition the parent.
-                if (state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Completed))
+                if (state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Complete))
                     .Equals(state.Parent.SubStates.Count()))
                 {
                     state.Parent.Transition = state.Parent.Transitions.FirstOrDefault();
@@ -619,7 +619,7 @@ namespace DevelopmentInProgress.DipState
                     && state.Parent.SubStates.Count(s => s.CanCompleteParent)
                         .Equals(
                             state.Parent.SubStates.Count(
-                                s => s.CanCompleteParent && s.Status.Equals(StateStatus.Completed))))
+                                s => s.CanCompleteParent && s.Status.Equals(StateStatus.Complete))))
                 {
                     state.Parent.Transition = state.Parent.Transitions.FirstOrDefault();
                     return await state.Parent.TransitionAsync().ConfigureAwait(false);
@@ -636,7 +636,7 @@ namespace DevelopmentInProgress.DipState
                 throw new StateException(state, String.Format("{0} failed to transition.", state.Name));
             }
 
-            if (state.Status.Equals(StateStatus.Failed))
+            if (state.Status.Equals(StateStatus.Fail))
             {
                 var stateFailedTo = state.FailToTransitionState(state.Transition);
                 if (stateFailedTo != null)
@@ -669,7 +669,7 @@ namespace DevelopmentInProgress.DipState
             if (state.Parent != null)
             {
                 // If all the parents sub states are complete then transition the parent.
-                if (state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Completed))
+                if (state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Complete))
                     .Equals(state.Parent.SubStates.Count()))
                 {
                     state.Parent.Transition = state.Parent.Transitions.FirstOrDefault();
@@ -682,7 +682,7 @@ namespace DevelopmentInProgress.DipState
                     && state.Parent.SubStates.Count(s => s.CanCompleteParent)
                         .Equals(
                             state.Parent.SubStates.Count(
-                                s => s.CanCompleteParent && s.Status.Equals(StateStatus.Completed))))
+                                s => s.CanCompleteParent && s.Status.Equals(StateStatus.Complete))))
                 {
                     state.Parent.Transition = state.Parent.Transitions.FirstOrDefault();
                     return state.Parent.Transition();
@@ -694,9 +694,9 @@ namespace DevelopmentInProgress.DipState
 
         private static async Task<State> ChangeStatusAsync(this State state, StateStatus newStatus)
         {
-            // If newStatus is Completed then just transition the
+            // If newStatus is Complete then just transition the
             // state with a null transition state to complete it.
-            if (newStatus.Equals(StateStatus.Completed))
+            if (newStatus.Equals(StateStatus.Complete))
             {
                 return await state.TransitionAsync().ConfigureAwait(false);
             }
@@ -712,9 +712,9 @@ namespace DevelopmentInProgress.DipState
 
         private static State ChangeStatus(this State state, StateStatus newStatus)
         {
-            // If newStatus is Completed then just transition the
+            // If newStatus is Complete then just transition the
             // state with a null transition state to complete it.
-            if (newStatus.Equals(StateStatus.Completed))
+            if (newStatus.Equals(StateStatus.Complete))
             {
                 return state.Transition();
             }
@@ -742,7 +742,7 @@ namespace DevelopmentInProgress.DipState
 
             await state.ExecuteActionsAsync(StateActionType.Exit).ConfigureAwait(false);
 
-            state.Status = StateStatus.Completed;
+            state.Status = StateStatus.Complete;
 
             await state.ExecuteActionsAsync(StateActionType.Status).ConfigureAwait(false);
 
@@ -767,7 +767,7 @@ namespace DevelopmentInProgress.DipState
 
             state.ExecuteActions(StateActionType.Exit);
 
-            state.Status = StateStatus.Completed;
+            state.Status = StateStatus.Complete;
 
             state.ExecuteActions(StateActionType.Status);
 
