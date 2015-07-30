@@ -5,17 +5,17 @@ using System.Linq;
 namespace DevelopmentInProgress.DipState
 {
     /// <summary>
-    /// A class representing a <see cref="DipState"/> exception.
+    /// A class representing a <see cref="State"/> exception.
     /// </summary>
-    public class DipStateException : Exception
+    public class StateException : Exception
     {
         /// <summary>
-        /// Intilialises a new instance of the <see cref="DipStateException"/> class.
+        /// Intilialises a new instance of the <see cref="StateException"/> class.
         /// </summary>
         /// <param name="state">The state to which the exception applies.</param>
         /// <param name="message">The exception message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public DipStateException(DipState state, string message = "", Exception innerException = null)
+        public StateException(State state, string message = "", Exception innerException = null)
             : base(message, innerException)
         {
             State = state;
@@ -24,7 +24,7 @@ namespace DevelopmentInProgress.DipState
         /// <summary>
         /// Gets the state to which the exception applies.
         /// </summary>
-        public DipState State { get; private set; }
+        public State State { get; private set; }
 
         /// <summary>
         /// Gets the log belonging to the state to which the exception applies.

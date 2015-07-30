@@ -3,7 +3,7 @@
     /// <summary>
     /// The type of the state.
     /// </summary>
-    public enum DipStateType
+    public enum StateType
     {
         /// <summary>
         /// A standard state in a workflow.

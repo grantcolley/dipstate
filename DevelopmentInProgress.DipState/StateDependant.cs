@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a state that is dependant on the current state.
     /// </summary>
-    public class DipStateDependant
+    public class StateDependant
     {
         /// <summary>
         /// Gets or sets a flag that determines whether the dependant
@@ -14,6 +14,6 @@
         /// <summary>
         /// Gets or sets the dependant state.
         /// </summary>
-        public DipState Dependant { get; set; }
+        public State Dependant { get; set; }
     }
 }

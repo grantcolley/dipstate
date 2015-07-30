@@ -3,7 +3,7 @@
     /// <summary>
     /// The type of action which determines when the action gets executed in the lifecycle of the state.
     /// </summary>
-    public enum DipStateActionType
+    public enum StateActionType
     {
         /// <summary>
         /// Indicates the action is executed when the state's status changes.

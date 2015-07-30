@@ -3,7 +3,7 @@
 namespace DevelopmentInProgress.DipState
 {
     /// <summary>
-    /// A class representing an entry in a <see cref="DipState"/>'s log.
+    /// A class representing an entry in a <see cref="State"/>'s log.
     /// </summary>
     public class LogEntry
     {

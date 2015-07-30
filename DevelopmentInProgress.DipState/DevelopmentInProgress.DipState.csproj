@@ -39,15 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DipStateDependant.cs" />
-    <Compile Include="DipStateExtensions.cs" />
+    <Compile Include="StateDependant.cs" />
+    <Compile Include="StateExtensions.cs" />
     <Compile Include="LogEntry.cs" />
-    <Compile Include="DipStateAction.cs" />
-    <Compile Include="DipState.cs" />
-    <Compile Include="DipStateActionType.cs" />
-    <Compile Include="DipStateException.cs" />
-    <Compile Include="DipStateStatus.cs" />
-    <Compile Include="DipStateType.cs" />
+    <Compile Include="StateAction.cs" />
+    <Compile Include="State.cs" />
+    <Compile Include="StateActionType.cs" />
+    <Compile Include="StateException.cs" />
+    <Compile Include="StateStatus.cs" />
+    <Compile Include="StateType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
