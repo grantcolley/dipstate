@@ -21,13 +21,10 @@ namespace DevelopmentInProgress.DipState
         /// <param name="canCompleteParent">Indicates whether the state's parent is completed when the state completes.</param>
         /// <param name="type">The type of state.</param>
         /// <param name="status">The status of the state.</param>
-        /// <param name="canComplete">A predicate which is executed synchronously to determine whether the state can be completed i.e. passes validation.</param>
-        /// <param name="canCompleteAsync">A predicate which is executed asynchronousl to determine whether the state can be completed e.g. it passes validation.</param>
         public State(T context, int id = 0, string name = "", bool initialiseWithParent = false,
             bool canCompleteParent = false, StateType type = StateType.Standard,
-            StateStatus status = StateStatus.Uninitialised, Predicate<State> canComplete = null,
-            Func<State, Task<bool>> canCompleteAsync = null)
-            : base(id, name, initialiseWithParent, canCompleteParent, type, status, canComplete, canCompleteAsync)
+            StateStatus status = StateStatus.Uninitialise)
+            : base(id, name, initialiseWithParent, canCompleteParent, type, status)
         {
             Context = context;
         }
@@ -41,13 +38,10 @@ namespace DevelopmentInProgress.DipState
         /// <param name="canCompleteParent">Indicates whether the state's parent is completed when the state completes.</param>
         /// <param name="type">The type of state.</param>
         /// <param name="status">The status of the state.</param>
-        /// <param name="canComplete">A predicate which is executed synchronously to determine whether the state can be completed i.e. passes validation.</param>
-        /// <param name="canCompleteAsync">A predicate which is executed asynchronousl to determine whether the state can be completed e.g. it passes validation.</param>
         public State(int id = 0, string name = "", bool initialiseWithParent = false,
             bool canCompleteParent = false, StateType type = StateType.Standard,
-            StateStatus status = StateStatus.Uninitialised, Predicate<State> canComplete = null,
-            Func<State, Task<bool>> canCompleteAsync = null)
-            : base(id, name, initialiseWithParent, canCompleteParent, type, status, canComplete, canCompleteAsync)
+            StateStatus status = StateStatus.Uninitialise)
+            : base(id, name, initialiseWithParent, canCompleteParent, type, status)
         {            
         }
 
@@ -64,9 +58,9 @@ namespace DevelopmentInProgress.DipState
     /// </summary>
     public class State
     {
-        private readonly Predicate<State> canComplete;
-        private readonly Func<State, Task<bool>> canCompleteAsync;
         private StateStatus status;
+        private Predicate<State> canComplete;
+        private Func<State, Task<bool>> canCompleteAsync;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="State"/> class.
@@ -77,12 +71,9 @@ namespace DevelopmentInProgress.DipState
         /// <param name="canCompleteParent">Indicates whether the state's parent is completed when the state completes.</param>
         /// <param name="type">The type of state.</param>
         /// <param name="status">The status of the state.</param>
-        /// <param name="canComplete">A predicate which is executed synchronously to determine whether the state can be completed i.e. passes validation.</param>
-        /// <param name="canCompleteAsync">A predicate which is executed asynchronousl to determine whether the state can be completed e.g. it passes validation.</param>
         public State(int id = 0, string name = "", bool initialiseWithParent = false, 
             bool canCompleteParent = false, StateType type = StateType.Standard, 
-            StateStatus status = StateStatus.Uninitialised, Predicate<State> canComplete = null,
-            Func<State, Task<bool>> canCompleteAsync = null)
+            StateStatus status = StateStatus.Uninitialise)
         {
             Id = id;
             Name = name;
@@ -90,8 +81,6 @@ namespace DevelopmentInProgress.DipState
             InitialiseWithParent = initialiseWithParent;
             CanCompleteParent = canCompleteParent;
             this.status = status;            
-            this.canComplete = canComplete;
-            this.canCompleteAsync = canCompleteAsync;
             Transitions = new List<State>();
             SubStates = new List<State>();
             Actions = new List<StateAction>();
@@ -227,6 +216,28 @@ namespace DevelopmentInProgress.DipState
             }
 
             return true;
+        }
+        
+        /// <summary>
+        /// Add a predicate which is executed synchronously to determine whether the state can be completed i.e. passes validation.
+        /// </summary>
+        /// <param name="predicate">The predicate to add.</param>
+        /// <returns>Returns the state.</returns>
+        public State AddCanCompletePredicate(Predicate<State> predicate)
+        {
+            canComplete = predicate;
+            return this;
+        }
+
+        /// <summary>
+        /// Add a predicate which is executed asynchronously to determine whether the state can be completed i.e. passes validation.
+        /// </summary>
+        /// <param name="asyncPredicate">The async predicate to add.</param>
+        /// <returns>Returns the state.</returns>
+        public State AddCanCompletePredicateAsync(Func<State, Task<bool>> asyncPredicate)
+        {
+            canCompleteAsync = asyncPredicate;
+            return this;
         }
     }
 }
