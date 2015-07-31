@@ -55,12 +55,11 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
 ## How it Works
 
-Here are some of the features by eay of an example workflow.
+Here are some of the features by way of an example workflow.
 
-#### Example Workflow
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
 
-### Workflow Setup
+#### Workflow Setup
 
 ```C#
             var remediationWorkflow = new State(100, "Remediation Workflow", 
@@ -134,10 +133,10 @@ Here are some of the features by eay of an example workflow.
             await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
 ```
 
-### Initialising a State
+#### Initialising a State
 
 ```C#
-            remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
+            await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
 ```
 
   * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
@@ -148,3 +147,5 @@ Here are some of the features by eay of an example workflow.
 The following figure shows how the initialising the *remediation workflow* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
+
+#### Complete and Transition a State
