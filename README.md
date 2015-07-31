@@ -1,25 +1,6 @@
 # dipstate
 Dipstate provides a simple mechanism to maintain state for an activity based workflow.
 
-### Code Snippet 
-```C#
-            var response = new State(220, "Response Received", canCompleteParent: true)
-                .AddActionAsync(StateActionType.Status, SaveStatusAsync);
-
-            var letterSent = new State(210, "Letter Sent", initialiseWithParent: true)
-                .AddActionAsync(StateActionType.Entry, GenerateLetterAsync)
-                .AddActionAsync(StateActionType.Status, SaveStatusAsync)
-                .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
-                .AddCanCompletePredicateAsync(LetterChecked)
-                .AddTransition(response);
-
-            var communication = new State(200, "Communication")
-                .AddSubState(letterSent)
-                .AddSubState(response);
-
-            await communication.ExecuteAsync(StateStatus.Initialise);
-```
-
 ### Features
   * Support for async and synchronous execution
   * Action delegates run with context for entry, exit, reset and status changed events
@@ -27,6 +8,50 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
   * States can have sub-states
   * Support for auto states
   * Support for dependency states
+  
+### Example Code Snippet 
+
+```C#
+            var myState = new State(
+                        1, 
+                        "My State", 
+                        initialiseWithParent: true, 
+                        canCompleteParent: false,
+                        type: StateType.Standard, 
+                        status: StateStatus.Uninitialise)
+                .AddActionAsync(StateActionType.Entry, myEntryActionAsync)
+                .AddActionAsync(StateActionType.Status, myStatusChangedActionAsync)
+                .AddActionAsync(StateActionType.Exit, myExitActionAsync)
+                .AddActionAsync(StateActionType.Reset, MyResetActionAsync)
+                .AddCanCompletePredicateAsync(myCanCompletePredicateAsync)
+                .AddDependency(myDependencyState)
+                .AddDependant(myDependantState)                
+                .AddTransition(myTransitionState)
+                .AddSubState(mySubState);
+```
+
+  * **InitialiseWithParent** - indicates the state will be initialised after its parent has been initialised.
+  * **CanCompleteParent** - indicates the state will attempt to complete its parent state once it has completed itself. This will typically be the last state in a workflow which will its parent up to and including the root workflow state.
+  * **Type**
+    * **Root** is reserved for the main root state in a workflow. There can be only one root within a workflow.
+    * **Auto** states will automatically transition or complete itself after it has been initialised.
+    * **Standard** is a plain vanilla state.
+  * **Status**
+    * **UnInitialise**
+    * **Initialise**
+    * **InProgress**
+    * **Complete**
+    * **Fail**
+  * **Actions**
+    * **Entry** actions execute on initialising a state.
+    * **StatusChanged** actions execute when the status changes.
+    * **Exit** actions execute when the state is completed.
+    * **Reset** actions execute when the state is reset to *Uninitialised*.
+  * **Dependencies** are one or more states which need to be completed before the state can be initialised.
+  * **Dependents** are one or more states which are dependent on the state being completed before they can be initialised themselves. Dependent states can optionally be initialised when the state has completed.
+  * **Transitions** are one or more states that the state can transition to after it has completed.
+  * **Sub States** are one or more states for wich the state acts as a parent. Sub states can behave like a mini workflow where the parent implicitly assumes the role of the root and the last substate will typically have *CanCompleteParent* set to true.
+```
 
 ## How it Works
 
@@ -105,49 +130,6 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
             await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
 ```
-
-### Setting up a State
-
-```C#
-            var myState = new State(
-                        1, 
-                        "My State", 
-                        initialiseWithParent: true, 
-                        canCompleteParent: false,
-                        type: StateType.Standard, 
-                        status: StateStatus.Uninitialise)
-                .AddActionAsync(StateActionType.Entry, myEntryActionAsync)
-                .AddActionAsync(StateActionType.Status, myStatusChangedActionAsync)
-                .AddActionAsync(StateActionType.Exit, myExitActionAsync)
-                .AddActionAsync(StateActionType.Reset, MyResetActionAsync)
-                .AddCanCompletePredicateAsync(myCanCompletePredicateAsync)
-                .AddDependency(myDependencyState)
-                .AddDependant(myDependantState)                
-                .AddTransition(myTransitionState)
-                .AddSubState(mySubState);
-```
-
-  * **InitialiseWithParent** - indicates the state will be initialised after its parent has been initialised.
-  * **CanCompleteParent** - indicates the state will attempt to complete its parent state once it has completed itself. This will typically be the last state in a workflow which will its parent up to and including the root workflow state.
-  * **Type**
-    * **Root** is reserved for the main root state in a workflow. There can be only one root within a workflow.
-    * **Auto** states will automatically transition or complete itself after it has been initialised.
-    * **Standard** is a plain vanilla state.
-  * **Status**
-    * **UnInitialise**
-    * **Initialise**
-    * **InProgress**
-    * **Complete**
-    * **Fail**
-  * **Actions**
-    * **Entry** actions execute on initialising a state.
-    * **StatusChanged** actions execute when the status changes.
-    * **Exit** actions execute when the state is completed.
-    * **Reset** actions execute when the state is reset to *Uninitialised*.
-  * **Dependencies** are one or more states which need to be completed before the state can be initialised.
-  * **Dependents** are one or more states which are dependent on the state being completed before they can be initialised themselves. Dependent states can optionally be initialised when the state has completed.
-  * **Transitions** are one or more states that the state can transition to after it has completed.
-  * **Sub States** are one or more states for wich the state acts as a parent. Sub states can behave like a mini workflow where the parent implicitly assumes the role of the root and the last substate will typically have *CanCompleteParent* set to true.
 
 ### Initialising a State
 
