@@ -113,9 +113,9 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
                         210, 
                         "My State", 
                         initialiseWithParent: true, 
-                        canCompleteParent = false,
-                        type = StateType.Standard, 
-                        status = StateStatus.Uninitialise)
+                        canCompleteParent: false,
+                        type: StateType.Standard, 
+                        status: StateStatus.Uninitialise)
                 .AddActionAsync(StateActionType.Entry, myEntryActionAsync)
                 .AddActionAsync(StateActionType.Status, myStatusChangedActionAsync)
                 .AddActionAsync(StateActionType.Exit, myExitActionAsync)
