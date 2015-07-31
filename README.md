@@ -10,11 +10,10 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
   * Support for dependency states
   
 ### Example Code Snippet 
-
+Setting up State
 ```C#
-            var myState = new State(
-                        1, 
-                        "My State", 
+            var myState = new State(1, "My State", 
+                        context: myContext,
                         initialiseWithParent: true, 
                         canCompleteParent: false,
                         type: StateType.Standard, 
