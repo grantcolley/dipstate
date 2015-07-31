@@ -1,7 +1,7 @@
 # dipstate
 Dipstate provides a simple mechanism to maintain state for an activity based workflow.
 
-## Code Snippet 
+### Code Snippet 
 ```C#
             var response = new State(220, "Response Received", canCompleteParent: true)
                 .AddActionAsync(StateActionType.Status, SaveStatusAsync);
@@ -20,7 +20,7 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
             await communication.ExecuteAsync(StateStatus.Initialise);
 ```
 
-## Features
+### Features
   * Support for async and synchronous execution
   * Action delegates run with context for entry, exit, reset and status changed events
   * Conditional transitioning between states
@@ -38,7 +38,8 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
             var remediationWorkflow = new State(100, "Remediation Workflow", 
                 type: StateType.Root);
 
-            var communication = new State(200, "Communication", initialiseWithParent: true);
+            var communication = new State(200, "Communication", 
+                                                initialiseWithParent: true);
 
             var letterSent = new State(210, "Letter Sent", initialiseWithParent: true)
                 .AddActionAsync(StateActionType.Entry, GenerateLetterAsync)
@@ -57,7 +58,8 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
             var adjustment = new State(500, "Adjustment");
 
             var autoTransitionToRedressReview 
-                = new State(600, "Auto Transition To Redress Review", type: StateType.Auto);
+                = new State(600, "Auto Transition To Redress Review", 
+                                    type: StateType.Auto);
 
             var redressReview = new State(700, "Redress Review");
 
@@ -103,3 +105,18 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
             await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
 ```
+
+### Initialising a State
+
+```C#
+            remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
+```
+
+  * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
+  * **Entry actions** are executed with context.  
+  * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
+  * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised. 
+
+The following figure shows how the initialising the *remediation workflow* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
+
+![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
