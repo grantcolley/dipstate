@@ -106,6 +106,27 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
             await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
 ```
 
+### Setting up a State
+
+```C#
+            var myState = new State(
+                        210, 
+                        "My State", 
+                        initialiseWithParent: true, 
+                        canCompleteParent = false,
+                        type = StateType.Standard, 
+                        status = StateStatus.Uninitialise)
+                .AddActionAsync(StateActionType.Entry, myEntryActionAsync)
+                .AddActionAsync(StateActionType.Status, myStatusChangedActionAsync)
+                .AddActionAsync(StateActionType.Exit, myExitActionAsync)
+                .AddActionAsync(StateActionType.Reset, MyResetActionAsync)
+                .AddCanCompletePredicateAsync(myCanCompletePredicateAsync)
+                .AddDependency(myDependencyState)
+                .AddDependant(myDependantState)                
+                .AddTransition(myTransitionState)
+                .AddSubState(mySubState);
+```
+
 ### Initialising a State
 
 ```C#
