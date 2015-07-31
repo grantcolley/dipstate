@@ -38,11 +38,11 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
     * **Auto** states will automatically transition or complete itself after it has been initialised.
     * **Standard** is a plain vanilla state.
   * **Status**
-    * **UnInitialise**
-    * **Initialise**
-    * **InProgress**
-    * **Complete**
-    * **Fail**
+    * UnInitialise
+    * Initialise
+    * InProgress
+    * Complete
+    * Fail
   * **Actions**
     * **Entry** actions execute on initialising a state.
     * **StatusChanged** actions execute when the status changes.
