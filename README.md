@@ -110,7 +110,7 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
 ```C#
             var myState = new State(
-                        210, 
+                        1, 
                         "My State", 
                         initialiseWithParent: true, 
                         canCompleteParent: false,
