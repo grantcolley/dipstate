@@ -9,24 +9,26 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
   * Support for auto states
   * Support for dependency states
   
-### Example Code Snippet 
-Setting up State
+### Example Code Snippet for Setting up State
+
 ```C#
-            var myState = new State(1, "My State", 
+            var state = new State(1, "My State", 
                         context: myContext,
                         initialiseWithParent: true, 
                         canCompleteParent: false,
                         type: StateType.Standard, 
                         status: StateStatus.Uninitialise)
-                .AddActionAsync(StateActionType.Entry, myEntryActionAsync)
-                .AddActionAsync(StateActionType.Status, myStatusChangedActionAsync)
-                .AddActionAsync(StateActionType.Exit, myExitActionAsync)
-                .AddActionAsync(StateActionType.Reset, MyResetActionAsync)
-                .AddCanCompletePredicateAsync(myCanCompletePredicateAsync)
-                .AddDependency(myDependencyState)
-                .AddDependant(myDependantState)                
-                .AddTransition(myTransitionState)
-                .AddSubState(mySubState);
+                .AddActionAsync(StateActionType.Entry, entryActionAsync)
+                .AddActionAsync(StateActionType.Status, statusChangedActionAsync)
+                .AddActionAsync(StateActionType.Exit, exitActionAsync)
+                .AddActionAsync(StateActionType.Reset, resetActionAsync)
+                .AddCanCompletePredicateAsync(canCompletePredicateAsync)
+                .AddDependency(dependencyState)
+                .AddDependant(dependantState)                
+                .AddTransition(transitionState)
+                .AddSubState(subState);
+                
+            await state.ExecuteAsync(StateStatus.Initialise);
 ```
 
   * **InitialiseWithParent** - indicates the state will be initialised after its parent has been initialised.
@@ -50,14 +52,16 @@ Setting up State
   * **Dependents** are one or more states which are dependent on the state being completed before they can be initialised themselves. Dependent states can optionally be initialised when the state has completed.
   * **Transitions** are one or more states that the state can transition to after it has completed.
   * **Sub States** are one or more states for wich the state acts as a parent. Sub states can behave like a mini workflow where the parent implicitly assumes the role of the root and the last substate will typically have *CanCompleteParent* set to true.
-```
 
 ## How it Works
+
+Here are some of the features by eay of an example workflow.
 
 #### Example Workflow
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
 
 ### Workflow Setup
+
 ```C#
             var remediationWorkflow = new State(100, "Remediation Workflow", 
                 type: StateType.Root);
