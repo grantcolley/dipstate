@@ -127,6 +127,28 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
                 .AddSubState(mySubState);
 ```
 
+  * **InitialiseWithParent** - indicates the state will be initialised after its parent has been initialised.
+  * **CanCompleteParent** - indicates the state will attempt to complete its parent state once it has completed itself. This will typically be the last state in a workflow which will its parent up to and including the root workflow state.
+  * **Type**
+    * **Root** is reserved for the main root state in a workflow. There can be only one root within a workflow.
+    * **Auto** states will automatically transition or complete itself after it has been initialised.
+    * **Standard** is a plain vanilla state.
+  * **Status**
+    * **UnInitialise**
+    * **Initialise**
+    * **InProgress**
+    * **Complete**
+    * **Fail**
+  * **Actions**
+    * **Entry** actions execute on initialising a state.
+    * **StatusChanged** actions execute when the status changes.
+    * **Exit** actions execute when the state is completed.
+    * **Reset** actions execute when the state is reset to *Uninitialised*.
+  * **Dependencies** are one or more states which need to be completed before the state can be initialised.
+  * **Dependents** are one or more states which are dependent on the state being completed before they can be initialised themselves. Dependent states can optionally be initialised when the state has completed.
+  * **Transitions** are one or more states that the state can transition to after it has completed.
+  * **Sub States** are one or more states for wich the state acts as a parent. Sub states can behave like a mini workflow where the parent implicitly assumes the role of the root and the last substate will typically have *CanCompleteParent* set to true.
+
 ### Initialising a State
 
 ```C#
