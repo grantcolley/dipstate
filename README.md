@@ -143,11 +143,6 @@ The example workflow follows the activities of a customer remediation process. T
 ```
 
 #### Initialising a State
-
-```C#
-            await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
-```
-
   * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
   * **Entry actions** are executed with context. 
   * **StatusChanged actions** are executed with context. 
@@ -156,20 +151,31 @@ The example workflow follows the activities of a customer remediation process. T
 
 The following figure shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
-![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
-
-#### Complete a State and Transition to the next State
-
 ```C#
-            var nextState = await collateData.ExecuteAsync(adjustmentDecision);
+            await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
 ```
 
+![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
+
+#### Transition a State
+  * Transitioning to another state completes the state being transition from.
   * A delegate is executed to determine whether the state can complete. If no delegate has been provided it will return true.
   * **Exit actions** are executed with context. 
   * **Status actions** are executed with context after the status has changed. 
   * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
   * The transition state is initialised
 
-The following figure shows the *Collate Data* state transition to the *AdjustmentDecision* state.
+The following shows *Collate Data* transition to *AdjustmentDecision*.
+
+```C#
+            var adjustmentDecision = await collateData.ExecuteAsync(adjustmentDecision);
+```
 
 ![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
+
+
+#### Auto States
+Auto states will automatically transition or complete itself after it has been initialised.
+**Entry actions** are delegates that enable processing with state context to take place. In the case of an auto state an **Entry action** can be used to determine at runtime which state to transition to.
+
+![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
