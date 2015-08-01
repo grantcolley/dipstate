@@ -81,7 +81,7 @@ The example workflow follows the activities of a customer remediation process. T
                 .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
                 .AddCanCompletePredicateAsync(LetterCheckedAsync);
 
-            var responseRecieved = new State(220, "Response Received", canCompleteParent: true)
+            var response = new State(220, "Response", canCompleteParent: true)
                 .AddActionAsync(StateActionType.Status, SaveStatusAsync);
 
             var collateData = new State(300, "Collate Data", true)
@@ -123,12 +123,12 @@ The example workflow follows the activities of a customer remediation process. T
             collateData
                 .AddTransition(adjustmentDecision);
 
-            letterSent.AddTransition(responseRecieved);
+            letterSent.AddTransition(response);
 
             communication
                 .AddDependant(redressReview, true)
                 .AddSubState(letterSent)
-                .AddSubState(responseRecieved)
+                .AddSubState(response)
                 .AddTransition(redressReview);
 
             remediationWorkflowRoot
@@ -172,15 +172,15 @@ The following shows how the initialising the *Remediation Workflow Root* will al
   * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
   * The transition state is initialised
 
-The following shows *Letter Sent* transition to *ResponseRecieved*.
+The following shows *Letter Sent* transition to *Response*.
 
 ```C#
-            result = await letterSent.ExecuteAsync(responseRecieved);
+            result = await letterSent.ExecuteAsync(response);
             
             Assert.IsTrue(result.Name.Equals("Response Received"));
             Assert.AreEqual(letterSent.Status, StateStatus.Complete);
-            Assert.AreEqual(responseRecieved.Status, StateStatus.Initialise);
-            Assert.IsTrue(responseRecieved.Antecedent.Equals(letterSent));
+            Assert.AreEqual(response.Status, StateStatus.Initialise);
+            Assert.IsTrue(response.Antecedent.Equals(letterSent));
 ```
 
 ![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
@@ -208,7 +208,7 @@ A sub state can be configured to complete its parent. Typically this will be the
 The following shows how *ResponseRecieved* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
 
 ```C#
-            var responseRecieved = new State(220, "Response Received", canCompleteParent: true)
+            var response = new State(220, "Response", canCompleteParent: true)
                 .AddActionAsync(StateActionType.Status, SaveStatusAsync);
                 
             // ...
@@ -218,16 +218,16 @@ The following shows how *ResponseRecieved* is configured to complete itself and 
             communication
                 .AddDependant(redressReview, true)
                 .AddSubState(letterSent)
-                .AddSubState(responseRecieved)
+                .AddSubState(response)
                 .AddTransition(redressReview);
                 
             // ...
             // ...
             // ...
             
-            result = await responseRecieved.ExecuteAsync(StateStatus.Complete);
+            result = await response.ExecuteAsync(StateStatus.Complete);
 
-            Assert.AreEqual(responseRecieved.Status, StateStatus.Complete);
+            Assert.AreEqual(response.Status, StateStatus.Complete);
             Assert.AreEqual(communication.Status, StateStatus.Complete);
 
             Assert.IsTrue(result.Equals(redressReview));
@@ -244,5 +244,22 @@ A state that has one or more dependencies that are not complete cannot be initia
 Dependency states can be configured to initialise the dependant state when the dependency state completes.
 
 The following shows how *Communication* and *AutoTransitionToRedressReview* are both configured initialise *RedressReview* when they complete. In such a case *RedressReview* will only successfully initialise when the last dependency is completed.
+
+```C#
+            autoTransitionToRedressReview
+                .AddDependant(redressReview, true)
+                .AddTransition(redressReview);
+                
+            // ...
+            // ...
+            // ...
+            
+            communication
+                .AddDependant(redressReview, true)
+                .AddSubState(letterSent)
+                .AddSubState(response)
+                .AddTransition(redressReview);
+                
+```
 
 ![Alt text](/README-images/Dipstate-example-dependency.png?raw=true "Dependency States")
