@@ -149,7 +149,7 @@ The example workflow follows the activities of a customer remediation process. T
   * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
   * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised. 
 
-The following figure shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
+The following shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ```C#
             await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
@@ -177,5 +177,18 @@ The following shows *Collate Data* transition to *AdjustmentDecision*.
 #### Auto States
 Auto states will automatically transition or complete itself after it has been initialised.
 **Entry actions** are delegates that enable processing with state context to take place. In the case of an auto state an **Entry action** can be used to determine at runtime which state to transition to.
+
+The following shows the configuration of auto state *AdjustmentDecision* which enables it to transition to either the *Adjustment* or *AutoTransitionToRedressReview* (which happens to be another auto state).
+
+```C#
+            adjustmentDecision
+                .AddTransition(adjustment)
+                .AddTransition(autoTransitionToRedressReview)
+                .AddAction(StateActionType.Entry, (s =>
+                {
+                    // Determine at runtime whether to transition 
+                    // to Adjustment or AutoTransitionToReview
+                }));
+```
 
 ![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
