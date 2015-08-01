@@ -55,14 +55,18 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
 ## How it Works
 
-Here are some of the features by way of an example workflow.
+Here is how it works by way of an example workflow. 
+
+The example workflow follows the activities of a customer remediation process. The process starts with sending out a letter to a customer informing them a remediation is due and requesting a response. In parallel, data pertaining to the redress is gathered and the amount to be redressed is calculated. If necessary an adjustment is made to the calculated amount. Once the response is received from the customer the case is sent for final review. If the review fails the case is sent back to be re-calculated. If the review passes then payment is made to the customer.
 
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
 
 #### Workflow Setup
 
 ```C#
-            var remediationWorkflow = new State(100, "Remediation Workflow", 
+            // Create the states
+            
+            var remediationWorkflowRoot = new State(100, "Remediation Workflow", 
                 type: StateType.Root);
 
             var communication = new State(200, "Communication", 
@@ -77,7 +81,8 @@ Here are some of the features by way of an example workflow.
             var response = new State(220, "Response Received", canCompleteParent: true)
                 .AddActionAsync(StateActionType.Status, SaveStatusAsync);
             
-            var collateData = new State(300, "Collate Data", true);
+            var collateData = new State(300, "Collate Data", true)
+                .AddCanCompletePredicateAsync(ValidateData);
             
             var adjustmentDecision = new State(400, "Adjustment Decision", 
                 type: StateType.Auto);
@@ -92,6 +97,8 @@ Here are some of the features by way of an example workflow.
 
             var payment = new State(800, "Payment", canCompleteParent: true);
 
+            // Assemble the workflow
+            
             redressReview
                 .AddTransition(payment)
                 .AddTransition(collateData)
@@ -121,7 +128,7 @@ Here are some of the features by way of an example workflow.
                 .AddSubState(letterSent)
                 .AddSubState(response);
 
-            remediationWorkflow
+            remediationWorkflowRoot
                 .AddSubState(communication)
                 .AddSubState(collateData)
                 .AddSubState(adjustmentDecision)
@@ -130,22 +137,39 @@ Here are some of the features by way of an example workflow.
                 .AddSubState(redressReview)
                 .AddSubState(payment);
 
-            await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
+            // Initialise the workflow
+            
+            await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
 ```
 
 #### Initialising a State
 
 ```C#
-            await remediationWorkflow.ExecuteAsync(StateStatus.Initialise);
+            await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
 ```
 
   * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
-  * **Entry actions** are executed with context.  
+  * **Entry actions** are executed with context. 
+  * **StatusChanged actions** are executed with context. 
   * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
   * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised. 
 
-The following figure shows how the initialising the *remediation workflow* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
+The following figure shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
 
-#### Complete and Transition a State
+#### Complete a State and Transition to the next State
+
+```C#
+            var nextState = await collateData.ExecuteAsync(adjustmentDecision);
+```
+
+  * A delegate is executed to determine whether the state can complete. If no delegate has been provided it will return true.
+  * **Exit actions** are executed with context. 
+  * **Status actions** are executed with context after the status has changed. 
+  * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
+  * The transition state is initialised
+
+The following figure shows the *Collate Data* state transition to the *AdjustmentDecision* state.
+
+![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
