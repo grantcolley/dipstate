@@ -59,7 +59,7 @@
     <Compile Include="AsyncExampleWorkflowTest.cs" />
     <Compile Include="AsyncGenericStateTest.cs" />
     <Compile Include="AsyncTestMethods.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="GitHubReadMeExampleTest.cs" />
     <Compile Include="ContextTestClasses.cs" />
     <Compile Include="StateEngineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
