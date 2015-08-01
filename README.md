@@ -159,6 +159,7 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 
 #### Transition a State
   * Transitioning to another state completes the state being transition from.
+  * If the state has only one transition state then it will transition to that state when it is set to complete.
   * A delegate is executed to determine whether the state can complete. If no delegate has been provided it will return true.
   * **Exit actions** are executed with context. 
   * **Status actions** are executed with context after the status has changed. 
