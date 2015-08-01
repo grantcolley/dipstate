@@ -55,7 +55,7 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
 ## How it Works
 
-Here is how it works by way of an example workflow. 
+Here is how it works by way of an example workflow. Note: for a full listing of the code see test class **GitHubReadMeExampleTest.cs** in the test project **DevelopmentInProgress.DipState.Test**.
 
 The example workflow follows the activities of a customer remediation process. The process starts with sending out a letter to a customer informing them a remediation is due and requesting a response. In parallel, data pertaining to the redress is gathered and the amount to be redressed is calculated. If necessary an adjustment is made to the calculated amount. Once the response is received from the customer the case is sent for final review. If the review fails the case is sent back to be re-calculated. If the review passes then payment is made to the customer.
 
