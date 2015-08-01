@@ -55,11 +55,14 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
 ## How it Works
 
-Here is how it works by way of an example workflow. Note: for a full listing of the code see test class **GitHubReadMeExampleTest.cs** in the test project **DevelopmentInProgress.DipState.Test**.
+Here is how it works by way of an example workflow. 
+
+Note: for a full listing of the code see test class **GitHubReadMeExampleTest.cs** in the test project **DevelopmentInProgress.DipState.Test**.
 
 The example workflow follows the activities of a customer remediation process. The process starts with sending out a letter to a customer informing them a remediation is due and requesting a response. In parallel, data pertaining to the redress is gathered and the amount to be redressed is calculated. If necessary an adjustment is made to the calculated amount. Once the response is received from the customer the case is sent for final review. If the review fails the case is sent back to be re-calculated. If the review passes then payment is made to the customer.
 
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
+
 
 #### Workflow Setup
 
@@ -107,6 +110,7 @@ The example workflow follows the activities of a customer remediation process. T
                 .AddDependency(autoTransitionToRedressReview);
 
             autoTransitionToRedressReview
+                .AddDependant(redressReview, true)
                 .AddTransition(redressReview);
 
             adjustment.AddTransition(autoTransitionToRedressReview);
@@ -121,7 +125,8 @@ The example workflow follows the activities of a customer remediation process. T
 
             letterSent.AddTransition(responseRecieved);
 
-            communication.AddDependant(redressReview, true)
+            communication
+                .AddDependant(redressReview, true)
                 .AddSubState(letterSent)
                 .AddSubState(responseRecieved)
                 .AddTransition(redressReview);
@@ -156,6 +161,7 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 ```
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
+
 
 #### Transition a State
   * Transitioning to another state completes the state being transition from.
@@ -194,3 +200,49 @@ The following shows the configuration of auto state *AdjustmentDecision* which e
 ```
 
 ![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
+
+
+#### Sub State can complete its Parent
+A sub state can be configured to complete its parent. Typically this will be the last sub state expected to complete under the parent. The last sub state must not be configured to transition to another state so that it can complete its parent. The parent can be configured to transition to another state.
+
+The following shows how *ResponseRecieved* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
+
+```C#
+            var responseRecieved = new State(220, "Response Received", canCompleteParent: true)
+                .AddActionAsync(StateActionType.Status, SaveStatusAsync);
+                
+            // ...
+            // ...
+            // ...
+            
+            communication
+                .AddDependant(redressReview, true)
+                .AddSubState(letterSent)
+                .AddSubState(responseRecieved)
+                .AddTransition(redressReview);
+                
+            // ...
+            // ...
+            // ...
+            
+            result = await responseRecieved.ExecuteAsync(StateStatus.Complete);
+
+            Assert.AreEqual(responseRecieved.Status, StateStatus.Complete);
+            Assert.AreEqual(communication.Status, StateStatus.Complete);
+
+            Assert.IsTrue(result.Equals(redressReview));
+            Assert.AreEqual(redressReview.Status, StateStatus.Initialise);
+            Assert.IsTrue(redressReview.Antecedent.Equals(communication));
+```
+
+![Alt text](/README-images/Dipstate-example-substate-close-parent.png?raw=true "Sub state completes its parent")
+
+
+#### Dependency States
+A state that has one or more dependencies that are not complete cannot be initialised.
+
+Dependency states can be configured to initialise the dependant state when the dependency state completes.
+
+The following shows how *Communication* and *AutoTransitionToRedressReview* are both configured initialise *RedressReview* when they complete. In such a case *RedressReview* will only successfully initialise when the last dependency is completed.
+
+![Alt text](/README-images/Dipstate-example-dependency.png?raw=true "Dependency States")
