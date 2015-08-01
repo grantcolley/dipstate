@@ -64,41 +64,42 @@ The example workflow follows the activities of a customer remediation process. T
 #### Workflow Setup
 
 ```C#
-            // Create the states
-            
-            var remediationWorkflowRoot = new State(100, "Remediation Workflow", 
+            // Create the remediation workflow states
+
+            var remediationWorkflowRoot = new State(100, "Remediation Workflow",
                 type: StateType.Root);
 
-            var communication = new State(200, "Communication", 
+            var communication = new State(200, "Communication",
                                                 initialiseWithParent: true);
 
             var letterSent = new State(210, "Letter Sent", initialiseWithParent: true)
                 .AddActionAsync(StateActionType.Entry, GenerateLetterAsync)
                 .AddActionAsync(StateActionType.Status, SaveStatusAsync)
                 .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
-                .AddCanCompletePredicateAsync(LetterChecked);
+                .AddCanCompletePredicateAsync(LetterCheckedAsync);
 
-            var response = new State(220, "Response Received", canCompleteParent: true)
+            var responseRecieved = new State(220, "Response Received", canCompleteParent: true)
                 .AddActionAsync(StateActionType.Status, SaveStatusAsync);
-            
+
             var collateData = new State(300, "Collate Data", true)
-                .AddCanCompletePredicateAsync(ValidateData);
-            
-            var adjustmentDecision = new State(400, "Adjustment Decision", 
+                .AddCanCompletePredicateAsync(ValidateDataAsync);
+
+            var adjustmentDecision = new State(400, "Adjustment Decision",
                 type: StateType.Auto);
 
             var adjustment = new State(500, "Adjustment");
 
-            var autoTransitionToRedressReview 
-                = new State(600, "Auto Transition To Redress Review", 
+            var autoTransitionToRedressReview
+                = new State(600, "Auto Transition To Redress Review",
                                     type: StateType.Auto);
 
             var redressReview = new State(700, "Redress Review");
 
             var payment = new State(800, "Payment", canCompleteParent: true);
 
-            // Assemble the workflow
-            
+
+            // Assemble the remediation workflow
+
             redressReview
                 .AddTransition(payment)
                 .AddTransition(collateData)
@@ -113,20 +114,17 @@ The example workflow follows the activities of a customer remediation process. T
             adjustmentDecision
                 .AddTransition(adjustment)
                 .AddTransition(autoTransitionToRedressReview)
-                .AddAction(StateActionType.Entry, (s =>
-                {
-                    // Determine at runtime whether to transition 
-                    // to Adjustment or AutoTransitionToReview
-                }));
+                .AddActionAsync(StateActionType.Entry, AdjustmentRequiredCheckAsync);
 
             collateData
                 .AddTransition(adjustmentDecision);
 
-            letterSent.AddTransition(response);
+            letterSent.AddTransition(responseRecieved);
 
             communication.AddDependant(redressReview, true)
                 .AddSubState(letterSent)
-                .AddSubState(response);
+                .AddSubState(responseRecieved)
+                .AddTransition(redressReview);
 
             remediationWorkflowRoot
                 .AddSubState(communication)
@@ -136,10 +134,6 @@ The example workflow follows the activities of a customer remediation process. T
                 .AddSubState(autoTransitionToRedressReview)
                 .AddSubState(redressReview)
                 .AddSubState(payment);
-
-            // Initialise the workflow
-            
-            await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
 ```
 
 #### Initialising a State
@@ -152,7 +146,13 @@ The example workflow follows the activities of a customer remediation process. T
 The following shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ```C#
-            await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
+            var result = await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
+
+            Assert.IsTrue(result.Name.Equals("Remediation Workflow"));
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Initialise);
+            Assert.AreEqual(communication.Status, StateStatus.Initialise);
+            Assert.AreEqual(letterSent.Status, StateStatus.Initialise);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialise);
 ```
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
@@ -166,10 +166,15 @@ The following shows how the initialising the *Remediation Workflow Root* will al
   * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
   * The transition state is initialised
 
-The following shows *Collate Data* transition to *AdjustmentDecision*.
+The following shows *Letter Sent* transition to *ResponseRecieved*.
 
 ```C#
-            var adjustmentDecision = await collateData.ExecuteAsync(adjustmentDecision);
+            result = await letterSent.ExecuteAsync(responseRecieved);
+            
+            Assert.IsTrue(result.Name.Equals("Response Received"));
+            Assert.AreEqual(letterSent.Status, StateStatus.Complete);
+            Assert.AreEqual(responseRecieved.Status, StateStatus.Initialise);
+            Assert.IsTrue(responseRecieved.Antecedent.Equals(letterSent));
 ```
 
 ![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
@@ -185,11 +190,7 @@ The following shows the configuration of auto state *AdjustmentDecision* which e
             adjustmentDecision
                 .AddTransition(adjustment)
                 .AddTransition(autoTransitionToRedressReview)
-                .AddAction(StateActionType.Entry, (s =>
-                {
-                    // Determine at runtime whether to transition 
-                    // to Adjustment or AutoTransitionToReview
-                }));
+                .AddActionAsync(StateActionType.Entry, AdjustmentRequiredCheckAsync);
 ```
 
 ![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
