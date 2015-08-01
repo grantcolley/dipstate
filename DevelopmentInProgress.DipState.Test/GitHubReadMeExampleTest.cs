@@ -54,6 +54,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddDependency(autoTransitionToRedressReview);
 
             autoTransitionToRedressReview
+                .AddDependant(redressReview, true)
                 .AddTransition(redressReview);
 
             adjustment.AddTransition(autoTransitionToRedressReview);
@@ -68,7 +69,8 @@ namespace DevelopmentInProgress.DipState.Test
 
             letterSent.AddTransition(responseRecieved);
 
-            communication.AddDependant(redressReview, true)
+            communication
+                .AddDependant(redressReview, true)
                 .AddSubState(letterSent)
                 .AddSubState(responseRecieved)
                 .AddTransition(redressReview);
