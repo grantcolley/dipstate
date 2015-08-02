@@ -283,4 +283,4 @@ The following shows the *Payment* state configured to complete the workflow.
             Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Complete);
 ```
 
-![Alt text](/README-images/Dipstate-example-workflow-complete.png?raw=true "Complete a workflow")
+![Alt text](/README-images/Dipstate-example-complete-workflow.png?raw=true "Complete a workflow")
