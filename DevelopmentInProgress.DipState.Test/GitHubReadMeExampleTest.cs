@@ -84,6 +84,8 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(redressReview)
                 .AddSubState(payment);
 
+            // Initialise the workflow
+
             var result = await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
 
             Assert.IsTrue(result.Name.Equals("Remediation Workflow"));
