@@ -248,8 +248,8 @@ When a state is failed back to another state, that state and all states in betwe
 
 When a state is reset, its status is set to Uninitialised and Reset action delegates will be triggered.
 
-The following shows how *Redress Review* can either fail to * Collate Data * or be transitioned to *Payment*. 
-If it is failed back to *Collate Data * then *Collate Data *, *Adjustment Decision*, *AutoTransitionToRedressReview* and, if applicable, *Adjustment* will be reset.
+The following shows how *Redress Review* can either fail to *Collate Data* or be transitioned to *Payment*. 
+If it is failed back to *Collate Data* then *Collate Data*, *Adjustment Decision*, *AutoTransitionToRedressReview* and, if applicable, *Adjustment* will be reset.
 
 ```C#
             redressReview
@@ -266,3 +266,21 @@ If it is failed back to *Collate Data * then *Collate Data *, *Adjustment Decisi
 ```
 
 ![Alt text](/README-images/Dipstate-example-fail.png?raw=true "Fail a state")
+
+
+#### Completing a Workflow
+
+When a sub state completes, it will attempt to transition to another state. If it does not have a state to transition to it will complete itself. If the state is configured to complete its parent and all its siblings are complete then the parent will complete. This will continue up the hierarchy until finally the root workflow state is completed.
+
+The following shows the *Payment* state configured to complete the workflow.
+
+```C#
+            result = await payment.ExecuteAsync(StateStatus.Complete);
+
+            Assert.AreEqual(payment.Status, StateStatus.Complete);
+
+            Assert.IsTrue(result.Equals(remediationWorkflowRoot));
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Complete);
+```
+
+![Alt text](/README-images/Dipstate-example-workflow-complete.png?raw=true "Complete a workflow")
