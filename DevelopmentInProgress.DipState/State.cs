@@ -59,8 +59,6 @@ namespace DevelopmentInProgress.DipState
     public class State
     {
         private StateStatus status;
-        private Predicate<State> canComplete;
-        private Func<State, Task<bool>> canCompleteAsync;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="State"/> class.
@@ -196,48 +194,13 @@ namespace DevelopmentInProgress.DipState
         }
 
         /// <summary>
-        /// Executes a predicate synchronously to determine whether the state can complete.
+        /// Gets or sets a predicate delegate to synchronously determine whether the state can be completed or not.
         /// </summary>
-        /// <returns>Returns true if the state can be completed, else returns false. If no predicate is provided returns true.</returns>
-        public bool CanComplete()
-        {
-            return canComplete == null || canComplete(this);
-        }
+        internal Predicate<State> CanCompleteState { get; set; }
 
         /// <summary>
-        /// Executes a predicate asynchronously to determine whether the state can complete.
+        /// Gets or sets a predicate delegate to asynchronously determine whether the state can be completed or not.
         /// </summary>
-        /// <returns>Returns true if the state can be completed, else returns false. If no predicate is provided returns true.</returns>
-        public async Task<bool> CanCompleteAsync()
-        {
-            if (canCompleteAsync != null)
-            {
-                return await canCompleteAsync(this);
-            }
-
-            return true;
-        }
-        
-        /// <summary>
-        /// Add a predicate which is executed synchronously to determine whether the state can be completed i.e. passes validation.
-        /// </summary>
-        /// <param name="predicate">The predicate to add.</param>
-        /// <returns>Returns the state.</returns>
-        public State AddCanCompletePredicate(Predicate<State> predicate)
-        {
-            canComplete = predicate;
-            return this;
-        }
-
-        /// <summary>
-        /// Add a predicate which is executed asynchronously to determine whether the state can be completed i.e. passes validation.
-        /// </summary>
-        /// <param name="asyncPredicate">The async predicate to add.</param>
-        /// <returns>Returns the state.</returns>
-        public State AddCanCompletePredicateAsync(Func<State, Task<bool>> asyncPredicate)
-        {
-            canCompleteAsync = asyncPredicate;
-            return this;
-        }
+        internal Func<State, Task<bool>> CanCompleteStateAsync { get; set; }
     }
 }

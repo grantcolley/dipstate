@@ -12,6 +12,112 @@ namespace DevelopmentInProgress.DipState
     public static class StateExtensions
     {
         /// <summary>
+        /// Asynchronously executes the state based on the status provided.
+        /// </summary>
+        /// <param name="state">The state to execute.</param>
+        /// <param name="newStatus">The new status of the state.</param>
+        /// <returns>An awaitable task of type <see cref="State"/>.</returns>
+        public static async Task<State> ExecuteAsync(this State state, StateStatus newStatus)
+        {
+            return await state.ExecuteAsync(newStatus, null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Asynchronously transition the state to the transition state provided.
+        /// </summary>
+        /// <param name="state">The state to transition from.</param>
+        /// <param name="transitionState">The state to transition to.</param>
+        /// <returns>An awaitable task of type <see cref="State"/>. Typically this is the state that has been transitioned to.</returns>
+        public static async Task<State> ExecuteAsync(this State state, State transitionState)
+        {
+            return await state.ExecuteAsync(StateStatus.Complete, transitionState).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Asynchronously executes the state based on the status or transition state provided.
+        /// </summary>
+        /// <param name="state">The state to execute.</param>
+        /// <param name="newStatus">The new status of the state.</param>
+        /// <param name="transitionState">The state to transition to.</param>
+        /// <returns>An awaitable task of type <see cref="State"/> which is the result of the execution.</returns>
+        public static async Task<State> ExecuteAsync(this State state, StateStatus newStatus, State transitionState)
+        {
+            if (!state.CanExecute(newStatus))
+            {
+                return state;
+            }
+
+            state.PreExecuteSetup(newStatus, transitionState);
+
+            switch (newStatus)
+            {
+                case StateStatus.Complete:
+                case StateStatus.Fail:
+                    return await state.TransitionAsync().ConfigureAwait(false);
+                case StateStatus.Initialise:
+                    return await state.InitialiseAsync().ConfigureAwait(false);
+                case StateStatus.Uninitialise:
+                    await state.ResetAsync().ConfigureAwait(false);
+                    return state;
+                default:
+                    return await state.ChangeStatusAsync(newStatus).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Synchronously executes the state based on the status provided.
+        /// </summary>
+        /// <param name="state">The state to execute.</param>
+        /// <param name="newStatus">The new status of the state.</param>
+        /// <returns>A <see cref="State"/>.</returns>
+        public static State Execute(this State state, StateStatus newStatus)
+        {
+            return state.Execute(newStatus, null);
+        }
+
+        /// <summary>
+        /// Synchronously transition the state to the transition state provided.
+        /// </summary>
+        /// <param name="state">The state to transition from.</param>
+        /// <param name="transitionState">The state to transition to.</param>
+        /// <returns>The state that has been transitioned to.</returns>
+        public static State Execute(this State state, State transitionState)
+        {
+            return state.Execute(StateStatus.Complete, transitionState);
+        }
+
+        /// <summary>
+        /// Synchronously executes the state based on the status or transition state provided.
+        /// </summary>
+        /// <param name="state">The state to execute.</param>
+        /// <param name="newStatus">The new status of the state.</param>
+        /// <param name="transitionState">The state to transition to.</param>
+        /// <returns>The result of the execution.</returns>
+        public static State Execute(this State state, StateStatus newStatus, State transitionState)
+        {
+            if (!state.CanExecute(newStatus))
+            {
+                return state;
+            }
+
+            state.PreExecuteSetup(newStatus, transitionState);
+
+            switch (newStatus)
+            {
+                case StateStatus.Complete:
+                case StateStatus.Fail:
+                    return state.Transition();
+                case StateStatus.Initialise:
+                    return state.Initialise();
+                case StateStatus.Uninitialise:
+                    state.Reset();
+                    return state;
+                default:
+                    return state.ChangeStatus(newStatus);
+            }
+        }
+
+        /// <summary>
         /// Reset the state synchronously to uninitialised. This will also reset any substates.
         /// </summary>
         /// <param name="state">The state to reset.</param>
@@ -157,92 +263,50 @@ namespace DevelopmentInProgress.DipState
         }
 
         /// <summary>
-        /// Initialises the substates of a parent along with the parent. The substates to be initialised must have its InitialiseWithParent field set to true.
+        /// Executes a predicate synchronously to determine whether the state can complete.
         /// </summary>
-        /// <param name="state">The state for which the substates are initialised.</param>
-        /// <returns></returns>
-        public static List<State> SubStatesToInitialiseWithParent(this State state)
+        /// <returns>Returns true if the state can be completed, else returns false. If no predicate is provided returns true.</returns>
+        public static bool CanComplete(this State state)
         {
-            return state.SubStates.Where(s => s.InitialiseWithParent).ToList();
+            return state.CanCompleteState == null || state.CanCompleteState(state);
         }
 
         /// <summary>
-        /// Determines whether the state can be executed.
+        /// Executes a predicate asynchronously to determine whether the state can complete.
         /// </summary>
-        /// <param name="state">The state to be executed.</param>
-        /// <param name="newStatus">The new status of the state to be executed.</param>
-        /// <returns>True if the state can be executed, else returns false.</returns>
-        public static bool CanExecute(this State state, StateStatus newStatus)
+        /// <returns>Returns true if the state can be completed, else returns false. If no predicate is provided returns true.</returns>
+        public static async Task<bool> CanCompleteAsync(this State state)
         {
-            return !state.Status.Equals(newStatus);
+            if (state.CanCompleteStateAsync != null)
+            {
+                return await state.CanCompleteStateAsync(state);
+            }
+
+            return true;
         }
 
         /// <summary>
-        /// Pre-exection state setup.
+        /// Add a predicate which is executed synchronously to determine whether the state can be completed i.e. passes validation.
         /// </summary>
-        /// <param name="state">The state to be executed.</param>
-        /// <param name="newStatus">The new status.</param>
-        /// <param name="transitionState">The state to be transitioned to.</param>
-        public static void PreExecuteSetup(this State state, StateStatus newStatus, State transitionState)
+        /// <param name="state">The state for which the predicate is added.</param>
+        /// <param name="predicate">The predicate to add.</param>
+        /// <returns>Returns the state.</returns>
+        public static State AddCanCompletePredicate(this State state, Predicate<State> predicate)
         {
-            if (newStatus.Equals(StateStatus.Fail))
-            {
-                state.Status = StateStatus.Fail;
-            }
-
-            if (transitionState != null
-                && (newStatus.Equals(StateStatus.Complete)
-                    || newStatus.Equals(StateStatus.Fail)))
-            {
-                state.Transition = transitionState;
-            }
+            state.CanCompleteState = predicate;
+            return state;
         }
 
         /// <summary>
-        /// If the state only has one other state in its transition list, then set that as the transition state.
+        /// Add a predicate which is executed asynchronously to determine whether the state can be completed i.e. passes validation.
         /// </summary>
-        /// <param name="state">The state to be transitioned.</param>
-        public static void SetDefaultTransition(this State state)
+        /// <param name="state">The state for which the predicate is added.</param>
+        /// <param name="asyncPredicate">The async predicate to add.</param>
+        /// <returns>Returns the state.</returns>
+        public static State AddCanCompletePredicateAsync(this State state, Func<State, Task<bool>> asyncPredicate)
         {
-            if (state.Transition == null
-                && state.Transitions.Count.Equals(1))
-            {
-                state.Transition = state.Transitions.First();
-            }
-        }
-
-        /// <summary>
-        /// Set the parent (aggregate) state to InProgress if any of its sub states are
-        /// In Progress or if at least one, but not all, of its sub states are Complete.
-        /// </summary>
-        /// <param name="state">The state whose parent status will be set to InProgress.</param>
-        public static void UpdateParentStatusToInProgress(this State state)
-        {
-            if (state.Parent == null
-                || state.Parent.Status.Equals(StateStatus.InProgress))
-            {
-                return;
-            }
-
-            var aggregate = state.Parent;
-            if (aggregate.Status.Equals(StateStatus.Complete))
-            {
-                var message =
-                    String.Format("{0} {1} cannot be set to InProgress because it has already been set to Complete.",
-                        aggregate.Id, aggregate.Name);
-                aggregate.WriteLogEntry(message);
-                throw new StateException(aggregate, message);
-            }
-
-            if (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.InProgress))
-                || (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.Complete))
-                    &&
-                    !aggregate.SubStates.Count()
-                        .Equals(aggregate.SubStates.Count(s => s.Status.Equals(StateStatus.Complete)))))
-            {
-                aggregate.Status = StateStatus.InProgress;
-                aggregate.UpdateParentStatusToInProgress();
-            }
+            state.CanCompleteStateAsync = asyncPredicate;
+            return state;
         }
 
         /// <summary>
@@ -262,43 +326,6 @@ namespace DevelopmentInProgress.DipState
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Determines whether the state can transition to another state.
-        /// </summary>
-        /// <param name="state">The state to check if it can be transitioned.</param>
-        /// <returns>True if the state has another state it can be transitioned to, else returns false.</returns>
-        public static bool CanTransition(this State state)
-        {
-            if (state.Transition != null
-                && !state.Transitions.Exists(t => t.Id.Equals(state.Transition.Id)))
-            {
-                var message =
-                    String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",
-                        state.Name, state.Transition.Name);
-                state.WriteLogEntry(message);
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Write a log entry to the state.
-        /// </summary>
-        /// <param name="state">The state for which to write a log entry.</param>
-        /// <param name="message">The message to log.</param>
-        public static void WriteLogEntry(this State state, string message)
-        {
-            var logEntry = new LogEntry(message);
-            state.Log.Add(logEntry);
-
-#if DEBUG
-
-            Debug.WriteLine(logEntry);
-
-#endif
         }
 
         /// <summary>
@@ -329,187 +356,20 @@ namespace DevelopmentInProgress.DipState
         }
 
         /// <summary>
-        /// Fails to the specified transition state asynchrnonously. All states touched when traversing the graph to the state that will be failed to will be reset.
+        /// Write a log entry to the state.
         /// </summary>
-        /// <param name="state">The state to fail.</param>
-        /// <param name="failTransitionState">The transition state to fail to.</param>
-        /// <returns>An awaitable task of type <see cref="State"/>.</returns>
-        public static async Task<State> FailToTransitionStateAsync(this State state, State failTransitionState)
+        /// <param name="state">The state for which to write a log entry.</param>
+        /// <param name="message">The message to log.</param>
+        public static void WriteLogEntry(this State state, string message)
         {
-            if (state != null)
-            {
-                if (state.Parent != null
-                    &&
-                    state.Parent.SubStates.Count(
-                        s =>
-                            s.Status.Equals(StateStatus.Uninitialise) ||
-                            s.Status.Equals(StateStatus.Fail)).Equals(state.Parent.SubStates.Count))
-                {
-                    await state.Parent.ResetAsync().ConfigureAwait(false);
-                }
+            var logEntry = new LogEntry(message);
+            state.Log.Add(logEntry);
 
-                if (failTransitionState != null)
-                {
-                    if (state.Id.Equals(failTransitionState.Id))
-                    {
-                        return state;
-                    }
+            #if DEBUG
 
-                    var tranitionState = await state.Antecedent.FailToTransitionStateAsync(failTransitionState).ConfigureAwait(false);
-                    await state.ResetAsync().ConfigureAwait(false);
-                    await tranitionState.ResetAsync().ConfigureAwait(false);
-                    return tranitionState;
-                }
+            Debug.WriteLine(logEntry);
 
-                await state.ResetAsync().ConfigureAwait(false);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Fails to the specified transition state synchrnonously. All states touched when traversing the graph to the state that will be failed to will be reset.
-        /// </summary>
-        /// <param name="state">The state to fail.</param>
-        /// <param name="failTransitionState">The transition state to fail to.</param>
-        /// <returns>The state to be failed to.</returns>
-        public static State FailToTransitionState(this State state, State failTransitionState)
-        {
-            if (state != null)
-            {
-                if (state.Parent != null
-                    &&
-                    state.Parent.SubStates.Count(
-                        s =>
-                            s.Status.Equals(StateStatus.Uninitialise) ||
-                            s.Status.Equals(StateStatus.Fail)).Equals(state.Parent.SubStates.Count))
-                {
-                    state.Parent.Reset();
-                }
-
-                if (failTransitionState != null)
-                {
-                    if (state.Id.Equals(failTransitionState.Id))
-                    {
-                        return state;
-                    }
-
-                    var tranitionState = state.Antecedent.FailToTransitionState(failTransitionState);
-                    state.Reset();
-                    tranitionState.Reset();
-                    return tranitionState;
-                }
-
-                state.Reset();
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Asynchronously executes the state based on the status provided.
-        /// </summary>
-        /// <param name="state">The state to execute.</param>
-        /// <param name="newStatus">The new status of the state.</param>
-        /// <returns>An awaitable task of type <see cref="State"/>.</returns>
-        public static async Task<State> ExecuteAsync(this State state, StateStatus newStatus)
-        {
-            return await state.ExecuteAsync(newStatus, null).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Asynchronously transition the state to the transition state provided.
-        /// </summary>
-        /// <param name="state">The state to transition from.</param>
-        /// <param name="transitionState">The state to transition to.</param>
-        /// <returns>An awaitable task of type <see cref="State"/>. Typically this is the state that has been transitioned to.</returns>
-        public static async Task<State> ExecuteAsync(this State state, State transitionState)
-        {
-            return await state.ExecuteAsync(StateStatus.Complete, transitionState).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Asynchronously executes the state based on the status or transition state provided.
-        /// </summary>
-        /// <param name="state">The state to execute.</param>
-        /// <param name="newStatus">The new status of the state.</param>
-        /// <param name="transitionState">The state to transition to.</param>
-        /// <returns>An awaitable task of type <see cref="State"/> which is the result of the execution.</returns>
-        public static async Task<State> ExecuteAsync(this State state, StateStatus newStatus, State transitionState)
-        {
-            if (!state.CanExecute(newStatus))
-            {
-                return state;
-            }
-
-            state.PreExecuteSetup(newStatus, transitionState);
-
-            switch (newStatus)
-            {
-                case StateStatus.Complete:
-                case StateStatus.Fail:
-                    return await state.TransitionAsync().ConfigureAwait(false);
-                case StateStatus.Initialise:
-                    return await state.InitialiseAsync().ConfigureAwait(false);
-                case StateStatus.Uninitialise:
-                    await state.ResetAsync().ConfigureAwait(false);
-                    return state;
-                default:
-                    return await state.ChangeStatusAsync(newStatus).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        /// Synchronously executes the state based on the status provided.
-        /// </summary>
-        /// <param name="state">The state to execute.</param>
-        /// <param name="newStatus">The new status of the state.</param>
-        /// <returns>A <see cref="State"/>.</returns>
-        public static State Execute(this State state, StateStatus newStatus)
-        {
-            return state.Execute(newStatus, null);
-        }
-
-        /// <summary>
-        /// Synchronously transition the state to the transition state provided.
-        /// </summary>
-        /// <param name="state">The state to transition from.</param>
-        /// <param name="transitionState">The state to transition to.</param>
-        /// <returns>The state that has been transitioned to.</returns>
-        public static State Execute(this State state, State transitionState)
-        {
-            return state.Execute(StateStatus.Complete, transitionState);
-        }
-
-        /// <summary>
-        /// Synchronously executes the state based on the status or transition state provided.
-        /// </summary>
-        /// <param name="state">The state to execute.</param>
-        /// <param name="newStatus">The new status of the state.</param>
-        /// <param name="transitionState">The state to transition to.</param>
-        /// <returns>The result of the execution.</returns>
-        public static State Execute(this State state, StateStatus newStatus, State transitionState)
-        {
-            if (!state.CanExecute(newStatus))
-            {
-                return state;
-            }
-
-            state.PreExecuteSetup(newStatus, transitionState);
-
-            switch (newStatus)
-            {
-                case StateStatus.Complete:
-                case StateStatus.Fail:
-                    return state.Transition();
-                case StateStatus.Initialise:
-                    return state.Initialise();
-                case StateStatus.Uninitialise:
-                    state.Reset();
-                    return state;
-                default:
-                    return state.ChangeStatus(newStatus);
-            }
+            #endif
         }
 
         private static async Task<State> InitialiseAsync(this State state)
@@ -818,6 +678,150 @@ namespace DevelopmentInProgress.DipState
             }
 
             return states;
+        }
+
+        private static async Task<State> FailToTransitionStateAsync(this State state, State failTransitionState)
+        {
+            if (state != null)
+            {
+                if (state.Parent != null
+                    &&
+                    state.Parent.SubStates.Count(
+                        s =>
+                            s.Status.Equals(StateStatus.Uninitialise) ||
+                            s.Status.Equals(StateStatus.Fail)).Equals(state.Parent.SubStates.Count))
+                {
+                    await state.Parent.ResetAsync().ConfigureAwait(false);
+                }
+
+                if (failTransitionState != null)
+                {
+                    if (state.Id.Equals(failTransitionState.Id))
+                    {
+                        return state;
+                    }
+
+                    var tranitionState = await state.Antecedent.FailToTransitionStateAsync(failTransitionState).ConfigureAwait(false);
+                    await state.ResetAsync().ConfigureAwait(false);
+                    await tranitionState.ResetAsync().ConfigureAwait(false);
+                    return tranitionState;
+                }
+
+                await state.ResetAsync().ConfigureAwait(false);
+            }
+
+            return null;
+        }
+
+        private static State FailToTransitionState(this State state, State failTransitionState)
+        {
+            if (state != null)
+            {
+                if (state.Parent != null
+                    &&
+                    state.Parent.SubStates.Count(
+                        s =>
+                            s.Status.Equals(StateStatus.Uninitialise) ||
+                            s.Status.Equals(StateStatus.Fail)).Equals(state.Parent.SubStates.Count))
+                {
+                    state.Parent.Reset();
+                }
+
+                if (failTransitionState != null)
+                {
+                    if (state.Id.Equals(failTransitionState.Id))
+                    {
+                        return state;
+                    }
+
+                    var tranitionState = state.Antecedent.FailToTransitionState(failTransitionState);
+                    state.Reset();
+                    tranitionState.Reset();
+                    return tranitionState;
+                }
+
+                state.Reset();
+            }
+
+            return null;
+        }
+
+        private static List<State> SubStatesToInitialiseWithParent(this State state)
+        {
+            return state.SubStates.Where(s => s.InitialiseWithParent).ToList();
+        }
+
+        private static bool CanExecute(this State state, StateStatus newStatus)
+        {
+            return !state.Status.Equals(newStatus);
+        }
+
+        private static void PreExecuteSetup(this State state, StateStatus newStatus, State transitionState)
+        {
+            if (newStatus.Equals(StateStatus.Fail))
+            {
+                state.Status = StateStatus.Fail;
+            }
+
+            if (transitionState != null
+                && (newStatus.Equals(StateStatus.Complete)
+                    || newStatus.Equals(StateStatus.Fail)))
+            {
+                state.Transition = transitionState;
+            }
+        }
+
+        private static void SetDefaultTransition(this State state)
+        {
+            if (state.Transition == null
+                && state.Transitions.Count.Equals(1))
+            {
+                state.Transition = state.Transitions.First();
+            }
+        }
+
+        private static void UpdateParentStatusToInProgress(this State state)
+        {
+            if (state.Parent == null
+                || state.Parent.Status.Equals(StateStatus.InProgress))
+            {
+                return;
+            }
+
+            var aggregate = state.Parent;
+            if (aggregate.Status.Equals(StateStatus.Complete))
+            {
+                var message =
+                    String.Format("{0} {1} cannot be set to InProgress because it has already been set to Complete.",
+                        aggregate.Id, aggregate.Name);
+                aggregate.WriteLogEntry(message);
+                throw new StateException(aggregate, message);
+            }
+
+            if (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.InProgress))
+                || (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.Complete))
+                    &&
+                    !aggregate.SubStates.Count()
+                        .Equals(aggregate.SubStates.Count(s => s.Status.Equals(StateStatus.Complete)))))
+            {
+                aggregate.Status = StateStatus.InProgress;
+                aggregate.UpdateParentStatusToInProgress();
+            }
+        }
+
+        private static bool CanTransition(this State state)
+        {
+            if (state.Transition != null
+                && !state.Transitions.Exists(t => t.Id.Equals(state.Transition.Id)))
+            {
+                var message =
+                    String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",
+                        state.Name, state.Transition.Name);
+                state.WriteLogEntry(message);
+                return false;
+            }
+
+            return true;
         }
     }
 }
