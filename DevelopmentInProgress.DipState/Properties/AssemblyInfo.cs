@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DevelopmentInProgress.State")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("DipState")]
+[assembly: AssemblyDescription("A simple mechanism to maintain state for an activity based workflow")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DevelopmentInProgress.State")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCompany("Development In Progress Ltd")]
+[assembly: AssemblyProduct("DipState")]
+[assembly: AssemblyCopyright("Copyright © Development In Progress Ltd 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
