@@ -155,7 +155,7 @@ The following shows *Letter Sent* transition to *Response*.
 ```C#
             result = await letterSent.ExecuteAsync(response);
             
-            Assert.IsTrue(result.Name.Equals("Response Received"));
+            Assert.IsTrue(result.Name.Equals("Response"));
             Assert.AreEqual(letterSent.Status, StateStatus.Complete);
             Assert.AreEqual(response.Status, StateStatus.Initialise);
             Assert.IsTrue(response.Antecedent.Equals(letterSent));
@@ -241,3 +241,28 @@ The following shows how *Communication* and *AutoTransitionToRedressReview* are 
 ```
 
 ![Alt text](/README-images/Dipstate-example-dependency.png?raw=true "Dependency States")
+
+
+#### Failing a State
+When a state is failed back to another state, that state and all states in between are **reset**. The state being failed to must be in the transition list.
+
+When a state is reset, its status is set to Uninitialised and Reset action delegates will be triggered.
+
+The following shows how *Redress Review* can either fail to * Collate Data * or be transitioned to *Payment*. 
+If it is failed back to *Collate Data * then *Collate Data *, *Adjustment Decision*, *AutoTransitionToRedressReview* and, if applicable, *Adjustment* will be reset.
+
+```C#
+            redressReview
+                .AddTransition(payment)
+                .AddTransition(collateData)
+                .AddDependency(communication)
+                .AddDependency(autoTransitionToRedressReview);
+                
+            // ...
+            // ...
+            // ...
+            
+            result = await redressReview.FailToTransitionStateAsync(collateData);                
+```
+
+![Alt text](/README-images/Dipstate-example-fail.png?raw=true "Fail a state")
