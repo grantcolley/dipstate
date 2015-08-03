@@ -25,7 +25,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
                 .AddCanCompletePredicateAsync(LetterCheckedAsync);
 
-            var responseRecieved = new State(220, "Response Received", canCompleteParent: true)
+            var responseReceived = new State(220, "Response Received", canCompleteParent: true)
                 .AddActionAsync(StateActionType.Status, SaveStatusAsync);
 
             var collateData = new State(300, "Collate Data", true)
@@ -67,12 +67,12 @@ namespace DevelopmentInProgress.DipState.Test
             collateData
                 .AddTransition(adjustmentDecision);
 
-            letterSent.AddTransition(responseRecieved);
+            letterSent.AddTransition(responseReceived);
 
             communication
                 .AddDependant(redressReview, true)
                 .AddSubState(letterSent)
-                .AddSubState(responseRecieved)
+                .AddSubState(responseReceived)
                 .AddTransition(redressReview);
 
             remediationWorkflowRoot
@@ -94,12 +94,12 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(letterSent.Status, StateStatus.Initialise);
             Assert.AreEqual(collateData.Status, StateStatus.Initialise);
 
-            result = await letterSent.ExecuteAsync(responseRecieved);
+            result = await letterSent.ExecuteAsync(responseReceived);
             
             Assert.IsTrue(result.Name.Equals("Response Received"));
             Assert.AreEqual(letterSent.Status, StateStatus.Complete);
-            Assert.AreEqual(responseRecieved.Status, StateStatus.Initialise);
-            Assert.IsTrue(responseRecieved.Antecedent.Equals(letterSent));
+            Assert.AreEqual(responseReceived.Status, StateStatus.Initialise);
+            Assert.IsTrue(responseReceived.Antecedent.Equals(letterSent));
 
             // When a state has only one transition state then setting 
             // it to Complete will automatically transition to it.
@@ -133,9 +133,9 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(redressReview.Status, StateStatus.Uninitialise);
             Assert.IsTrue(redressReview.Antecedent.Equals(autoTransitionToRedressReview));
 
-            result = await responseRecieved.ExecuteAsync(StateStatus.Complete);
+            result = await responseReceived.ExecuteAsync(StateStatus.Complete);
 
-            Assert.AreEqual(responseRecieved.Status, StateStatus.Complete);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Complete);
             Assert.AreEqual(communication.Status, StateStatus.Complete);
 
             Assert.IsTrue(result.Equals(redressReview));
