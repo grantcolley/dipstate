@@ -183,7 +183,7 @@ The following shows the configuration of auto state *AdjustmentDecision* which e
 #### Sub State can complete its Parent
 A sub state can be configured to complete its parent. Typically this will be the last sub state expected to complete under the parent. The last sub state must not be configured to transition to another state so that it can complete its parent. The parent can be configured to transition to another state.
 
-The following shows how *ResponseRecieved* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
+The following shows how *ResponseReceived* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
 
 ```C#
             var response = new State(220, "Response", canCompleteParent: true)
