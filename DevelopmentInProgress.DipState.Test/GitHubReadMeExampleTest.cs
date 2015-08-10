@@ -51,7 +51,8 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddTransition(payment)
                 .AddTransition(collateData)
                 .AddDependency(communication)
-                .AddDependency(autoTransitionToRedressReview);
+                .AddDependency(autoTransitionToRedressReview)
+                .AddActionAsync(StateActionType.Entry, CalculateFinalRedressAmountAsync);
 
             autoTransitionToRedressReview
                 .AddDependant(redressReview, true)
@@ -183,6 +184,11 @@ namespace DevelopmentInProgress.DipState.Test
         public static async Task GenerateLetterAsync(State context)
         {
             await RunAsync(context, "GenerateLetterAsync");
+        }
+
+        private static async Task CalculateFinalRedressAmountAsync(State context)
+        {
+            await RunAsync(context, "CalculateFinalRedressAmountAsync");
         }
 
         private static async Task AdjustmentRequiredCheckAsync(State context)
