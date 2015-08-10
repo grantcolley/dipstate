@@ -14,14 +14,14 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 Here is how it works by way of an example workflow. 
 
 **Note:**
- * for a full listing of the code see test class **GitHubReadMeExampleTest.cs** in the test project **DevelopmentInProgress.DipState.Test**.
+For a full listing of the code see test class [GitHubReadMeExampleTest.cs](https://github.com/grantcolley/dipstate/tree/master/DevelopmentInProgress.DipState.Test/GitHubReadMeExampleTest.cs) in [DevelopmentInProgress.DipState.Test](https://github.com/grantcolley/dipstate/tree/master/DevelopmentInProgress.DipState.Test) project.
 
 The example workflow follows the activities of a customer remediation process. The process starts by sending out a letter to a customer informing them a redress is due on their account a response is required. While waiting for a response from the customer data pertaining to the redress is gathered and the amount to be redressed is calculated. If necessary an adjustment is made to the calculated amount. After the redress amount has been calculated and the response is received from the customer the case is sent for final review. If the review fails the case is sent back to be re-calculated. If the review passes then payment is made to the customer.
 
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
 
 You can find an example implementation of the workflow at [Origin](https://github.com/grantcolley/origin)
-![Alt text](/README-images/WPF-Example.PNG?raw=true "WPF implementation of the Dipstate example workflow in DevelopmentInProgress.Origin")
+![Alt text](/README-images/WPF-Example.PNG?raw=true "WPF implementation of the Dipstate example workflow in DevelopmentInProgress.Origin").
 
 #### Setting up the workflow
 ```C#
