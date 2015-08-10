@@ -21,7 +21,7 @@ The example workflow follows the activities of a customer remediation process. T
 
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
 
-![Alt text](/README-images/WPF-Example.png?raw=true "WPF implementation of the Dipstate example workflow in DevelopmentInProgress.Origin")
+![Alt text](/README-images/WPF-Example.PNG?raw=true "WPF implementation of the Dipstate example workflow in DevelopmentInProgress.Origin")
 
 #### Setting up the workflow
 ```C#
