@@ -268,7 +268,7 @@ If it is failed back to *Collate Data* then *Collate Data*, *Adjustment Decision
             // ...
             
             result = await redressReview
-            			.ExecuteAsync(StateStatus.Fail, collateData);                
+            				.ExecuteAsync(StateStatus.Fail, collateData);                
 ```
 
 ![Alt text](/README-images/Dipstate-example-fail.png?raw=true "Fail a state")
