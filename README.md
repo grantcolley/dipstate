@@ -259,13 +259,16 @@ If it is failed back to *Collate Data* then *Collate Data*, *Adjustment Decision
                 .AddTransition(payment)
                 .AddTransition(collateData)
                 .AddDependency(communication)
-                .AddDependency(autoTransitionToRedressReview);
+                .AddDependency(autoTransitionToRedressReview)
+                .AddActionAsync(StateActionType.Entry, 
+                        redressReview.CalculateFinalRedressAmountAsync);
                 
             // ...
             // ...
             // ...
             
-            result = await redressReview.ExecuteAsync(StateStatus.Fail, collateData);                
+            result = await redressReview
+            			.ExecuteAsync(StateStatus.Fail, collateData);                
 ```
 
 ![Alt text](/README-images/Dipstate-example-fail.png?raw=true "Fail a state")
