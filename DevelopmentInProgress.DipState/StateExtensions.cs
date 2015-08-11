@@ -118,13 +118,25 @@ namespace DevelopmentInProgress.DipState
         }
 
         /// <summary>
-        /// Reset the state synchronously to uninitialised. This will also reset any substates.
+        /// Reset the state synchronously to uninitialised. This will also reset any substates and, 
+        /// if the parent has any other sub states that are uninitialised or failed, then the parent will also be reset.
         /// </summary>
         /// <param name="state">The state to reset.</param>
-        /// <param name="clearLogs">A flag indicating whether the logs must be cleared with the reset.</param>
-        public static void Reset(this State state, bool clearLogs = false)
+        /// <param name="hardReset">A flag indicating whether the the logs are also cleared and if Dependants and Transitions also get reset.</param>
+        /// <param name="skipParent">A flag indicating whether to skip attempting to reset the parent. This is typically only set to true when a parent resets its SubStates.</param>
+        public static void Reset(this State state, bool hardReset = false, bool skipParent = false)
         {
-            state.SubStates.ForEach(s => s.Reset(clearLogs));
+            state.SubStates.ForEach(s => s.Reset(hardReset, true));
+
+            if (hardReset)
+            {
+                state.Dependants.ForEach(d => d.Dependant.Reset(hardReset));
+                if (state.Transition != null)
+                {
+                    state.Transition.Reset(hardReset);
+                }
+            }
+
             state.Transition = null;
             state.Antecedent = null;
 
@@ -133,23 +145,48 @@ namespace DevelopmentInProgress.DipState
 
             state.IsDirty = false;
 
-            if (clearLogs)
+            if (hardReset)
             {
+                // Clear logs last after Reset actions run.
                 state.Log.Clear();
+            }
+
+            if (skipParent.Equals(false)
+                && state.Parent != null
+                && state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Uninitialise)
+                                                     || s.Status.Equals(StateStatus.Fail))
+                                                     .Equals(state.Parent.SubStates.Count))
+            {
+                state.Parent.Reset(hardReset);
             }
         }
 
         /// <summary>
-        /// Reset the state asynchronously to uninitialised. This will also reset any substates.
+        /// Reset the state asynchronously to uninitialised. This will also reset any substates and,
+        /// if the parent has any other sub states that are uninitialised or failed, then the parent will also be reset.
         /// </summary>
         /// <param name="state">The state to reset.</param>
-        /// <param name="clearLogs">A flag indicating whether the logs must be cleared with the reset.</param>
+        /// <param name="hardReset">A flag indicating whether the the logs are also cleared and if Dependants and Transitions also get reset.</param>
+        /// <param name="skipParent">A flag indicating whether to skip attempting to reset the parent. This is typically only set to true when a parent resets its SubStates.</param>
         /// <returns>An awaitable task.</returns>
-        public static async Task ResetAsync(this State state, bool clearLogs = false)
+        public static async Task ResetAsync(this State state, bool hardReset = false, bool skipParent = false)
         {
             foreach (var subState in state.SubStates)
             {
-                await subState.ResetAsync(clearLogs).ConfigureAwait(false);
+                await subState.ResetAsync(hardReset, true).ConfigureAwait(false);
+            }
+
+            if (hardReset)
+            {
+                foreach (var dependant in state.Dependants)
+                {
+                    await dependant.Dependant.ResetAsync(hardReset);
+                }
+
+                if (state.Transition != null)
+                {
+                    await state.Transition.ResetAsync(hardReset);
+                }
             }
 
             state.Transition = null;
@@ -160,9 +197,19 @@ namespace DevelopmentInProgress.DipState
 
             state.IsDirty = false;
 
-            if (clearLogs)
+            if (hardReset)
             {
+                // Clear logs last after Reset actions run.
                 state.Log.Clear();
+            }
+
+            if (skipParent.Equals(false)
+                && state.Parent != null
+                && state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Uninitialise)
+                                                     || s.Status.Equals(StateStatus.Fail))
+                                                     .Equals(state.Parent.SubStates.Count))
+            {
+                await state.Parent.ResetAsync(hardReset);
             }
         }
 
