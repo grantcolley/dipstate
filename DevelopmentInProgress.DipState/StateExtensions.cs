@@ -118,22 +118,25 @@ namespace DevelopmentInProgress.DipState
         }
 
         /// <summary>
-        /// Reset the state synchronously to uninitialised. This will also reset any substates and, 
-        /// if the parent has any other sub states that are uninitialised or failed, then the parent will also be reset.
+        /// Reset the state synchronously to uninitialised. This will also reset any substates but not the parent.
         /// </summary>
         /// <param name="state">The state to reset.</param>
         /// <param name="hardReset">A flag indicating whether the the logs are also cleared and if Dependants and Transitions also get reset.</param>
-        /// <param name="skipParent">A flag indicating whether to skip attempting to reset the parent. This is typically only set to true when a parent resets its SubStates.</param>
-        public static void Reset(this State state, bool hardReset = false, bool skipParent = false)
+        public static void Reset(this State state, bool hardReset = false)
         {
-            state.SubStates.ForEach(s => s.Reset(hardReset, true));
+            if (state.Status.Equals(StateStatus.Uninitialise))
+            {
+                return;
+            }
+
+            state.SubStates.ForEach(s => s.Reset(hardReset));
 
             if (hardReset)
             {
-                state.Dependants.ForEach(d => d.Dependant.Reset(hardReset));
+                state.Dependants.ForEach(d => d.Dependant.Reset(true));
                 if (state.Transition != null)
                 {
-                    state.Transition.Reset(hardReset);
+                    state.Transition.Reset(true);
                 }
             }
 
@@ -150,42 +153,36 @@ namespace DevelopmentInProgress.DipState
                 // Clear logs last after Reset actions run.
                 state.Log.Clear();
             }
-
-            if (skipParent.Equals(false)
-                && state.Parent != null
-                && state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Uninitialise)
-                                                     || s.Status.Equals(StateStatus.Fail))
-                                                     .Equals(state.Parent.SubStates.Count))
-            {
-                state.Parent.Reset(hardReset);
-            }
         }
 
         /// <summary>
-        /// Reset the state asynchronously to uninitialised. This will also reset any substates and,
-        /// if the parent has any other sub states that are uninitialised or failed, then the parent will also be reset.
+        /// Reset the state asynchronously to uninitialised. This will also reset any substates but not the parent.
         /// </summary>
         /// <param name="state">The state to reset.</param>
         /// <param name="hardReset">A flag indicating whether the the logs are also cleared and if Dependants and Transitions also get reset.</param>
-        /// <param name="skipParent">A flag indicating whether to skip attempting to reset the parent. This is typically only set to true when a parent resets its SubStates.</param>
         /// <returns>An awaitable task.</returns>
-        public static async Task ResetAsync(this State state, bool hardReset = false, bool skipParent = false)
+        public static async Task ResetAsync(this State state, bool hardReset = false)
         {
+            if (state.Status.Equals(StateStatus.Uninitialise))
+            {
+                return;
+            }
+
             foreach (var subState in state.SubStates)
             {
-                await subState.ResetAsync(hardReset, true).ConfigureAwait(false);
+                await subState.ResetAsync(hardReset).ConfigureAwait(false);
             }
 
             if (hardReset)
             {
                 foreach (var dependant in state.Dependants)
                 {
-                    await dependant.Dependant.ResetAsync(hardReset);
+                    await dependant.Dependant.ResetAsync(true);
                 }
 
                 if (state.Transition != null)
                 {
-                    await state.Transition.ResetAsync(hardReset);
+                    await state.Transition.ResetAsync(true);
                 }
             }
 
@@ -201,15 +198,6 @@ namespace DevelopmentInProgress.DipState
             {
                 // Clear logs last after Reset actions run.
                 state.Log.Clear();
-            }
-
-            if (skipParent.Equals(false)
-                && state.Parent != null
-                && state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Uninitialise)
-                                                     || s.Status.Equals(StateStatus.Fail))
-                                                     .Equals(state.Parent.SubStates.Count))
-            {
-                await state.Parent.ResetAsync(hardReset);
             }
         }
 
@@ -478,13 +466,15 @@ namespace DevelopmentInProgress.DipState
 
             if (state.Status.Equals(StateStatus.Fail))
             {
-                var stateFailedTo = await state.FailToTransitionStateAsync(state.Transition).ConfigureAwait(false);
-                if (stateFailedTo != null)
+                if (state.Transition != null)
                 {
+                    var stateFailedTo = state.Transition;
+                    state.Transition = null;
+                    await stateFailedTo.ResetAsync(true);
                     return await stateFailedTo.InitialiseAsync().ConfigureAwait(false);
                 }
 
-                state.WriteLogEntry(String.Format("{0} has failed but is unable to transition", state.Name));
+                await state.ResetAsync(true);
                 return state;
             }
 
@@ -545,13 +535,15 @@ namespace DevelopmentInProgress.DipState
 
             if (state.Status.Equals(StateStatus.Fail))
             {
-                var stateFailedTo = state.FailToTransitionState(state.Transition);
-                if (stateFailedTo != null)
+                if (state.Transition != null)
                 {
+                    var stateFailedTo = state.Transition;
+                    state.Transition = null;
+                    stateFailedTo.Reset(true);
                     return stateFailedTo.Initialise();
                 }
 
-                state.WriteLogEntry(String.Format("{0} has failed but is unable to transition", state.Name));
+                state.Reset(true);
                 return state;
             }
 
