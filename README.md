@@ -247,9 +247,9 @@ The following shows how *Communication* and *AutoTransitionToRedressReview* are 
 
 
 #### Failing a State
-When a state is failed back to another state, that state and all states in between are **reset**. The state being failed to must be in the transition list.
+When a state is failed back to another state, the failed state, the state being failed back to, and all states in between are **reset**. The state being failed back to must be in the transition list and is then *Initialised*.
 
-When a state is reset, its status is set to Uninitialised and Reset action delegates will be triggered.
+**Note:** When a state is reset, its status is set to Uninitialised and Reset action delegates will be triggered.
 
 The following shows how *Redress Review* can either fail to *Collate Data* or be transitioned to *Payment*. 
 If it is failed back to *Collate Data* then *Collate Data*, *Adjustment Decision*, *AutoTransitionToRedressReview* and, if applicable, *Adjustment* will be reset.
