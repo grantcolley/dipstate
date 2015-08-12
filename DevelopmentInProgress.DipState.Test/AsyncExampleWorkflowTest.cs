@@ -93,7 +93,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public async Task CollateDataFail_ResetCollateDateAndPricingWorkflow()
+        public async Task CollateDataFail_ResetCollateDate()
         {
             // Arrange
             await Arrange("PricingWorkflowInitialised");
@@ -102,7 +102,7 @@ namespace DevelopmentInProgress.DipState.Test
             await collateData.ExecuteAsync(StateStatus.Fail);
 
             // Assert
-            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(pricingWorkflow.Status, StateStatus.Initialise);
             Assert.AreEqual(collateData.Status, StateStatus.Uninitialise);
             Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
@@ -139,7 +139,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public async Task ModellingFailBothSubTasks_ResetModellingAndItsSubStates()
+        public async Task ModellingFailBothSubTasks_ResetModellingSubStates()
         {
             // Arrange
             await Arrange("CollateDataComplete");
@@ -152,7 +152,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
             Assert.AreEqual(collateData.Status, StateStatus.Complete);
             Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
-            Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
+            Assert.AreEqual(modelling.Status, StateStatus.Initialise);
             Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modellingReview.Status, StateStatus.Uninitialise);
@@ -268,7 +268,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
             Assert.AreEqual(collateData.Status, StateStatus.Initialise);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);
@@ -394,7 +394,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(pricingWorkflow.Status, StateStatus.InProgress);
             Assert.AreEqual(collateData.Status, StateStatus.Initialise);
-            Assert.AreEqual(communicationUpdate.Status, StateStatus.Initialise);
+            Assert.AreEqual(communicationUpdate.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling1.Status, StateStatus.Uninitialise);
             Assert.AreEqual(modelling2.Status, StateStatus.Uninitialise);

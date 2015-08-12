@@ -415,7 +415,7 @@ namespace DevelopmentInProgress.DipState.Test
         }
 
         [TestMethod]
-        public void Run_FailStateWithoutTransition_StateFailedWithLogEntry()
+        public void Run_FailStateWithoutTransition_StateReset()
         {
             // Arrange
             var state = new State(1, "Pricing Workflow");
@@ -429,15 +429,10 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(state.Status, StateStatus.Uninitialise);
             Assert.IsNull(state.Transition);
             Assert.IsFalse(state.IsDirty);
-
-            var logEntry =
-                state.Log.FirstOrDefault(
-                    e => e.Message.Contains(String.Format("{0} has failed but is unable to transition", state.Name)));
-            Assert.IsNotNull(logEntry);
         }
 
         [TestMethod]
-        public void Run_FailAllSubStatesFailsParent_SubStatesFailedAndParentFailed()
+        public void Run_FailAllSubStatesResetsParent_SubStatesReset()
         {
             // Arrange
             var state = new State(1, "Pricing Workflow")
@@ -458,30 +453,18 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Uninitialise);
-            Assert.IsFalse(state.IsDirty);
+            Assert.AreEqual(state.Status, StateStatus.Initialise);
+            Assert.IsTrue(state.IsDirty);
 
             Assert.AreEqual(statePricingA.Id, 2);
             Assert.AreEqual(statePricingA.Name, "Pricing A");
             Assert.AreEqual(statePricingA.Status, StateStatus.Uninitialise);
             Assert.IsFalse(statePricingA.IsDirty);
-            var statePricingALogEntry =
-                statePricingA.Log.FirstOrDefault(
-                    e =>
-                        e.Message.Contains(String.Format("{0} has failed but is unable to transition",
-                            statePricingA.Name)));
-            Assert.IsNotNull(statePricingALogEntry);
 
             Assert.AreEqual(statePricingB.Id, 3);
             Assert.AreEqual(statePricingB.Name, "Pricing B");
             Assert.AreEqual(statePricingB.Status, StateStatus.Uninitialise);
             Assert.IsFalse(statePricingB.IsDirty);
-            var statePricingBLogEntry =
-                statePricingB.Log.FirstOrDefault(
-                    e =>
-                        e.Message.Contains(String.Format("{0} has failed but is unable to transition",
-                            statePricingB.Name)));
-            Assert.IsNotNull(statePricingBLogEntry);
         }
 
         [TestMethod]
@@ -513,12 +496,6 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(statePricingA.Name, "Pricing A");
             Assert.AreEqual(statePricingA.Status, StateStatus.Uninitialise);
             Assert.IsFalse(statePricingA.IsDirty);
-            var logEntry =
-                statePricingA.Log.FirstOrDefault(
-                    e =>
-                        e.Message.Contains(String.Format("{0} has failed but is unable to transition",
-                            statePricingA.Name)));
-            Assert.IsNotNull(logEntry);
 
             Assert.AreEqual(statePricingB.Id, 3);
             Assert.AreEqual(statePricingB.Name, "Pricing B");
