@@ -69,6 +69,7 @@
     <Compile Include="StateTest.cs" />
     <Compile Include="GenericStateTest.cs" />
     <Compile Include="TestMethods.cs" />
+    <Compile Include="AsyncWorkflowFailStateTest.cs" />
     <Compile Include="WorkflowFailStateTest.cs" />
   </ItemGroup>
   <ItemGroup>
