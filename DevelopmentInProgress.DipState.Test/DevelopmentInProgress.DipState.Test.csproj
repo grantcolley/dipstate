@@ -68,6 +68,8 @@
     <Compile Include="ExampleWorkflowTest.cs" />
     <Compile Include="StateTest.cs" />
     <Compile Include="GenericStateTest.cs" />
+    <Compile Include="TestMethods.cs" />
+    <Compile Include="WorkflowFailStateTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevelopmentInProgress.DipState\DevelopmentInProgress.DipState.csproj">
