@@ -122,12 +122,6 @@ You can find an example implementation of the workflow at [Origin](https://githu
 
 
 #### Initialising a State
-  * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
-  * **Entry actions** are executed with context. 
-  * **StatusChanged actions** are executed with context. 
-  * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
-  * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised. 
-
 The following shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ```C#
@@ -141,6 +135,12 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 ```
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
+
+  * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
+  * **Entry actions** are executed with context. 
+  * **StatusChanged actions** are executed with context. 
+  * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
+  * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised.
 
 
 #### Transition a State
