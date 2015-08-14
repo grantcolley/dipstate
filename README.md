@@ -144,14 +144,6 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 
 
 #### Transition a State
-  * Transitioning to another state completes the state being transition from.
-  * If the state has only one transition state then it will transition to that state when it is set to complete.
-  * A delegate is executed to determine whether the state can complete. If no delegate has been provided it will return true.
-  * **Exit actions** are executed with context. 
-  * **Status actions** are executed with context after the status has changed. 
-  * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
-  * The transition state is initialised
-
 The following shows *Letter Sent* transition to *Response*.
 
 ```C#
@@ -164,6 +156,17 @@ The following shows *Letter Sent* transition to *Response*.
 ```
 
 ![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
+
+  * Transitioning to another state will complete the state being transition from and initialise the state being transitioned to.
+
+
+#### Complete a State
+
+  * Completing a state
+    * First, a delegate is executed to determine whether the state can complete. If no delegate has been provided the state will complete.
+    * **Exit actions** are then executed with context before completing the state.
+    * The state is set to complete and **Status actions** are executed with context.
+    * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
 
 
 #### Auto States
