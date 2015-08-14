@@ -115,7 +115,6 @@ You can find an example implementation of the workflow at [Origin](https://githu
     * **Exit** action delegates that execute when the state is completed.
     * **Reset** action delegates that execute when the state is reset to *Uninitialised*.
   * **CanComplete** predicate delegate executed prior to completing a state and transitioning to another one. 
-
   * **Dependencies** are one or more states which need to be completed before the state can be initialised.
   * **Dependents** are one or more states which are dependent on the state being completed before they can be initialised themselves. Dependent states can optionally be initialised when the state has completed.
   * **Transitions** are one or more states that the state can transition to after it has completed.
