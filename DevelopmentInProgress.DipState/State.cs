@@ -17,14 +17,11 @@ namespace DevelopmentInProgress.DipState
         /// <param name="context">Generic state context.</param>
         /// <param name="id">Identifier of the state.</param>
         /// <param name="name">Name of the state.</param>
-        /// <param name="initialiseWithParent">Indicates whether the state is initialised when its parent gets initialised.</param>
-        /// <param name="canCompleteParent">Indicates whether the state's parent is completed when the state completes.</param>
         /// <param name="type">The type of state.</param>
         /// <param name="status">The status of the state.</param>
-        public State(T context, int id = 0, string name = "", bool initialiseWithParent = false,
-            bool canCompleteParent = false, StateType type = StateType.Standard,
-            StateStatus status = StateStatus.Uninitialise)
-            : base(id, name, initialiseWithParent, canCompleteParent, type, status)
+        public State(T context, int id = 0, string name = "", StateType type = StateType.Standard,
+            StateStatus status = StateStatus.Uninitialised)
+            : base(id, name, type, status)
         {
             Context = context;
         }
@@ -34,14 +31,11 @@ namespace DevelopmentInProgress.DipState
         /// </summary>
         /// <param name="id">Identifier of the state.</param>
         /// <param name="name">Name of the state.</param>
-        /// <param name="initialiseWithParent">Indicates whether the state is initialised when its parent gets initialised.</param>
-        /// <param name="canCompleteParent">Indicates whether the state's parent is completed when the state completes.</param>
         /// <param name="type">The type of state.</param>
         /// <param name="status">The status of the state.</param>
-        public State(int id = 0, string name = "", bool initialiseWithParent = false,
-            bool canCompleteParent = false, StateType type = StateType.Standard,
-            StateStatus status = StateStatus.Uninitialise)
-            : base(id, name, initialiseWithParent, canCompleteParent, type, status)
+        public State(int id = 0, string name = "", StateType type = StateType.Standard,
+            StateStatus status = StateStatus.Uninitialised)
+            : base(id, name, type, status)
         {            
         }
 
@@ -65,19 +59,14 @@ namespace DevelopmentInProgress.DipState
         /// </summary>
         /// <param name="id">Identifier of the state.</param>
         /// <param name="name">Name of the state.</param>
-        /// <param name="initialiseWithParent">Indicates whether the state is initialised when its parent gets initialised.</param>
-        /// <param name="canCompleteParent">Indicates whether the state's parent is completed when the state completes.</param>
         /// <param name="type">The type of state.</param>
         /// <param name="status">The status of the state.</param>
-        public State(int id = 0, string name = "", bool initialiseWithParent = false, 
-            bool canCompleteParent = false, StateType type = StateType.Standard, 
-            StateStatus status = StateStatus.Uninitialise)
+        public State(int id = 0, string name = "", StateType type = StateType.Standard, 
+            StateStatus status = StateStatus.Uninitialised)
         {
             Id = id;
             Name = name;
             Type = type;
-            InitialiseWithParent = initialiseWithParent;
-            CanCompleteParent = canCompleteParent;
             this.status = status;            
             Transitions = new List<State>();
             SubStates = new List<State>();
@@ -108,9 +97,9 @@ namespace DevelopmentInProgress.DipState
         public bool InitialiseWithParent { get; set; }
 
         /// <summary>
-        /// Gets or sets a flag indicating whether the state's parent is completed when the state is completed.
+        /// Gets or sets a flag indicating whether completion is required in order for its parent to complete.
         /// </summary>
-        public bool CanCompleteParent { get; set; }
+        public bool CompletionRequired { get; set; }
 
         /// <summary>
         /// Gets or sets the state context.
@@ -181,6 +170,7 @@ namespace DevelopmentInProgress.DipState
                 {
                     status = value;
                     IsDirty = true;
+
                     var logEntry = new LogEntry(String.Format("{0} - {1}", Name ?? String.Empty, status));
                     Log.Add(logEntry);
 
@@ -194,13 +184,43 @@ namespace DevelopmentInProgress.DipState
         }
 
         /// <summary>
+        /// Gets or sets a predicate delegate to synchronously determine whether the state can be initialised or not.
+        /// </summary>
+        internal Predicate<State> CanInitialiseState { get; set; }
+
+        /// <summary>
+        /// Gets or sets a predicate delegate to synchronously determine whether the state status can be changed or not.
+        /// </summary>
+        internal Predicate<State> CanChangeStateStatus { get; set; }
+
+        /// <summary>
         /// Gets or sets a predicate delegate to synchronously determine whether the state can be completed or not.
         /// </summary>
         internal Predicate<State> CanCompleteState { get; set; }
 
         /// <summary>
+        /// Gets or sets a predicate delegate to synchronously determine whether the state can be reset or not.
+        /// </summary>
+        internal Predicate<State> CanResetState { get; set; }
+
+        /// <summary>
+        /// Gets or sets a predicate delegate to asynchronously determine whether the state can be initialised or not.
+        /// </summary>
+        internal Func<State, Task<bool>> CanInitialiseStateAsync { get; set; }
+
+        /// <summary>
+        /// Gets or sets a predicate delegate to asynchronously determine whether the state status can be changed or not.
+        /// </summary>
+        internal Func<State, Task<bool>> CanChangeStateStatusAsync { get; set; }
+
+        /// <summary>
         /// Gets or sets a predicate delegate to asynchronously determine whether the state can be completed or not.
         /// </summary>
         internal Func<State, Task<bool>> CanCompleteStateAsync { get; set; }
+
+        /// <summary>
+        /// Gets or sets a predicate delegate to asynchronously determine whether the state can be reset or not.
+        /// </summary>
+        internal Func<State, Task<bool>> CanResetStateAsync { get; set; }
     }
 }
