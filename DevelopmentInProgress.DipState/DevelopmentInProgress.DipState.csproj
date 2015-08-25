@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="StateDependant.cs" />
+    <Compile Include="StateExecutionType.cs" />
     <Compile Include="StateExtensions.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="StateAction.cs" />
