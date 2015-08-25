@@ -115,20 +115,13 @@ You can find an example implementation of the workflow at [Origin](https://githu
     * **Exit** action delegates that execute when the state is completed.
     * **Reset** action delegates that execute when the state is reset to *Uninitialised*.
   * **CanComplete** predicate delegate executed prior to completing a state and transitioning to another one. 
-
   * **Dependencies** are one or more states which need to be completed before the state can be initialised.
   * **Dependents** are one or more states which are dependent on the state being completed before they can be initialised themselves. Dependent states can optionally be initialised when the state has completed.
   * **Transitions** are one or more states that the state can transition to after it has completed.
   * **Sub States** are one or more states for which the state acts as a parent. Sub states can behave like a mini workflow where the parent implicitly assumes the role of the root and the last substate will typically have CanCompleteParent* set to true.
 
 
-#### Initialising a State
-  * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
-  * **Entry actions** are executed with context. 
-  * **StatusChanged actions** are executed with context. 
-  * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
-  * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised. 
-
+#### Initialise a State
 The following shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ```C#
@@ -143,16 +136,15 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
 
+Initialising a state
+  * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
+  * **Entry actions** are executed with context. 
+  * **StatusChanged actions** are executed with context. 
+  * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
+  * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised.
+
 
 #### Transition a State
-  * Transitioning to another state completes the state being transition from.
-  * If the state has only one transition state then it will transition to that state when it is set to complete.
-  * A delegate is executed to determine whether the state can complete. If no delegate has been provided it will return true.
-  * **Exit actions** are executed with context. 
-  * **Status actions** are executed with context after the status has changed. 
-  * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
-  * The transition state is initialised
-
 The following shows *Letter Sent* transition to *Response*.
 
 ```C#
@@ -166,26 +158,11 @@ The following shows *Letter Sent* transition to *Response*.
 
 ![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
 
-
-#### Auto States
-Auto states will automatically transition or complete itself after it has been initialised.
-**Entry actions** are delegates that enable processing with state context to take place. In the case of an auto state an **Entry action** can be used to determine at runtime which state to transition to.
-
-The following shows the configuration of auto state *AdjustmentDecision* which enables it to transition to either the *Adjustment* or *AutoTransitionToRedressReview* (which happens to be another auto state).
-
-```C#
-            adjustmentDecision
-                .AddTransition(adjustment)
-                .AddTransition(autoTransitionToRedressReview)
-                .AddActionAsync(StateActionType.Entry, AdjustmentRequiredCheckAsync);
-```
-
-![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
+Transitioning a state
+  * Transitioning from one state to another state will complete the state being transition from and initialise the state being transitioned to.
 
 
-#### Sub State can complete its Parent
-A sub state can be configured to complete its parent. Typically this will be the last sub state expected to complete under the parent. The last sub state must not be configured to transition to another state so that it can complete its parent. The parent can be configured to transition to another state.
-
+#### Complete a State
 The following shows how *ResponseReceived* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
 
 ```C#
@@ -217,6 +194,29 @@ The following shows how *ResponseReceived* is configured to complete itself and 
 ```
 
 ![Alt text](/README-images/Dipstate-example-substate-close-parent.png?raw=true "Sub state completes its parent")
+
+  * Completing a state
+    * First, a delegate is executed to determine whether the state can complete. If no delegate has been provided the state will complete.
+    * **Exit actions** are then executed with context before completing the state.
+    * The state is set to complete and **Status actions** are executed with context.
+    * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
+
+A sub state can be configured to complete its parent. Typically this will be the last sub state expected to complete under the parent. The last sub state must not be configured to transition to another state so that it can complete its parent. The parent can be configured to transition to another state.
+
+#### Auto States
+Auto states will automatically transition or complete itself after it has been initialised.
+**Entry actions** are delegates that enable processing with state context to take place. In the case of an auto state an **Entry action** can be used to determine at runtime which state to transition to.
+
+The following shows the configuration of auto state *AdjustmentDecision* which enables it to transition to either the *Adjustment* or *AutoTransitionToRedressReview* (which happens to be another auto state).
+
+```C#
+            adjustmentDecision
+                .AddTransition(adjustment)
+                .AddTransition(autoTransitionToRedressReview)
+                .AddActionAsync(StateActionType.Entry, AdjustmentRequiredCheckAsync);
+```
+
+![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
 
 
 #### Dependency States
