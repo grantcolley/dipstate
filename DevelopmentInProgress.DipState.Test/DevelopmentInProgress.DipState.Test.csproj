@@ -56,14 +56,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="AsyncStateEngineTest.cs" />
     <Compile Include="AsyncStateTest.cs" />
     <Compile Include="AsyncExampleWorkflowTest.cs" />
     <Compile Include="AsyncGenericStateTest.cs" />
     <Compile Include="AsyncTestMethods.cs" />
     <Compile Include="GitHubReadMeExampleTest.cs" />
     <Compile Include="ContextTestClasses.cs" />
-    <Compile Include="StateEngineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExampleWorkflowTest.cs" />
     <Compile Include="StateTest.cs" />
