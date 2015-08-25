@@ -8,12 +8,12 @@
         /// <summary>
         /// Indicates the state has not been entered.
         /// </summary>
-        Uninitialise = 1,
+        Uninitialised = 1,
 
         /// <summary>
         /// Indicates the state has been entered and is active.
         /// </summary>
-        Initialise = 2,
+        Initialised = 2,
 
         /// <summary>
         /// Indicates the state is active and in progress.
@@ -23,11 +23,6 @@
         /// <summary>
         /// Indiactes the state has been successfully completed.
         /// </summary>
-        Complete = 4,
-
-        /// <summary>
-        /// Indiactes the state has failed.
-        /// </summary>
-        Fail = 5
+        Completed = 4
     }
 }
