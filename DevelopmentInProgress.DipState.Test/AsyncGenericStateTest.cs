@@ -11,17 +11,17 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Arrange
             var state = new State<ContextText>(
-                new ContextText() {Text = "Uninitialise"}, 1, "Pricing Workflow")
+                new ContextText() {Text = "Uninitialised"}, 1, "Pricing Workflow")
                 .AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncGenericEntryAction);
 
             // Act
-            state = await state.ExecuteAsync(StateStatus.Initialise);
+            state = await state.ExecuteAsync(StateExecutionType.Initialise);
 
             // Assert
             Assert.IsNotNull(state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.AreEqual(state.Status, StateStatus.Initialise);
+            Assert.AreEqual(state.Status, StateStatus.Initialised);
             Assert.AreEqual(((State<ContextText>)state).Context.Text, "Entry Action");
         }
     }
