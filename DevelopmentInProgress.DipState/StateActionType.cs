@@ -9,19 +9,19 @@
         /// Indicates the action is executed when the state's status changes.
         /// The action is executed after the status has changed.
         /// </summary>
-        Status,
+        OnStatusChanged,
 
         /// <summary>
         /// Indicates the action is executed when the state's is initialised.
         /// The action is executed prior to actual initialisation.
         /// </summary>
-        Entry,
+        OnEntry,
 
         /// <summary>
         /// Indicates the action is executed when the state's is completed.
         /// The action is executed after the status has completed.
         /// </summary>
-        Exit,
+        OnExit,
 
         /// <summary>
         /// Indicates the action is executed when the state is reset.

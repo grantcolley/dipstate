@@ -602,11 +602,11 @@ namespace DevelopmentInProgress.DipState
                 return state;
             }
 
-            await state.ExecuteActionsAsync(StateActionType.Entry).ConfigureAwait(false);
+            await state.ExecuteActionsAsync(StateActionType.OnEntry).ConfigureAwait(false);
 
             state.Status = StateStatus.Initialised;
 
-            await state.ExecuteActionsAsync(StateActionType.Status).ConfigureAwait(false);
+            await state.ExecuteActionsAsync(StateActionType.OnStatusChanged).ConfigureAwait(false);
 
             if (state.Type.Equals(StateType.Auto))
             {
@@ -637,11 +637,11 @@ namespace DevelopmentInProgress.DipState
                 return state;
             }
 
-            state.ExecuteActions(StateActionType.Entry);
+            state.ExecuteActions(StateActionType.OnEntry);
 
             state.Status = StateStatus.Initialised;
 
-            state.ExecuteActions(StateActionType.Status);
+            state.ExecuteActions(StateActionType.OnStatusChanged);
 
             if (state.Type.Equals(StateType.Auto))
             {
@@ -784,7 +784,7 @@ namespace DevelopmentInProgress.DipState
 
             state.Status = newStatus;
 
-            await state.ExecuteActionsAsync(StateActionType.Status).ConfigureAwait(false);
+            await state.ExecuteActionsAsync(StateActionType.OnStatusChanged).ConfigureAwait(false);
 
             state.UpdateParentStatus();
 
@@ -801,7 +801,7 @@ namespace DevelopmentInProgress.DipState
 
             state.Status = newStatus;
 
-            state.ExecuteActions(StateActionType.Status);
+            state.ExecuteActions(StateActionType.OnStatusChanged);
 
             state.UpdateParentStatus();
 
@@ -817,11 +817,11 @@ namespace DevelopmentInProgress.DipState
                 return false;
             }
 
-            await state.ExecuteActionsAsync(StateActionType.Exit).ConfigureAwait(false);
+            await state.ExecuteActionsAsync(StateActionType.OnExit).ConfigureAwait(false);
 
             state.Status = StateStatus.Completed;
 
-            await state.ExecuteActionsAsync(StateActionType.Status).ConfigureAwait(false);
+            await state.ExecuteActionsAsync(StateActionType.OnStatusChanged).ConfigureAwait(false);
 
             state.UpdateParentStatus();
 
@@ -836,11 +836,11 @@ namespace DevelopmentInProgress.DipState
                 return false;
             }
 
-            state.ExecuteActions(StateActionType.Exit);
+            state.ExecuteActions(StateActionType.OnExit);
 
             state.Status = StateStatus.Completed;
 
-            state.ExecuteActions(StateActionType.Status);
+            state.ExecuteActions(StateActionType.OnStatusChanged);
 
             state.UpdateParentStatus();
 
