@@ -46,53 +46,53 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(finalCommunication);
 
             initialCommunication
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(communicationReponse, true);
 
             communicationReponse
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(modellingReview, true);
 
             collateData
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(modelling, true);
 
             modelling
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddSubState(modelling1, true)
                 .AddSubState(modelling2, true)
                 .AddTransition(modellingReview, true);
 
             modellingReview
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(adjustmentCheck, true)
                 .AddDependency(modelling, true)
                 .AddDependency(communicationReponse, true);
 
             adjustmentCheck
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(adjustments)
                 .AddTransition(finalReview);
 
             adjustments
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(finalReview, true);
 
             finalReview
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(finalCommunication, true);
 
             finalCommunication
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(initialCommunication)
                 .AddTransition(communicationReponse)
                 .AddTransition(collateData)
@@ -403,14 +403,14 @@ namespace DevelopmentInProgress.DipState.Test
 
             if (requiresAdjustment)
             {
-                adjustmentCheck.AddAction(StateActionType.Entry, (a) =>
+                adjustmentCheck.AddAction(StateActionType.OnEntry, (a) =>
                 {
                     a.Transition = adjustments;
                 });
             }
             else
             {
-                adjustmentCheck.AddAction(StateActionType.Entry, (a) =>
+                adjustmentCheck.AddAction(StateActionType.OnEntry, (a) =>
                 {
                     a.Transition = finalReview;
                 });

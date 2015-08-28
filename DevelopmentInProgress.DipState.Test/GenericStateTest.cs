@@ -45,12 +45,12 @@ namespace DevelopmentInProgress.DipState.Test
             var entryAction = new Action<State>(a =>
             {
                 var contextClass = a as State<ContextText>;
-                contextClass.Context.Text = "Entry Action";
+                contextClass.Context.Text = "On Entry Action";
             });
 
             var state = new State<ContextText>(
                 new ContextText() {Text = "Uninitialised"}, 1, "Pricing Workflow")
-                .AddAction(StateActionType.Entry, entryAction);
+                .AddAction(StateActionType.OnEntry, entryAction);
 
             // Act
             state = state.Execute(StateExecutionType.Initialise);
@@ -60,7 +60,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.AreEqual(state.Status, StateStatus.Initialised);
-            Assert.AreEqual(((State<ContextText>)state).Context.Text, "Entry Action");
+            Assert.AreEqual(((State<ContextText>)state).Context.Text, "On Entry Action");
         }
 
         [TestMethod]

@@ -9,7 +9,7 @@ namespace DevelopmentInProgress.DipState.Test
     {
         public static async Task AsyncAutoEnrtyActionTransitionToFinalReview(State state)
         {
-            var startLogEntry = new LogEntry(String.Format("Start Auto Entry Async Transition - {0}", state.Name));
+            var startLogEntry = new LogEntry(String.Format("Start Auto OnEntry Async Transition - {0}", state.Name));
             state.Log.Add(startLogEntry);
 
             Debug.WriteLine(startLogEntry.ToString());
@@ -29,7 +29,7 @@ namespace DevelopmentInProgress.DipState.Test
 
             Debug.WriteLine(transitionLogEntry.ToString());
 
-            var endLogEntry = new LogEntry(String.Format("End Auto Entry Async Action Transition - {0}", state.Name));
+            var endLogEntry = new LogEntry(String.Format("End Auto OnEntry Async Action Transition - {0}", state.Name));
             state.Log.Add(endLogEntry);
 
             Debug.WriteLine(endLogEntry.ToString());
@@ -37,7 +37,7 @@ namespace DevelopmentInProgress.DipState.Test
 
         public static async Task AsyncAutoEnrtyActionTransitionToOverride(State state)
         {
-            var startLogEntry = new LogEntry(String.Format("Start Auto Entry Async Transition - {0}", state.Name));
+            var startLogEntry = new LogEntry(String.Format("Start Auto OnEntry Async Transition - {0}", state.Name));
             state.Log.Add(startLogEntry);
 
             Debug.WriteLine(startLogEntry.ToString());
@@ -57,7 +57,7 @@ namespace DevelopmentInProgress.DipState.Test
 
             Debug.WriteLine(transitionLogEntry.ToString());
 
-            var endLogEntry = new LogEntry(String.Format("End Auto Entry Async Action Transition - {0}", state.Name));
+            var endLogEntry = new LogEntry(String.Format("End Auto OnEntry Async Action Transition - {0}", state.Name));
             state.Log.Add(endLogEntry);
 
             Debug.WriteLine(endLogEntry.ToString());
@@ -65,7 +65,7 @@ namespace DevelopmentInProgress.DipState.Test
 
         public static async Task AsyncAutoEnrtyActionTransitionToAdjustments(State state)
         {
-            var startLogEntry = new LogEntry(String.Format("Start Auto Entry Async Transition - {0}", state.Name));
+            var startLogEntry = new LogEntry(String.Format("Start Auto OnEntry Async Transition - {0}", state.Name));
             state.Log.Add(startLogEntry);
 
             Debug.WriteLine(startLogEntry.ToString());
@@ -85,7 +85,7 @@ namespace DevelopmentInProgress.DipState.Test
 
             Debug.WriteLine(transitionLogEntry.ToString());
 
-            var endLogEntry = new LogEntry(String.Format("End Auto Entry Async Action Transition - {0}", state.Name));
+            var endLogEntry = new LogEntry(String.Format("End Auto On Entry Async Action Transition - {0}", state.Name));
             state.Log.Add(endLogEntry);
 
             Debug.WriteLine(endLogEntry.ToString());
@@ -101,7 +101,7 @@ namespace DevelopmentInProgress.DipState.Test
             });
 
             var contextClass = state as State<ContextText>;
-            contextClass.Context.Text = "Entry Action";
+            contextClass.Context.Text = "On Entry Action";
         }
     }
 }

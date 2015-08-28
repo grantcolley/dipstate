@@ -46,50 +46,50 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(finalCommunication);
 
             collateData
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(modelling);
 
             communicationUpdate
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddDependency(collateData, true);
 
             modelling
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddSubState(modelling1, true)
                 .AddSubState(modelling2, true)
                 .AddTransition(modellingReview, true);
 
             modellingReview
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(adjustmentCheck)
                 .AddTransition(modelling)
                 .AddTransition(collateData);
 
             adjustmentCheck
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(adjustments)
                 .AddTransition(finalReview);
 
             adjustments
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(finalReview);
 
             finalReview
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(finalCommunication)
                 .AddTransition(modelling)
                 .AddTransition(collateData);
 
             finalCommunication
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddDependency(communicationUpdate, true)
                 .AddDependency(finalReview);
         }
@@ -287,7 +287,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             await Arrange("ModellingComplete");
 
-            adjustmentCheck.AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToAdjustments);
+            adjustmentCheck.AddActionAsync(StateActionType.OnEntry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToAdjustments);
 
             // Act 
             await modellingReview.ExecuteAsync(adjustmentCheck);
@@ -312,7 +312,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             await Arrange("ModellingComplete");
 
-            adjustmentCheck.AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToAdjustments);
+            adjustmentCheck.AddActionAsync(StateActionType.OnEntry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToAdjustments);
 
             // Act 
             await modellingReview.ExecuteAsync(adjustmentCheck);
@@ -339,7 +339,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Arrange
             await Arrange("ModellingComplete");
 
-            adjustmentCheck.AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview);
+            adjustmentCheck.AddActionAsync(StateActionType.OnEntry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview);
 
             // Act 
             await modellingReview.ExecuteAsync(adjustmentCheck);
@@ -558,7 +558,7 @@ namespace DevelopmentInProgress.DipState.Test
                 return;
             }
 
-            adjustmentCheck.AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview);
+            adjustmentCheck.AddActionAsync(StateActionType.OnEntry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview);
 
             await modellingReview.ExecuteAsync(adjustmentCheck);
 

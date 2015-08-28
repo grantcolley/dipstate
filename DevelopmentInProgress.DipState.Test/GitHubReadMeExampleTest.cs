@@ -13,161 +13,262 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Create the remediation workflow states
 
-            var remediationWorkflowRoot = new State(100, "Remediation Workflow",
-                type: StateType.Root);
+            var remediationWorkflowRoot 
+                = new State(100, "Remediation Workflow", StateType.Root);
 
-            var communication = new State(200, "Communication",
-                                                initialiseWithParent: true);
+            var communication = new State(200, "Communication");
 
-            var letterSent = new State(210, "Letter Sent", initialiseWithParent: true)
-                .AddActionAsync(StateActionType.Entry, GenerateLetterAsync)
-                .AddActionAsync(StateActionType.Status, SaveStatusAsync)
-                .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
-                .AddCanCompletePredicateAsync(LetterCheckedAsync);
+            var letterSent = new State(210, "Letter Sent")
+                .AddActionAsync(StateActionType.OnEntry, GenerateLetterAsync)
+                .AddActionAsync(StateActionType.OnStatusChanged, SaveStatusAsync)
+                .AddActionAsync(StateActionType.OnExit, NotifyDispatchAsync)
+                .AddCanInitialisePredicateAsync(CanInitialiseLetterSentAsync)
+                .AddCanChangeStatusPredicateAsync(CanChangeLetterSentStatusAsync)
+                .AddCanCompletePredicateAsync(CanCompleteLetterSentAsync)
+                .AddCanResetPredicateAsync(CanResetLetterSentAsync);
 
-            var responseReceived = new State(220, "Response Received", canCompleteParent: true)
-                .AddActionAsync(StateActionType.Status, SaveStatusAsync);
+            var responseReceived = new State(220, "Response Received");
 
-            var collateData = new State(300, "Collate Data", true)
-                .AddCanCompletePredicateAsync(ValidateDataAsync);
+            var collateData = new State(300, "Collate Data");
 
-            var adjustmentDecision = new State(400, "Adjustment Decision",
-                type: StateType.Auto);
+            var adjustmentDecision 
+                = new State(400, "Adjustment Decision", StateType.Auto);
 
             var adjustment = new State(500, "Adjustment");
 
             var autoTransitionToRedressReview
-                = new State(600, "Auto Transition To Redress Review",
-                                    type: StateType.Auto);
+                = new State(600, "Auto Transition To Redress Review", StateType.Auto);
 
             var redressReview = new State(700, "Redress Review");
 
-            var payment = new State(800, "Payment", canCompleteParent: true);
+            var payment = new State(800, "Payment");
 
 
             // Assemble the remediation workflow
 
             redressReview
-                .AddTransition(payment)
+                .AddTransition(payment, true)
                 .AddTransition(collateData)
-                .AddDependency(communication)
-                .AddDependency(autoTransitionToRedressReview)
-                .AddActionAsync(StateActionType.Entry, CalculateFinalRedressAmountAsync);
+                .AddDependency(communication, true)
+                .AddDependency(autoTransitionToRedressReview, true)
+                .AddActionAsync(StateActionType.OnEntry, CalculateFinalRedressAmountAsync);
 
             autoTransitionToRedressReview
                 .AddDependant(redressReview, true)
-                .AddTransition(redressReview);
+                .AddTransition(redressReview, true);
 
-            adjustment.AddTransition(autoTransitionToRedressReview);
+            adjustment.AddTransition(autoTransitionToRedressReview, true);
 
             adjustmentDecision
                 .AddTransition(adjustment)
                 .AddTransition(autoTransitionToRedressReview)
-                .AddActionAsync(StateActionType.Entry, AdjustmentRequiredCheckAsync);
+                .AddActionAsync(StateActionType.OnEntry, ConditionalTransitionDecisionAsync);
 
             collateData
-                .AddTransition(adjustmentDecision);
+                .AddTransition(adjustmentDecision, true);
 
-            letterSent.AddTransition(responseReceived);
+            letterSent.AddTransition(responseReceived, true);
 
             communication
-                .AddDependant(redressReview, true)
-                .AddSubState(letterSent)
+                .AddSubState(letterSent, true)
                 .AddSubState(responseReceived)
-                .AddTransition(redressReview);
+                .AddDependant(redressReview, true)
+                .AddTransition(redressReview, true);
 
             remediationWorkflowRoot
-                .AddSubState(communication)
-                .AddSubState(collateData)
+                .AddSubState(communication, true)
+                .AddSubState(collateData, true)
                 .AddSubState(adjustmentDecision)
-                .AddSubState(adjustment)
+                .AddSubState(adjustment, completionRequired: false)
                 .AddSubState(autoTransitionToRedressReview)
                 .AddSubState(redressReview)
                 .AddSubState(payment);
 
-            // Initialise the workflow
+            // Initialised the workflow
 
-            var result = await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
+            var result = await remediationWorkflowRoot.ExecuteAsync(StateExecutionType.Initialise);
 
-            Assert.IsTrue(result.Name.Equals("Remediation Workflow"));
-            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Initialise);
-            Assert.AreEqual(communication.Status, StateStatus.Initialise);
-            Assert.AreEqual(letterSent.Status, StateStatus.Initialise);
-            Assert.AreEqual(collateData.Status, StateStatus.Initialise);
+            Assert.IsTrue(result.Equals(remediationWorkflowRoot));
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Initialised);
+            Assert.AreEqual(communication.Status, StateStatus.Initialised);
+            Assert.AreEqual(letterSent.Status, StateStatus.Initialised);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(adjustment.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
+
+            result = await letterSent.ExecuteAsync(StateExecutionType.InProgress);
+
+            Assert.IsTrue(result.Equals(letterSent));
+            Assert.IsNull(letterSent.Antecedent);
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.InProgress);
+            Assert.AreEqual(communication.Status, StateStatus.InProgress);
+            Assert.AreEqual(letterSent.Status, StateStatus.InProgress);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(adjustment.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
+
+            result = await letterSent.ExecuteAsync(StateExecutionType.Reset);
+
+            Assert.IsTrue(result.Equals(letterSent));
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Initialised);
+            Assert.AreEqual(communication.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(letterSent.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(adjustment.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
+
+            result = await letterSent.ExecuteAsync(StateExecutionType.Initialise);
+
+            Assert.IsTrue(result.Equals(letterSent));
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Initialised);
+            Assert.AreEqual(communication.Status, StateStatus.Initialised);
+            Assert.AreEqual(letterSent.Status, StateStatus.Initialised);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(adjustment.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
 
             result = await letterSent.ExecuteAsync(responseReceived);
-            
-            Assert.IsTrue(result.Name.Equals("Response Received"));
-            Assert.AreEqual(letterSent.Status, StateStatus.Complete);
-            Assert.AreEqual(responseReceived.Status, StateStatus.Initialise);
+
+            Assert.IsTrue(result.Equals(responseReceived));
             Assert.IsTrue(responseReceived.Antecedent.Equals(letterSent));
 
-            // When a state has only one transition state then setting 
-            // it to Complete will automatically transition to it.
-            // Note: if there is more than one transition state then 
-            // simply setting it to complete will thrown an exception.
-            result = await collateData.ExecuteAsync(StateStatus.Complete);
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.InProgress);
+            Assert.AreEqual(communication.Status, StateStatus.InProgress);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Initialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Initialised);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(adjustment.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
 
-            Assert.AreEqual(collateData.Status, StateStatus.Complete);
-            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Complete);
+            result = await collateData.ExecuteAsync(StateExecutionType.Complete);
+
             Assert.IsTrue(adjustmentDecision.Antecedent.Equals(collateData));
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.InProgress);
+            Assert.AreEqual(communication.Status, StateStatus.InProgress);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Initialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Completed);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Completed);
+            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
 
             if (result.Equals(adjustment))
             {
-                Assert.AreEqual(adjustment.Status, StateStatus.Initialise);
+                Assert.AreEqual(adjustment.Status, StateStatus.Initialised);
                 Assert.IsTrue(adjustment.Antecedent.Equals(adjustmentDecision));
 
-                result = await result.ExecuteAsync(StateStatus.Complete);
+                result = await result.ExecuteAsync(StateExecutionType.Complete);
 
-                Assert.AreEqual(adjustment.Status, StateStatus.Complete);
+                Assert.AreEqual(adjustment.Status, StateStatus.Completed);
 
-                Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Complete);
+                Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Completed);
                 Assert.IsTrue(autoTransitionToRedressReview.Antecedent.Equals(adjustment));
             }
             else
             {
-                Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Complete);
+                Assert.AreEqual(autoTransitionToRedressReview.Status, StateStatus.Completed);
                 Assert.IsTrue(autoTransitionToRedressReview.Antecedent.Equals(adjustmentDecision));
             }
 
             Assert.IsTrue(result.Equals(redressReview));
-            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialise);
             Assert.IsTrue(redressReview.Antecedent.Equals(autoTransitionToRedressReview));
 
-            result = await responseReceived.ExecuteAsync(StateStatus.Complete);
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.InProgress);
+            Assert.AreEqual(communication.Status, StateStatus.InProgress);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Initialised);
+            Assert.AreEqual(collateData.Status, StateStatus.Completed);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Completed);
+            Assert.AreEqual(redressReview.Status, StateStatus.Uninitialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
 
-            Assert.AreEqual(responseReceived.Status, StateStatus.Complete);
-            Assert.AreEqual(communication.Status, StateStatus.Complete);
+            result = await responseReceived.ExecuteAsync(StateExecutionType.Complete);
 
             Assert.IsTrue(result.Equals(redressReview));
-            Assert.AreEqual(redressReview.Status, StateStatus.Initialise);
             Assert.IsTrue(redressReview.Antecedent.Equals(communication));
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.InProgress);
+            Assert.AreEqual(communication.Status, StateStatus.Completed);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Completed);
+            Assert.AreEqual(collateData.Status, StateStatus.Completed);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Completed);
+            Assert.AreEqual(redressReview.Status, StateStatus.Initialised);
+            Assert.AreEqual(payment.Status, StateStatus.Uninitialised);
 
             result = await redressReview.ExecuteAsync(payment);
 
-            Assert.AreEqual(redressReview.Status, StateStatus.Complete);
-
             Assert.IsTrue(result.Equals(payment));
-            Assert.AreEqual(payment.Status, StateStatus.Initialise);
             Assert.IsTrue(payment.Antecedent.Equals(redressReview));
 
-            result = await payment.ExecuteAsync(StateStatus.Complete);
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.InProgress);
+            Assert.AreEqual(communication.Status, StateStatus.Completed);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Completed);
+            Assert.AreEqual(collateData.Status, StateStatus.Completed);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Completed);
+            Assert.AreEqual(redressReview.Status, StateStatus.Completed);
+            Assert.AreEqual(payment.Status, StateStatus.Initialised);
 
-            Assert.AreEqual(payment.Status, StateStatus.Complete);
+            result = await payment.ExecuteAsync(StateExecutionType.Complete);
 
             Assert.IsTrue(result.Equals(remediationWorkflowRoot));
-            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Complete);
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Completed);
+            Assert.AreEqual(communication.Status, StateStatus.Completed);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Completed);
+            Assert.AreEqual(collateData.Status, StateStatus.Completed);
+            Assert.AreEqual(adjustmentDecision.Status, StateStatus.Completed);
+            Assert.AreEqual(redressReview.Status, StateStatus.Completed);
+            Assert.AreEqual(payment.Status, StateStatus.Completed);
         }
 
-        public static async Task<bool> LetterCheckedAsync(State context)
+        public static async Task<bool> CanInitialiseLetterSentAsync(State context)
         {
-            await RunAsync(context, "LetterCheckedAsync");
+            await RunAsync(context, "CanInitialiseLetterSentAsync");
             return true;
         }
 
-        public static async Task<bool> ValidateDataAsync(State context)
+        public static async Task<bool> CanChangeLetterSentStatusAsync(State context)
         {
-            await RunAsync(context, "ValidateDataAsync");
+            await RunAsync(context, "CanChangeLetterSentStatusAsync");
+            return true;
+        }
+
+        public static async Task<bool> CanCompleteLetterSentAsync(State context)
+        {
+            await RunAsync(context, "CanCompleteLetterSentAsync");
+            return true;
+        }
+
+        public static async Task<bool> CanResetLetterSentAsync(State context)
+        {
+            await RunAsync(context, "CanResetLetterSentAsync");
             return true;
         }
 
@@ -191,14 +292,14 @@ namespace DevelopmentInProgress.DipState.Test
             await RunAsync(context, "CalculateFinalRedressAmountAsync");
         }
 
-        private static async Task AdjustmentRequiredCheckAsync(State context)
+        private static async Task ConditionalTransitionDecisionAsync(State context)
         {
             // Determine at runtime whether to transition 
             // to Adjustment or AutoTransitionToReview
 
             await RunAsync(context, "AdjustmentRequiredCheckAsync");
 
-            // This test randomly selectes the transition state.
+            // This test randomly selects the transition state.
             var random = new Random();
             context.Transition = context.Transitions[random.Next(0, 2)];
         }

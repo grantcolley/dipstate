@@ -50,53 +50,53 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddSubState(finalCommunication);
 
             initialCommunication
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(communicationReponse, true);
 
             communicationReponse
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(modellingReview, true);
 
             collateData
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(modelling, true);
 
             modelling
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddSubState(modelling1, true)
                 .AddSubState(modelling2, true)
                 .AddTransition(modellingReview, true);
 
             modellingReview
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(adjustmentCheck, true)
                 .AddDependency(modelling, true)
                 .AddDependency(communicationReponse, true);
 
             adjustmentCheck
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(adjustments)
                 .AddTransition(finalReview);
 
             adjustments
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(finalReview, true);
 
             finalReview
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(finalCommunication, true);
 
             finalCommunication
-                .AddAction(StateActionType.Entry, TestMethods.TraceWrite)
-                .AddAction(StateActionType.Exit, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnEntry, TestMethods.TraceWrite)
+                .AddAction(StateActionType.OnExit, TestMethods.TraceWrite)
                 .AddTransition(initialCommunication)
                 .AddTransition(communicationReponse)
                 .AddTransition(collateData)
@@ -407,11 +407,11 @@ namespace DevelopmentInProgress.DipState.Test
 
             if (requiresAdjustment)
             {
-                adjustmentCheck.AddActionAsync(StateActionType.Entry, TransitionToAdjustments);
+                adjustmentCheck.AddActionAsync(StateActionType.OnEntry, TransitionToAdjustments);
             }
             else
             {
-                adjustmentCheck.AddActionAsync(StateActionType.Entry, TransitionToFinalReview);
+                adjustmentCheck.AddActionAsync(StateActionType.OnEntry, TransitionToFinalReview);
             }
 
             await modellingReview.ExecuteAsync(StateExecutionType.Complete);
@@ -495,14 +495,14 @@ namespace DevelopmentInProgress.DipState.Test
 
         public static async Task TransitionToAdjustments(State state)
         {
-            var startLogEntry = new LogEntry(String.Format("Start Entry Async Action - {0}", state.Name));
+            var startLogEntry = new LogEntry(String.Format("Start OnEntry Async Action - {0}", state.Name));
             state.Log.Add(startLogEntry);
 
             Debug.WriteLine(startLogEntry.ToString());
 
             state.Transition = state.Transitions.FirstOrDefault(s => s.Name.Equals("Adjustments"));
 
-            var endLogEntry = new LogEntry(String.Format("End Entry Async Action - {0}", state.Name));
+            var endLogEntry = new LogEntry(String.Format("End OnEntry Async Action - {0}", state.Name));
             state.Log.Add(endLogEntry);
 
             Debug.WriteLine(endLogEntry.ToString());
@@ -510,14 +510,14 @@ namespace DevelopmentInProgress.DipState.Test
 
         public static async Task TransitionToFinalReview(State state)
         {
-            var startLogEntry = new LogEntry(String.Format("Start Entry Async Action - {0}", state.Name));
+            var startLogEntry = new LogEntry(String.Format("Start OnEntry Async Action - {0}", state.Name));
             state.Log.Add(startLogEntry);
 
             Debug.WriteLine(startLogEntry.ToString());
 
             state.Transition = state.Transitions.FirstOrDefault(s => s.Name.Equals("Final Review"));
 
-            var endLogEntry = new LogEntry(String.Format("End Entry Async Action - {0}", state.Name));
+            var endLogEntry = new LogEntry(String.Format("End OnEntry Async Action - {0}", state.Name));
             state.Log.Add(endLogEntry);
 
             Debug.WriteLine(endLogEntry.ToString());

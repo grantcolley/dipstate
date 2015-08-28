@@ -247,7 +247,7 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Arrange
             var state = new State(1, "Pricing Workflow")
-                .AddActionAsync(StateActionType.Entry, TraceWrite);
+                .AddActionAsync(StateActionType.OnEntry, TraceWrite);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
@@ -255,7 +255,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.IsTrue(state.Actions.Count().Equals(1));
             Assert.IsTrue(
                 state.Actions.Count(a => a.IsActionAsync 
-                    && a.ActionType.Equals(StateActionType.Entry)).Equals(1));
+                    && a.ActionType.Equals(StateActionType.OnEntry)).Equals(1));
         }
 
         [TestMethod]
@@ -263,14 +263,14 @@ namespace DevelopmentInProgress.DipState.Test
         {
             // Arrange
             var state = new State(1, "Pricing Workflow")
-                .AddActionAsync(StateActionType.Exit, TraceWrite);
+                .AddActionAsync(StateActionType.OnExit, TraceWrite);
 
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.IsTrue(state.Actions.Count().Equals(1));
             Assert.IsTrue(
-                state.Actions.Count(a => a.IsActionAsync && a.ActionType.Equals(StateActionType.Exit)).Equals(1));
+                state.Actions.Count(a => a.IsActionAsync && a.ActionType.Equals(StateActionType.OnExit)).Equals(1));
         }
 
         [TestMethod]
@@ -402,8 +402,8 @@ namespace DevelopmentInProgress.DipState.Test
             var mockStatusAction = new Mock<Func<State, Task>>();
 
             var state = new State(1, "Pricing Workflow")
-                .AddActionAsync(StateActionType.Entry, mockEntryAction.Object)
-                .AddActionAsync(StateActionType.Status, mockStatusAction.Object);
+                .AddActionAsync(StateActionType.OnEntry, mockEntryAction.Object)
+                .AddActionAsync(StateActionType.OnStatusChanged, mockStatusAction.Object);
 
             // Act
             state = await state.ExecuteAsync(StateExecutionType.Initialise);
@@ -424,7 +424,7 @@ namespace DevelopmentInProgress.DipState.Test
             var mockAction = new Mock<Func<State, Task>>();
 
             var state = new State(1, "Pricing Workflow")
-                .AddActionAsync(StateActionType.Entry, mockAction.Object);
+                .AddActionAsync(StateActionType.OnEntry, mockAction.Object);
 
             mockAction.Setup(a => a(state))
                 .Throws(
@@ -547,8 +547,8 @@ namespace DevelopmentInProgress.DipState.Test
             var mockStatusAction = new Mock<Func<State, Task>>();
 
             var autoState = new State(1, "Close Case", StateType.Auto)
-                .AddActionAsync(StateActionType.Entry, mockEntryAction.Object)
-                .AddActionAsync(StateActionType.Status, mockStatusAction.Object);
+                .AddActionAsync(StateActionType.OnEntry, mockEntryAction.Object)
+                .AddActionAsync(StateActionType.OnStatusChanged, mockStatusAction.Object);
 
             // Act
             autoState = await autoState.ExecuteAsync(StateExecutionType.Initialise);
@@ -570,15 +570,15 @@ namespace DevelopmentInProgress.DipState.Test
             var mockStatusAction = new Mock<Func<State, Task>>();
 
             var finalState = new State(2, "Final Review")
-                .AddActionAsync(StateActionType.Entry, mockEntryAction.Object);
+                .AddActionAsync(StateActionType.OnEntry, mockEntryAction.Object);
 
             var overrideState = new State(3, "Override");
 
             var autoState = new State(1, "Override Decision", StateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
-                .AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview)
-                .AddActionAsync(StateActionType.Status, mockStatusAction.Object);
+                .AddActionAsync(StateActionType.OnEntry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToFinalReview)
+                .AddActionAsync(StateActionType.OnStatusChanged, mockStatusAction.Object);
 
             // Act
             var state = await autoState.ExecuteAsync(StateExecutionType.Initialise);
@@ -611,13 +611,13 @@ namespace DevelopmentInProgress.DipState.Test
             var finalState = new State(2, "Final");
 
             var overrideState = new State(3, "Override")
-                .AddActionAsync(StateActionType.Entry, mockEntryAction.Object);
+                .AddActionAsync(StateActionType.OnEntry, mockEntryAction.Object);
 
             var autoState = new State(1, "Override Decision", type: StateType.Auto)
                 .AddTransition(finalState)
                 .AddTransition(overrideState)
-                .AddActionAsync(StateActionType.Entry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToOverride)
-                .AddActionAsync(StateActionType.Status, mockStatusAction.Object);
+                .AddActionAsync(StateActionType.OnEntry, AsyncTestMethods.AsyncAutoEnrtyActionTransitionToOverride)
+                .AddActionAsync(StateActionType.OnStatusChanged, mockStatusAction.Object);
 
             // Act
             var state = await autoState.ExecuteAsync(StateExecutionType.Initialise);
