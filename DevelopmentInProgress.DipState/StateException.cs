@@ -25,21 +25,5 @@ namespace DevelopmentInProgress.DipState
         /// Gets the state to which the exception applies.
         /// </summary>
         public State State { get; private set; }
-
-        /// <summary>
-        /// Gets the log belonging to the state to which the exception applies.
-        /// </summary>
-        public List<string> Messages
-        {
-            get
-            {
-                if (State != null)
-                {
-                    return (from l in State.Log select l.Message).ToList();
-                }
-
-                return new List<string>();
-            }
-        }
     }
 }
