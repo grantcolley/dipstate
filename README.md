@@ -115,21 +115,41 @@ The following shows how to create different types of states.
                 = new State(400, "Adjustment Decision", StateType.Auto);
 ```
 
-##### State Properties
-  * **InitialiseWithParent** - applies to sub states and indicates it will be initialised when its parent is initialised.
-  * **CanCompleteParent** - applies to sub states and indicates the state will attempt to complete its parent state after it has completed.
+###State Members
+  * **Id** – the states identifier
+  * **Name** - the states name
+  * **Status** - the status of the state
+  * **IsDirty** - indicates whether the status of the state has changed
+  * **InitialiseWithParent** - indicates whether the state will be initialised when its parent is initialised
+  * **CompletionRequired** - indicates whether completion of the state is required in order for its parent to complete
+  * **Context** - the states context
+  * **Type** - the type of state
+  * **Parent** - the parent of the state
+  * **Antecedent** - the preceding state in a workflow from which the state was transitioned from        
+  * **Transition** - the state to transition to
+  * **Transitions** - a list of states that the state can transition to. A state can only transition to one other state from this list.
+  * **Dependencies** - a list of dependency states that must be completed before the state can be initialised.
+  * **Dependants** - a list of states that are dependent on the state being completed before they can be initialised
+  * **SubStates** - a list of sub states. Sub states can behave as mini workflows under their parent
+  * **Log** - the state log
+  * **Actions** - a list of action delegates that are executed at different stages in the lifecycle of the state
 
-##### Delegates
-  * **Actions**
-    * **Entry** action delegates that execute on initialising a state.
-    * **StatusChanged** action delegates that execute when the status changes.
-    * **Exit** action delegates that execute when the state is completed.
-    * **Reset** action delegates that execute when the state is reset to *Uninitialised*.
-  * **CanComplete** predicate delegate executed prior to completing a state and transitioning to another one. 
-  * **Dependencies** are one or more states which need to be completed before the state can be initialised.
-  * **Dependents** are one or more states which are dependent on the state being completed before they can be initialised themselves. Dependent states can optionally be initialised when the state has completed.
-  * **Transitions** are one or more states that the state can transition to after it has completed.
-  * **Sub States** are one or more states for which the state acts as a parent. Sub states can behave like a mini workflow where the parent implicitly assumes the role of the root and the last substate will typically have CanCompleteParent* set to true.
+#### State Delegates
+
+##### Action Delegates
+Action delegates are executed at different stages in the lifecycle of the state.
+  * **OnEntry**
+  * **OnStatusChanged**
+  * **OnExit**
+  * **Reset**
+
+##### Predicate Delegates
+Predicate delegates are executed prior to performing an execution against a state.
+  * **CanInitialiseState**
+  * **CanChangeStateStatus**
+  * **CanCompleteState**
+  * **CanResetState**
+
 
 
 #### Initialise a State
