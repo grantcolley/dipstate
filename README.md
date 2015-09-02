@@ -1,7 +1,7 @@
 # dipstate
 Dipstate provides a simple mechanism to maintain state for an activity based workflow.
 
-### Features
+## Features
   * Support for async and synchronous execution
   * Action delegates execute with context for entry, exit, reset and status changed events
   * Conditional transitioning between states
@@ -9,8 +9,8 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
   * Support for auto states
   * Support for dependency states
 
-### State
-##### State Members
+## State
+### State Members
   * **Id** – the identifier of the state
   * **Name** - the name of the state
   * **Status** - the status of the state
@@ -29,7 +29,7 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
   * **Log** - the state log
   * **Actions** - a list of action delegates that are executed at different stages in the lifecycle of the state
 
-##### State Types
+### State Types
   * **Root** is a state that represents a workflow. Its sub states are the states within the workflow. Initialising the root state is the entry point into the workflow and is automatically completed when the last sub state requiring completion has completed.
   * **Auto** is a state which will automatically complete itself after initialisation. Entry actions are executed during the initialisation which is a good place to perform some task or determine the state it needs to transition to at runtime..
   * **Standard** is a plain vanilla state.
@@ -46,7 +46,7 @@ Creating different types of states.
                 = new State(400, "Adjustment Decision", StateType.Auto);
 ```
 
-##### State Delegates
+### State Delegates
 **Action Delegates** are executed at different stages in the lifecycle of the state.
   * **OnEntry**
   * **OnStatusChanged**
