@@ -98,13 +98,26 @@ You can find an example WPF implementation of the workflow at [Origin](https://g
                 .AddSubState(redressReview)
                 .AddSubState(payment);
 ```
+##### State Types
+  * **Root** is a state that represents a workflow. Its sub states are the states within the workflow. Initialising the root state is the entry point into the workflow and is automatically completed when the last sub state requiring completion has completed.
+  * **Auto** is a state which will automatically complete itself after initialisation. Entry actions are executed during the initialisation which is a good place to perform some task or determine the state it needs to transition to at runtime..
+  * **Standard** is a plain vanilla state.
+
+The following shows how to create different types of states.
+```C#
+            var remediationWorkflowRoot 
+                = new State(100, "Remediation Workflow", StateType.Root);
+                
+            // unless otherwise specified a standard state is created
+            var collateData = new State(300, "Collate Data");
+            
+            var adjustmentDecision 
+                = new State(400, "Adjustment Decision", StateType.Auto);
+```
+
 ##### State Properties
   * **InitialiseWithParent** - applies to sub states and indicates it will be initialised when its parent is initialised.
   * **CanCompleteParent** - applies to sub states and indicates the state will attempt to complete its parent state after it has completed.
-  * **Type**
-    * **Root** is reserved for the main root state in a workflow. There can be only one root within a workflow.
-    * **Auto** states will automatically complete itself and attempt to transition after it has been initialised.
-    * **Standard** is a plain vanilla state.
 
 ##### Delegates
   * **Actions**
