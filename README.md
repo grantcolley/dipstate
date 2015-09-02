@@ -9,6 +9,68 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
   * Support for auto states
   * Support for dependency states
 
+### State
+##### State Members
+  * **Id** – the identifier of the state
+  * **Name** - the name of the state
+  * **Status** - the status of the state
+  * **IsDirty** - indicates whether the status of the state has changed
+  * **InitialiseWithParent** - indicates whether the state will be initialised when its parent is initialised
+  * **CompletionRequired** - indicates whether completion of the state is required in order for its parent to complete
+  * **Context** - the states context
+  * **Type** - the type of state
+  * **Parent** - the parent of the state
+  * **Antecedent** - the preceding state in a workflow from which the state was transitioned from        
+  * **Transition** - the state to transition to
+  * **Transitions** - a list of states from which the state can transition to
+  * **Dependencies** - a list of dependency states that must be completed before the state can be initialised.
+  * **Dependants** - a list of states that are dependent on the state being completed before they can be initialised
+  * **SubStates** - a list of sub states. Sub states can behave as mini workflows under their parent
+  * **Log** - the state log
+  * **Actions** - a list of action delegates that are executed at different stages in the lifecycle of the state
+
+##### State Types
+  * **Root** is a state that represents a workflow. Its sub states are the states within the workflow. Initialising the root state is the entry point into the workflow and is automatically completed when the last sub state requiring completion has completed.
+  * **Auto** is a state which will automatically complete itself after initialisation. Entry actions are executed during the initialisation which is a good place to perform some task or determine the state it needs to transition to at runtime..
+  * **Standard** is a plain vanilla state.
+
+Creating different types of states.
+```C#
+            var remediationWorkflowRoot 
+                = new State(100, "Remediation Workflow", StateType.Root);
+                
+            // unless otherwise specified a standard state is created
+            var collateData = new State(300, "Collate Data");
+            
+            var adjustmentDecision 
+                = new State(400, "Adjustment Decision", StateType.Auto);
+```
+
+##### State Delegates
+**Action Delegates** are executed at different stages in the lifecycle of the state.
+  * **OnEntry**
+  * **OnStatusChanged**
+  * **OnExit**
+  * **Reset**
+
+**Predicate Delegates** are executed prior to performing an execution against a state.
+  * **CanInitialiseState**
+  * **CanChangeStateStatus**
+  * **CanCompleteState**
+  * **CanResetState**
+
+Setting up delegates.
+```C#
+            var letterSent = new State(210, "Letter Sent")
+                .AddActionAsync(StateActionType.OnEntry, GenerateLetterAsync)
+                .AddActionAsync(StateActionType.OnStatusChanged, SaveStatusAsync)
+                .AddActionAsync(StateActionType.OnExit, NotifyDispatchAsync)
+                .AddCanInitialisePredicateAsync(CanInitialiseLetterSentAsync)
+                .AddCanChangeStatusPredicateAsync(CanChangeLetterSentStatusAsync)
+                .AddCanCompletePredicateAsync(CanCompleteLetterSentAsync)
+                .AddCanResetPredicateAsync(CanResetLetterSentAsync);
+```
+
 ## How it works
 
 Here is how it works by way of an example workflow. 
@@ -98,56 +160,6 @@ You can find an example WPF implementation of the workflow at [Origin](https://g
                 .AddSubState(redressReview)
                 .AddSubState(payment);
 ```
-##### State Types
-  * **Root** is a state that represents a workflow. Its sub states are the states within the workflow. Initialising the root state is the entry point into the workflow and is automatically completed when the last sub state requiring completion has completed.
-  * **Auto** is a state which will automatically complete itself after initialisation. Entry actions are executed during the initialisation which is a good place to perform some task or determine the state it needs to transition to at runtime..
-  * **Standard** is a plain vanilla state.
-
-The following shows how to create different types of states.
-```C#
-            var remediationWorkflowRoot 
-                = new State(100, "Remediation Workflow", StateType.Root);
-                
-            // unless otherwise specified a standard state is created
-            var collateData = new State(300, "Collate Data");
-            
-            var adjustmentDecision 
-                = new State(400, "Adjustment Decision", StateType.Auto);
-```
-
-##### State Members
-  * **Id** – the identifier of the state
-  * **Name** - the name of the state
-  * **Status** - the status of the state
-  * **IsDirty** - indicates whether the status of the state has changed
-  * **InitialiseWithParent** - indicates whether the state will be initialised when its parent is initialised
-  * **CompletionRequired** - indicates whether completion of the state is required in order for its parent to complete
-  * **Context** - the states context
-  * **Type** - the type of state
-  * **Parent** - the parent of the state
-  * **Antecedent** - the preceding state in a workflow from which the state was transitioned from        
-  * **Transition** - the state to transition to
-  * **Transitions** - a list of states from which the state can transition to
-  * **Dependencies** - a list of dependency states that must be completed before the state can be initialised.
-  * **Dependants** - a list of states that are dependent on the state being completed before they can be initialised
-  * **SubStates** - a list of sub states. Sub states can behave as mini workflows under their parent
-  * **Log** - the state log
-  * **Actions** - a list of action delegates that are executed at different stages in the lifecycle of the state
-
-##### State Delegates
-**Action Delegates** are executed at different stages in the lifecycle of the state.
-  * **OnEntry**
-  * **OnStatusChanged**
-  * **OnExit**
-  * **Reset**
-
-**Predicate Delegates** are executed prior to performing an execution against a state.
-  * **CanInitialiseState**
-  * **CanChangeStateStatus**
-  * **CanCompleteState**
-  * **CanResetState**
-
-
 
 #### Initialise a State
 The following shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
