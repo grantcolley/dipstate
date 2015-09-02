@@ -115,9 +115,9 @@ The following shows how to create different types of states.
                 = new State(400, "Adjustment Decision", StateType.Auto);
 ```
 
-###State Members
-  * **Id** – the states identifier
-  * **Name** - the states name
+##### State Members
+  * **Id** – the identifier of the state
+  * **Name** - the name of the state
   * **Status** - the status of the state
   * **IsDirty** - indicates whether the status of the state has changed
   * **InitialiseWithParent** - indicates whether the state will be initialised when its parent is initialised
@@ -127,24 +127,21 @@ The following shows how to create different types of states.
   * **Parent** - the parent of the state
   * **Antecedent** - the preceding state in a workflow from which the state was transitioned from        
   * **Transition** - the state to transition to
-  * **Transitions** - a list of states that the state can transition to. A state can only transition to one other state from this list.
+  * **Transitions** - a list of states from which the state can transition to
   * **Dependencies** - a list of dependency states that must be completed before the state can be initialised.
   * **Dependants** - a list of states that are dependent on the state being completed before they can be initialised
   * **SubStates** - a list of sub states. Sub states can behave as mini workflows under their parent
   * **Log** - the state log
   * **Actions** - a list of action delegates that are executed at different stages in the lifecycle of the state
 
-#### State Delegates
-
-##### Action Delegates
-Action delegates are executed at different stages in the lifecycle of the state.
+##### State Delegates
+**Action Delegates** are executed at different stages in the lifecycle of the state.
   * **OnEntry**
   * **OnStatusChanged**
   * **OnExit**
   * **Reset**
 
-##### Predicate Delegates
-Predicate delegates are executed prior to performing an execution against a state.
+**Predicate Delegates** are executed prior to performing an execution against a state.
   * **CanInitialiseState**
   * **CanChangeStateStatus**
   * **CanCompleteState**
