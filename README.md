@@ -3,7 +3,7 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
 
 ### Features
   * Support for async and synchronous execution
-  * Action delegates run with context for entry, exit, reset and status changed events
+  * Action delegates execute with context for entry, exit, reset and status changed events
   * Conditional transitioning between states
   * States can have sub-states
   * Support for auto states
@@ -16,86 +16,84 @@ Here is how it works by way of an example workflow.
 **Note:**
 For a full listing of the code see test class [GitHubReadMeExampleTest.cs](https://github.com/grantcolley/dipstate/tree/master/DevelopmentInProgress.DipState.Test/GitHubReadMeExampleTest.cs) in [DevelopmentInProgress.DipState.Test](https://github.com/grantcolley/dipstate/tree/master/DevelopmentInProgress.DipState.Test) project.
 
-The example workflow follows the activities of a customer remediation process. The process starts by sending out a letter to a customer informing them a redress is due on their account a response is required. While waiting for a response from the customer data pertaining to the redress is gathered and the amount to be redressed is calculated. If necessary an adjustment is made to the calculated amount. After the redress amount has been calculated and the response is received from the customer the case is sent for final review. If the review fails the case is sent back to be re-calculated. If the review passes then payment is made to the customer.
+The example workflow follows the activities of a customer remediation process. The process starts by sending out a letter to a customer informing them a redress is due on their account and a response is required. While waiting for a response from the customer data pertaining to the redress is gathered and the amount to be redressed is calculated. If necessary an adjustment is made to the calculated amount. After both the redress amount has been calculated and the customer response has been received the case is sent for final review. If the final review fails the case is sent back to be re-calculated. If the review passes then payment is made to the customer.
 
 ![Alt text](/README-images/Dipstate-example-workflow.png?raw=true "Example workflow")
 
-You can find an example implementation of the workflow at [Origin](https://github.com/grantcolley/origin)
+You can find an example WPF implementation of the workflow at [Origin](https://github.com/grantcolley/origin)
 ![Alt text](/README-images/WPF-Example.PNG?raw=true "WPF implementation of the Dipstate example workflow in DevelopmentInProgress.Origin").
 
 #### Setting up the workflow
 ```C#
             // Create the remediation workflow states
 
-            var remediationWorkflowRoot = new State(100, "Remediation Workflow",
-                type: StateType.Root);
+            var remediationWorkflowRoot 
+                = new State(100, "Remediation Workflow", StateType.Root);
 
-            var communication = new State(200, "Communication",
-                                                initialiseWithParent: true);
+            var communication = new State(200, "Communication");
 
-            var letterSent = new State(210, "Letter Sent", initialiseWithParent: true)
-                .AddActionAsync(StateActionType.Entry, GenerateLetterAsync)
-                .AddActionAsync(StateActionType.Status, SaveStatusAsync)
-                .AddActionAsync(StateActionType.Exit, NotifyDispatchAsync)
-                .AddCanCompletePredicateAsync(LetterCheckedAsync);
+            var letterSent = new State(210, "Letter Sent")
+                .AddActionAsync(StateActionType.OnEntry, GenerateLetterAsync)
+                .AddActionAsync(StateActionType.OnStatusChanged, SaveStatusAsync)
+                .AddActionAsync(StateActionType.OnExit, NotifyDispatchAsync)
+                .AddCanInitialisePredicateAsync(CanInitialiseLetterSentAsync)
+                .AddCanChangeStatusPredicateAsync(CanChangeLetterSentStatusAsync)
+                .AddCanCompletePredicateAsync(CanCompleteLetterSentAsync)
+                .AddCanResetPredicateAsync(CanResetLetterSentAsync);
 
-            var response = new State(220, "Response", canCompleteParent: true)
-                .AddActionAsync(StateActionType.Status, SaveStatusAsync);
+            var responseReceived = new State(220, "Response Received");
 
-            var collateData = new State(300, "Collate Data", true)
-                .AddCanCompletePredicateAsync(ValidateDataAsync);
+            var collateData = new State(300, "Collate Data");
 
-            var adjustmentDecision = new State(400, "Adjustment Decision",
-                type: StateType.Auto);
+            var adjustmentDecision 
+                = new State(400, "Adjustment Decision", StateType.Auto);
 
             var adjustment = new State(500, "Adjustment");
 
             var autoTransitionToRedressReview
-                = new State(600, "Auto Transition To Redress Review",
-                                    type: StateType.Auto);
+                = new State(600, "Auto Transition To Redress Review", StateType.Auto);
 
             var redressReview = new State(700, "Redress Review");
 
-            var payment = new State(800, "Payment", canCompleteParent: true);
+            var payment = new State(800, "Payment");
 
 
             // Assemble the remediation workflow
 
             redressReview
-                .AddTransition(payment)
+                .AddTransition(payment, true)
                 .AddTransition(collateData)
-                .AddDependency(communication)
-                .AddDependency(autoTransitionToRedressReview)
-                .AddActionAsync(StateActionType.Entry, 
-			                    redressReview.CalculateFinalRedressAmountAsync);
+                .AddDependency(communication, true)
+                .AddDependency(autoTransitionToRedressReview, true)
+                .AddActionAsync(StateActionType.OnEntry, CalculateFinalRedressAmountAsync);
 
             autoTransitionToRedressReview
                 .AddDependant(redressReview, true)
-                .AddTransition(redressReview);
+                .AddTransition(redressReview, true);
 
-            adjustment.AddTransition(autoTransitionToRedressReview);
+            adjustment.AddTransition(autoTransitionToRedressReview, true);
 
             adjustmentDecision
                 .AddTransition(adjustment)
                 .AddTransition(autoTransitionToRedressReview)
-                .AddActionAsync(StateActionType.Entry, AdjustmentRequiredCheckAsync);
+                .AddActionAsync(StateActionType.OnEntry, ConditionalTransitionDecisionAsync);
 
             collateData
-                .AddTransition(adjustmentDecision);
+                .AddTransition(adjustmentDecision, true);
 
-            letterSent.AddTransition(response);
+            letterSent.AddTransition(responseReceived, true);
 
             communication
+                .AddSubState(letterSent, true)
+                .AddSubState(responseReceived)
                 .AddDependant(redressReview, true)
-                .AddSubState(letterSent)
-                .AddSubState(response)
-                .AddTransition(redressReview);
+                .AddTransition(redressReview, true);
 
             remediationWorkflowRoot
-                .AddSubState(communication)
-                .AddSubState(collateData)
+                .AddSubState(communication, true)
+                .AddSubState(collateData, true)
                 .AddSubState(adjustmentDecision)
-                .AddSubState(adjustment)
+                .AddSubState(adjustment, completionRequired: false)
                 .AddSubState(autoTransitionToRedressReview)
                 .AddSubState(redressReview)
                 .AddSubState(payment);
