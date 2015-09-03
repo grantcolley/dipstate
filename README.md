@@ -168,20 +168,19 @@ You can find an example WPF implementation of the workflow at [Origin](https://g
   * If the state has sub states then those sub states where **InitialiseWithParent** is set to true will also be initialised.
   * If the state type is Auto then, if a transition state is specified, the state will transition to it. An OnEntry action can be used to determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.
 
-```
-    *WARNING:*
-    Initialising a sub state directly, without first initialising its parent 
-    will result in the parent’s status being updated to Initialised without 
-    running its **CanInitialise** predicate or its **OnEntry** and **OnStatusChanged** actions. 
-    Consider setting the sub state to initialise with parent and then initialise 
-    the parent instead. This way all initialisation predicates and actions will 
-    be run for both the parent and the child.
-```
+> **_WARNING:_**
+> Initialising a sub state directly, without first initialising its parent 
+> will result in the parent’s status being updated to Initialised without 
+> running its **CanInitialise** predicate or its **OnEntry** and **OnStatusChanged** actions. 
+> Consider setting the sub state to initialise with parent and then initialise 
+> the parent instead. This way all initialisation predicates and actions will 
+> be run for both the parent and the child.
 
 The following shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ```C#
-            var result = await remediationWorkflowRoot.ExecuteAsync(StateExecutionType.Initialise);
+            var result = await remediationWorkflowRoot
+                                            .ExecuteAsync(StateExecutionType.Initialise);
 
             Assert.IsTrue(result.Equals(remediationWorkflowRoot));
 
@@ -191,14 +190,6 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 ```
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
-
-Initialising a state
-  * A state cannot initialise if it has one or more **dependency states** that have not yet completed.
-  * **Entry actions** are executed with context. 
-  * **StatusChanged actions** are executed with context. 
-  * If the type is **StateType.Auto** the state will automatically transition. An entry action can determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.  
-  * If the state has sub states then those sub states where **InitialiseWithParent** is true will also be initialised.
-
 
 #### Transition a State
 The following shows *Letter Sent* transition to *Response*.
