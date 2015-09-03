@@ -34,7 +34,7 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
   * **Auto** is a state which will automatically complete itself after initialisation. Entry actions are executed during the initialisation which is a good place to perform some task or determine the state it needs to transition to at runtime..
   * **Standard** is a plain vanilla state.
 
-Creating different types of states.
+*Creating different types of states:*
 ```C#
             var remediationWorkflowRoot 
                 = new State(100, "Remediation Workflow", StateType.Root);
@@ -59,7 +59,7 @@ Creating different types of states.
   * **CanCompleteState**
   * **CanResetState**
 
-Setting up state delegates.
+*Setting up async state delegates:*
 ```C#
             var letterSent = new State(210, "Letter Sent")
                 .AddActionAsync(StateActionType.OnEntry, GenerateLetterAsync)
@@ -162,16 +162,32 @@ You can find an example WPF implementation of the workflow at [Origin](https://g
 ```
 
 #### Initialise a State
+  * Initialisation will not succeed if a state has one or more **dependency states** that have not yet completed.
+  * During initialisation the **OnEntry** actions are executed with context.
+  * When the status changes to Initialised the **OnStatusChanged** actions are executed with context.
+  * If the state has sub states then those sub states where **InitialiseWithParent** is set to true will also be initialised.
+  * If the state type is Auto then, if a transition state is specified, the state will transition to it. An OnEntry action can be used to determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.
+
+```
+    *WARNING:*
+    Initialising a sub state directly, without first initialising its parent 
+    will result in the parent’s status being updated to Initialised without 
+    running its **CanInitialise** predicate or its **OnEntry** and **OnStatusChanged** actions. 
+    Consider setting the sub state to initialise with parent and then initialise 
+    the parent instead. This way all initialisation predicates and actions will 
+    be run for both the parent and the child.
+```
+
 The following shows how the initialising the *Remediation Workflow Root* will also initialise *Collate Data*, *Communication* and its sub state *Letter Sent*.
 
 ```C#
-            var result = await remediationWorkflowRoot.ExecuteAsync(StateStatus.Initialise);
+            var result = await remediationWorkflowRoot.ExecuteAsync(StateExecutionType.Initialise);
 
-            Assert.IsTrue(result.Name.Equals("Remediation Workflow"));
-            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Initialise);
-            Assert.AreEqual(communication.Status, StateStatus.Initialise);
-            Assert.AreEqual(letterSent.Status, StateStatus.Initialise);
-            Assert.AreEqual(collateData.Status, StateStatus.Initialise);
+            Assert.IsTrue(result.Equals(remediationWorkflowRoot));
+
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Initialised);
+            Assert.AreEqual(communication.Status, StateStatus.Initialised);
+            Assert.AreEqual(letterSent.Status, StateStatus.Initialised);
 ```
 
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
