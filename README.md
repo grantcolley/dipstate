@@ -69,6 +69,44 @@ Dipstate provides a simple mechanism to maintain state for an activity based wor
                 .AddCanChangeStatusPredicateAsync(CanChangeLetterSentStatusAsync)
                 .AddCanCompletePredicateAsync(CanCompleteLetterSentAsync)
                 .AddCanResetPredicateAsync(CanResetLetterSentAsync);
+                
+                
+                
+                
+        public static async Task GenerateLetterAsync(State context)
+        {
+            // do entry actions here...
+        }
+        
+        private static async Task SaveStatusAsync(State context)
+        {
+            // do status changed actions here...
+        }
+
+        private static async Task NotifyDispatchAsync(State context)
+        {
+            // do exit actions here...
+        }
+        
+        public static async Task<bool> CanInitialiseLetterSentAsync(State context)
+        {
+            // determine wether the state can be initialised here...
+        }
+
+        public static async Task<bool> CanChangeLetterSentStatusAsync(State context)
+        {
+            // determine whether the status can be changed here...
+        }
+
+        public static async Task<bool> CanCompleteLetterSentAsync(State context)
+        {
+            // determine whether the state can be completed here...
+        }
+
+        public static async Task<bool> CanResetLetterSentAsync(State context)
+        {
+            // determine whether the state can be reset here...
+        }
 ```
 
 ## How it works
