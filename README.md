@@ -232,7 +232,7 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 #### Transition a State
   * A state can only transition to another state that is in its **Transition** list.
   * When adding a transition state to the **Transition** list the **IsDefaultTransition** flag can be optionally set. A state can only have one default transition state.
-  * Transitioning from one state to another state will complete the state being transition from and initialise the state being transitioned to. See [Complete a State](#-Complete-a-State)
+  * Transitioning from one state to another state will complete the state being transition from and initialise the state being transitioned to. See [Complete a State](####-Complete-a-State)
   * A state can transition explicitly or implicitly. If the state is **Completed** rather than explicitly transitioned to another state, the state will attempt to transition to the default state if one has been set.
 
 The following shows *Letter Sent* explicitly transition to *Response*.
