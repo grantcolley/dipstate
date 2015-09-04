@@ -230,22 +230,23 @@ The following shows how the initialising the *Remediation Workflow Root* will al
 ![Alt text](/README-images/Dipstate-example-initialiseState.png?raw=true "Initialising a state")
 
 #### Transition a State
-The following shows *Letter Sent* transition to *Response*.
+  * A state can only transition to another state that is in its **Transition** list.
+  * When adding a transition state to the **Transition** list the **IsDefaultTransition** flag can be optionally set. A state can only have one default transition state.
+  * Transitioning from one state to another state will complete the state being transition from and initialise the state being transitioned to.
+  * A state can transition explicitly or implicitly. If the state is **Completed** rather than explicitly transitioned to another state, the state will attempt to transition to the default state if one has been set.
+
+The following shows *Letter Sent* explicitly transition to *Response*.
 
 ```C#
-            result = await letterSent.ExecuteAsync(response);
-            
-            Assert.IsTrue(result.Name.Equals("Response"));
-            Assert.AreEqual(letterSent.Status, StateStatus.Complete);
-            Assert.AreEqual(response.Status, StateStatus.Initialise);
-            Assert.IsTrue(response.Antecedent.Equals(letterSent));
+            result = await letterSent.ExecuteAsync(responseReceived);
+
+            Assert.IsTrue(result.Equals(responseReceived));
+            Assert.IsTrue(responseReceived.Antecedent.Equals(letterSent));
+            Assert.AreEqual(responseReceived.Status, StateStatus.Initialised);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
 ```
 
 ![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
-
-Transitioning a state
-  * Transitioning from one state to another state will complete the state being transition from and initialise the state being transitioned to.
-
 
 #### Complete a State
 The following shows how *ResponseReceived* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
