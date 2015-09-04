@@ -203,8 +203,8 @@ You can find an example WPF implementation of the workflow at [Origin](https://g
   * Initialisation will not succeed if a state has one or more **dependency states** that have not yet completed.
   * During initialisation the **OnEntry** actions are executed with context.
   * When the status changes to Initialised the **OnStatusChanged** actions are executed with context.
+  * If the state type is **Auto** then, if a transition state is specified, the state will transition to it. An **OnEntry** action can be used to determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.
   * If the state has sub states then those sub states where **InitialiseWithParent** is set to true will also be initialised.
-  * If the state type is Auto then, if a transition state is specified, the state will transition to it. An OnEntry action can be used to determine at runtime which state to transition to. Alternatively, if no transition state has been set, the state will complete itself.
 
 > **_WARNING:_**
 > Initialising a sub state directly, without first initialising its parent 
@@ -233,6 +233,7 @@ The following shows how the initialising the *Remediation Workflow Root* will al
   * A state can only transition to another state that is in its **Transition** list.
   * When adding a transition state to the **Transition** list the **IsDefaultTransition** flag can be optionally set. A state can only have one default transition state.
   * Transitioning from one state to another state will complete the state being transition from and initialise the state being transitioned to.
+  * Before transitioning a delegate is executed to determine whether the state can complete. If no delegate has been provided the state will complete and then transition.
   * A state can transition explicitly or implicitly. If the state is **Completed** rather than explicitly transitioned to another state, the state will attempt to transition to the default state if one has been set.
 
 The following shows *Letter Sent* explicitly transition to *Response*.
