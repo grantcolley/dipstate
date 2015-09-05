@@ -168,7 +168,7 @@ You can find an example WPF implementation of the workflow at [Origin](https://g
                 .AddActionAsync(StateActionType.OnEntry, CalculateFinalRedressAmountAsync);
 
             autoTransitionToRedressReview
-                .AddDependant(redressReview, true)
+                .AddDependant(redressReview)
                 .AddTransition(redressReview, true);
 
             adjustment.AddTransition(autoTransitionToRedressReview, true);
@@ -186,7 +186,7 @@ You can find an example WPF implementation of the workflow at [Origin](https://g
             communication
                 .AddSubState(letterSent, true)
                 .AddSubState(responseReceived)
-                .AddDependant(redressReview, true)
+                .AddDependant(redressReview)
                 .AddTransition(redressReview, true);
 
             remediationWorkflowRoot
@@ -249,6 +249,13 @@ The following shows *Letter Sent* explicitly transition to *Response*.
 ![Alt text](/README-images/Dipstate-example-transition.png?raw=true "Transition a state")
 
 #### Complete a State
+  * First, the **CanComplete** delegate is executed to determine whether the state can complete. If no delegate has been provided the state will complete.
+  * **OnExit** actions are executed with context before completing the state.
+  * The status is set to complete and **OnStatusChanged** actions are executed with context.
+  * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised
+  * If a transition state has been specified then the state will transition. See [Transition a State](#transition-a-state) for more details of transitioning.
+  * If no transition state has been specified the state will check if all its parents sub states requiring completion (**CompletionRequired** set to true) has completed and, if they have, it will complete the parent.
+
 The following shows how *ResponseReceived* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
 
 ```C#
