@@ -254,7 +254,7 @@ namespace DevelopmentInProgress.DipState.Test
             Assert.AreEqual(state.Name, "Pricing Workflow");
             Assert.IsTrue(state.Actions.Count().Equals(1));
             Assert.IsTrue(
-                state.Actions.Count(a => a.IsActionAsync 
+                state.Actions.Count(a => a.IsActionAsync
                     && a.ActionType.Equals(StateActionType.OnEntry)).Equals(1));
         }
 
@@ -856,7 +856,7 @@ namespace DevelopmentInProgress.DipState.Test
                                     state.Name, review.Name)));
 
                 Assert.IsNotNull(logEntry);
-                Assert.IsTrue(ex.Messages.Contains(logEntry.Message));
+                Assert.IsTrue(ex.Message.Contains(String.Format("{0} failed to transition. Check logs.", state.Name)));
             }
 
             // Assert
@@ -927,7 +927,7 @@ namespace DevelopmentInProgress.DipState.Test
         public async Task ExecuteAsync_TransitionStateCanCompleteFalse_StateNotTransitioned()
         {
             // Arrange
-            var mockPredicate = new Mock<Func<State,Task<bool>>>();
+            var mockPredicate = new Mock<Func<State, Task<bool>>>();
             mockPredicate.SetReturnsDefault(Task.FromResult(false));
 
             var transitionState = new State(0, "Transition State");

@@ -1159,7 +1159,8 @@ namespace DevelopmentInProgress.DipState.Test
                                     state.Name, review.Name)));
 
                 Assert.IsNotNull(logEntry);
-                Assert.IsTrue(ex.Messages.Contains(logEntry.Message));
+
+                Assert.IsTrue(ex.Message.Contains(String.Format("{0} failed to transition. Check logs.", state.Name)));
             }
 
             // Assert
