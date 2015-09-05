@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace DevelopmentInProgress.DipState
@@ -950,8 +951,6 @@ namespace DevelopmentInProgress.DipState
         {
             switch (executionType)
             {
-                case StateExecutionType.Initialise:
-                    return StateStatus.Initialised;
                 case StateExecutionType.Complete:
                     return StateStatus.Completed;
                 case StateExecutionType.InProgress:
@@ -959,7 +958,7 @@ namespace DevelopmentInProgress.DipState
                 case StateExecutionType.Reset:
                     return StateStatus.Uninitialised;
                 default:
-                    throw new InvalidCastException(String.Format("ExecutionTypeToStatusConverter : {0}", executionType));
+                    return StateStatus.Initialised;
             }
         }
     }
