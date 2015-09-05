@@ -256,51 +256,12 @@ The following shows *Letter Sent* explicitly transition to *Response*.
   * If a transition state has been specified then the state will transition. See [Transition a State](#transition-a-state) for more details of transitioning.
   * If no transition state has been specified the state will check if all its parents sub states requiring completion (**CompletionRequired** set to true) has completed and, if they have, it will complete the parent.
 
-The following shows how *ResponseReceived* is configured to complete itself and its parent, *Communication* which is configured to initialise its dependant state *Redress Review*.
-
-```C#
-            var response = new State(220, "Response", canCompleteParent: true)
-                .AddActionAsync(StateActionType.Status, SaveStatusAsync);
-                
-            // ...
-            // ...
-            // ...
-            
-            communication
-                .AddDependant(redressReview, true)
-                .AddSubState(letterSent)
-                .AddSubState(response)
-                .AddTransition(redressReview);
-                
-            // ...
-            // ...
-            // ...
-            
-            result = await response.ExecuteAsync(StateStatus.Complete);
-
-            Assert.AreEqual(response.Status, StateStatus.Complete);
-            Assert.AreEqual(communication.Status, StateStatus.Complete);
-
-            Assert.IsTrue(result.Equals(redressReview));
-            Assert.AreEqual(redressReview.Status, StateStatus.Initialise);
-            Assert.IsTrue(redressReview.Antecedent.Equals(communication));
-```
-
-![Alt text](/README-images/Dipstate-example-substate-close-parent.png?raw=true "Sub state completes its parent")
-
-  * Completing a state
-    * First, a delegate is executed to determine whether the state can complete. If no delegate has been provided the state will complete.
-    * **Exit actions** are then executed with context before completing the state.
-    * The state is set to complete and **Status actions** are executed with context.
-    * Any dependant states with **InitialiseDependantWhenComplete** set to true will be initialised.
-
 > **_WARNING:_**
 > When the same state can be both a dependant and a transition state for another state, do not set both 
 > **InitialiseDependantWhenComplete** and **IsDefaultTransition** flags to true. 
 > In the following example *redressReview* is both a dependant and transition state of *communication*. 
-> With **InitialiseDependantWhenComplete** and **IsDefaultTransition** set to true, when 
-> *communication* completes *redressReview* would be initialised twice resulting in its **OnEntry** 
-> actions being executed twice.
+> This means when *communication* completes *redressReview* would be initialised twice 
+> resulting in its **OnEntry** actions being executed twice.
 ```C#
             communication
                 .AddSubState(letterSent, true)
@@ -309,7 +270,30 @@ The following shows how *ResponseReceived* is configured to complete itself and 
                 .AddTransition(redressReview, true);
 ```
 
-A sub state can be configured to complete its parent. Typically this will be the last sub state expected to complete under the parent. The last sub state must not be configured to transition to another state so that it can complete its parent. The parent can be configured to transition to another state.
+The following shows how *ResponseReceived* completes itself and its parent, *Communication*, which is in turn configured to transition to *Redress Review* by default when it completes.
+
+```C#
+            communication
+                .AddSubState(letterSent, true)
+                .AddSubState(responseReceived)
+                .AddDependant(redressReview)
+                .AddTransition(redressReview, true);
+
+            // ...
+            // ...
+            // ...
+            
+            result = await responseReceived.ExecuteAsync(StateExecutionType.Complete);
+
+            Assert.IsTrue(result.Equals(redressReview));
+            Assert.IsTrue(redressReview.Antecedent.Equals(communication));
+            Assert.AreEqual(communication.Status, StateStatus.Completed);
+            Assert.AreEqual(letterSent.Status, StateStatus.Completed);
+            Assert.AreEqual(responseReceived.Status, StateStatus.Completed);
+            Assert.AreEqual(redressReview.Status, StateStatus.Initialised);
+```
+
+![Alt text](/README-images/Dipstate-example-substate-close-parent.png?raw=true "Sub state completes its parent")
 
 #### Auto States
 Auto states will automatically transition or complete itself after it has been initialised.
