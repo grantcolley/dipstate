@@ -292,8 +292,8 @@ The following shows how *ResponseReceived* completes itself and its parent, *Com
 ![Alt text](/README-images/Dipstate-example-substate-close-parent.png?raw=true "Sub state completes its parent")
 
 #### Auto States
-Auto states will either automatically transition or complete itself after it has been initialised.
-**OnEntry** actions are delegates that enable processing with state context to take place. In the case of an auto state an **OnEntry** action can be used to determine at runtime which state to transition to.
+  * Auto states will either automatically transition or complete itself after it has been initialised.
+  * **OnEntry** actions are delegates that enable processing with state context to take place. In the case of an auto state an **OnEntry** action can be used to determine at runtime which state to transition to.
 
 The following example shows the configuration of auto state *AdjustmentDecision* which enables it to transition to either the *Adjustment* or *AutoTransitionToRedressReview* (which just happens to be another auto state). The **ConditionalTransitionDecisionAsync** entry action will determine whether to transition to *adjustment* or *autoTransitionToRedressReview* at runtime.
 
