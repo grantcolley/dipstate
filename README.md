@@ -305,7 +305,8 @@ The following example shows the configuration of auto state *AdjustmentDecision*
                 
         private static async Task ConditionalTransitionDecisionAsync(State context)
         {
-             // determine whether to transition to adjustment or autoTransitionToRedressReview here...
+             // determine whether to transition to adjustment 
+             // or autoTransitionToRedressReview here...
         }
 ```
 
