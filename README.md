@@ -313,28 +313,26 @@ The following example shows the configuration of auto state *AdjustmentDecision*
 ![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
 
 
-#### Dependency States
-A state that has one or more dependencies that are not complete cannot be initialised.
+#### Dependency and Dependent States
+A state can have a *dependency* on one or more other states being completed before it can be initialised. We can also say that the state is a *dependent* on its dependency states e.g. *State B* has a dependency on *State A*, therefore *State B* is a dependent of *State A*.
+Dependency states can be configured to initialise the dependant state when the dependency state completes e.g. *State A* can be configured to automatically initialise *State B* when *State A* completes.
 
-Dependency states can be configured to initialise the dependant state when the dependency state completes.
-
-The following shows how *Communication* and *AutoTransitionToRedressReview* are both configured initialise *RedressReview* when they complete. In such a case *RedressReview* will only successfully initialise when the last dependency is completed.
+The following shows how *RedressReview* has a dependency on both *Communication* and *AutoTransitionToRedressReview* completing before it can be initialised. In other words while both *Communication* and *AutoTransitionToRedressReview* are configured to transition to *RedressReview* when they complete, *RedressReview* will only successfully initialise when transitioned from that which completes last.
 
 ```C#
             autoTransitionToRedressReview
-                .AddDependant(redressReview, true)
-                .AddTransition(redressReview);
+                .AddDependant(redressReview)
+                .AddTransition(redressReview, true);
                 
             // ...
             // ...
             // ...
             
             communication
-                .AddDependant(redressReview, true)
-                .AddSubState(letterSent)
-                .AddSubState(response)
-                .AddTransition(redressReview);
-                
+                .AddSubState(letterSent, true)
+                .AddSubState(responseReceived)
+                .AddDependant(redressReview)
+                .AddTransition(redressReview, true);
 ```
 
 ![Alt text](/README-images/Dipstate-example-dependency.png?raw=true "Dependency States")
