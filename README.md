@@ -292,16 +292,21 @@ The following shows how *ResponseReceived* completes itself and its parent, *Com
 ![Alt text](/README-images/Dipstate-example-substate-close-parent.png?raw=true "Sub state completes its parent")
 
 #### Auto States
-Auto states will automatically transition or complete itself after it has been initialised.
-**Entry actions** are delegates that enable processing with state context to take place. In the case of an auto state an **Entry action** can be used to determine at runtime which state to transition to.
+Auto states will either automatically transition or complete itself after it has been initialised.
+**OnEntry** actions are delegates that enable processing with state context to take place. In the case of an auto state an **OnEntry** action can be used to determine at runtime which state to transition to.
 
-The following shows the configuration of auto state *AdjustmentDecision* which enables it to transition to either the *Adjustment* or *AutoTransitionToRedressReview* (which happens to be another auto state).
+The following example shows the configuration of auto state *AdjustmentDecision* which enables it to transition to either the *Adjustment* or *AutoTransitionToRedressReview* (which just happens to be another auto state). The **ConditionalTransitionDecisionAsync** entry action will determine whether to transition to *adjustment* or *autoTransitionToRedressReview* at runtime.
 
 ```C#
             adjustmentDecision
                 .AddTransition(adjustment)
                 .AddTransition(autoTransitionToRedressReview)
-                .AddActionAsync(StateActionType.Entry, AdjustmentRequiredCheckAsync);
+                .AddActionAsync(StateActionType.OnEntry, ConditionalTransitionDecisionAsync);
+                
+        private static async Task ConditionalTransitionDecisionAsync(State context)
+        {
+             // determine whether to transition to adjustment or autoTransitionToRedressReview here...
+        }
 ```
 
 ![Alt text](/README-images/Dipstate-example-autostate.png?raw=true "Auto state")
