@@ -368,17 +368,16 @@ If it is regressed back to *Collate Data* then *Collate Data*, *Adjustment Decis
 
 #### Completing a Workflow
 
-When a sub state completes, it will attempt to transition to another state. If it does not have a state to transition to it will complete itself. If the state is configured to complete its parent and all its siblings are complete then the parent will complete. This will continue up the hierarchy until finally the root workflow state is completed.
+As mentioned previously, when a state completes if no transition state has been specified the state will check if all its parents sub states requiring completion (CompletionRequired set to true) has completed and, if they have, it will complete the parent. This will continue up the hierarchy until finally the root workflow state is completed.
 
-The following shows the *Payment* state configured to complete the workflow.
+The following shows completing the *Payment* state will complete the workflow.
 
 ```C#
-            result = await payment.ExecuteAsync(StateStatus.Complete);
-
-            Assert.AreEqual(payment.Status, StateStatus.Complete);
+            result = await payment.ExecuteAsync(StateExecutionType.Complete);
 
             Assert.IsTrue(result.Equals(remediationWorkflowRoot));
-            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Complete);
+            Assert.AreEqual(remediationWorkflowRoot.Status, StateStatus.Completed);
+            Assert.AreEqual(payment.Status, StateStatus.Completed);
 ```
 
 ![Alt text](/README-images/Dipstate-example-complete-workflow.png?raw=true "Complete a workflow")
