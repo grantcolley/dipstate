@@ -338,29 +338,29 @@ The following shows how *RedressReview* has a dependency on both *Communication*
 ![Alt text](/README-images/Dipstate-example-dependency.png?raw=true "Dependency States")
 
 
-#### Failing a State
-When a state is failed back to another state, the failed state, the state being failed back to, and all states in between are **reset**. The state being failed back to must be in the transition list and is then *Initialised*.
+#### Reset a State and Transition without Completing
+  * Resetting a state will set its status to **Uninitialised**. 
+  * Prior to resetting the **CanReset** delegate will first be run to determine whether or not to continue with the reset. If no delegate has been provided, it will return true. 
+  * It will also reset any *sub states*, *dependents*, and if it has already *transitioned* it will reset the state that it has transitioned to. This means that resetting a state in a workflow will effectively reset itself, its children and any states ahead of it in the workflow.
+  * If you want to regress a state back to a previous state in the workflow, then *transitioning without completing* may offer a better alternative. This way the state being regressed to will automatically be initialised after it has been reset. To do this the state being regressed to must be in the **transition** list of the state being regressed from and when calling **Execute** (or **ExecuteAsync**), **transitionWithoutComplete** must be explicitly set to true (it is false by default).
 
-**Note:** When a state is reset, its status is set to Uninitialised and Reset action delegates will be triggered.
-
-The following shows how *Redress Review* can either fail to *Collate Data* or be transitioned to *Payment*. 
-If it is failed back to *Collate Data* then *Collate Data*, *Adjustment Decision*, *AutoTransitionToRedressReview* and, if applicable, *Adjustment* will be reset.
+The following shows how *Redress Review* can either regress to *Collate Data* or be transitioned to *Payment*. 
+If it is regressed back to *Collate Data* then *Collate Data*, *Adjustment Decision*, *AutoTransitionToRedressReview* and, if applicable, *Adjustment* will be reset.
 
 ```C#
             redressReview
-                .AddTransition(payment)
+                .AddTransition(payment, true)
                 .AddTransition(collateData)
-                .AddDependency(communication)
-                .AddDependency(autoTransitionToRedressReview)
-                .AddActionAsync(StateActionType.Entry, 
-                        redressReview.CalculateFinalRedressAmountAsync);
+                .AddDependency(communication, true)
+                .AddDependency(autoTransitionToRedressReview, true)
+                .AddActionAsync(StateActionType.OnEntry, CalculateFinalRedressAmountAsync);
                 
             // ...
             // ...
             // ...
             
             result = await redressReview
-            				.ExecuteAsync(StateStatus.Fail, collateData);                
+            				.ExecuteAsync(collateData, true);                
 ```
 
 ![Alt text](/README-images/Dipstate-example-fail.png?raw=true "Fail a state")
