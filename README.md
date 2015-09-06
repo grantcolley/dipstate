@@ -256,21 +256,17 @@ The following shows *Letter Sent* explicitly transition to *Response*.
   * If a transition state has been specified then the state will transition. See [Transition a State](#transition-a-state) for more details of transitioning.
   * If no transition state has been specified the state will check if all its parents sub states requiring completion (**CompletionRequired** set to true) has completed and, if they have, it will complete the parent.
 
+> **_TIP:_**
+> It is better to transition at the parent level when all its sub states have completed. 
+> When the last sub state with CompletionRequired set to true, has completed it will attempt 
+> to complete its parent. If a transition is required it is better to 
+
 > **_WARNING:_**
 > When the same state can be both a dependant and a transition state for another state, do not set both 
-> **InitialiseDependantWhenComplete** and **IsDefaultTransition** flags to true. 
-> In the following example *redressReview* is both a dependant and transition state of *communication*. 
-> This means when *communication* completes *redressReview* would be initialised twice 
-> resulting in its **OnEntry** actions being executed twice.
-```C#
-            communication
-                .AddSubState(letterSent, true)
-                .AddSubState(responseReceived)
-                .AddDependant(redressReview, true)
-                .AddTransition(redressReview, true);
-```
+> **InitialiseDependantWhenComplete** and **IsDefaultTransition** flags to true or it will get initialised 
+> twice (as a dependent and a transition state), and its **OnEntry** actions will be executed twice.
 
-The following shows how *ResponseReceived* completes itself and its parent, *Communication*, which is in turn configured to transition to *Redress Review* by default when it completes.
+The following shows how *ResponseReceived* completes itself and its parent, *Communication*, which is in turn configured to transition to Redress Review by default when it completes. Note that when adding *RedressReview* to *Communication* as a dependent, **InitialiseDependantWhenComplete has** not been explicitly set to true (it is false by default. Therefore when *Communication* has been completed *RedressReview* will only get initialised once as the state being transitioned to.
 
 ```C#
             communication
