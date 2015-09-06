@@ -54,7 +54,7 @@ namespace DevelopmentInProgress.DipState.Test
                 .AddActionAsync(StateActionType.OnEntry, CalculateFinalRedressAmountAsync);
 
             autoTransitionToRedressReview
-                .AddDependant(redressReview, true)
+                .AddDependant(redressReview)
                 .AddTransition(redressReview, true);
 
             adjustment.AddTransition(autoTransitionToRedressReview, true);
@@ -72,7 +72,7 @@ namespace DevelopmentInProgress.DipState.Test
             communication
                 .AddSubState(letterSent, true)
                 .AddSubState(responseReceived)
-                .AddDependant(redressReview, true)
+                .AddDependant(redressReview)
                 .AddTransition(redressReview, true);
 
             remediationWorkflowRoot
