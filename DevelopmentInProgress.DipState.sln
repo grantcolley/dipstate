@@ -1,11 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentInProgress.DipState", "DevelopmentInProgress.DipState\DevelopmentInProgress.DipState.csproj", "{DAF9A425-1C72-4410-8D1E-BE8E1125E787}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopmentInProgress.DipState.Test", "DevelopmentInProgress.DipState.Test\DevelopmentInProgress.DipState.Test.csproj", "{BBD6D8AB-06BF-4AC7-87B7-5B6F71EA842F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4AF213AE-4B7B-4E36-B19D-CEDDF2EAD3BB}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
