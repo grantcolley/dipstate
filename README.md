@@ -1,7 +1,7 @@
 # dipstate
 Dipstate provides a simple mechanism to maintain state for an activity based workflow.
 
-[Download NuGet package](https://www.nuget.org/packages/DipState/).
+[Download the NuGet package](https://www.nuget.org/packages/DipState/).
 
 ## Features
   * Support for async and synchronous execution
