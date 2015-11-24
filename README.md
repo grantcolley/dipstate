@@ -1,9 +1,8 @@
 # dipstate
-Dipstate provides a simple mechanism to maintain state for an activity based workflow.
-
 [![Build status](https://ci.appveyor.com/api/projects/status/k5xipcsuyclp3279/branch/master?svg=true)](https://ci.appveyor.com/project/grantcolley/dipstate/branch/master)
-
 [NuGet package](https://www.nuget.org/packages/DipState/).
+
+Dipstate provides a simple mechanism to maintain state for an activity based workflow.
 
 ## Features
   * Support for async and synchronous execution
