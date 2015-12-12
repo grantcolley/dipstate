@@ -252,10 +252,10 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Actions.Count().Equals(1));
+            Assert.IsTrue(state.Actions.Count() == 1);
             Assert.IsTrue(
                 state.Actions.Count(a => a.IsActionAsync
-                    && a.ActionType.Equals(StateActionType.OnEntry)).Equals(1));
+                                         && a.ActionType == StateActionType.OnEntry) == 1);
         }
 
         [TestMethod]
@@ -268,9 +268,9 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Actions.Count().Equals(1));
+            Assert.IsTrue(state.Actions.Count() == 1);
             Assert.IsTrue(
-                state.Actions.Count(a => a.IsActionAsync && a.ActionType.Equals(StateActionType.OnExit)).Equals(1));
+                state.Actions.Count(a => a.IsActionAsync && a.ActionType == StateActionType.OnExit) == 1);
         }
 
         [TestMethod]

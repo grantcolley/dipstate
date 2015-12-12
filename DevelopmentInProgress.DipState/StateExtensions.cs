@@ -427,8 +427,8 @@ namespace DevelopmentInProgress.DipState
         /// <returns>True if the state has any dependencies that are not yet complete, else returns false.</returns>
         public static bool HasDependencies(this State state)
         {
-            var dependencies = state.Dependencies.Where(d => !d.Status.Equals(StateStatus.Completed)).ToList();
-            if (dependencies.Any(d => !d.Status.Equals(StateStatus.Completed)))
+            var dependencies = state.Dependencies.Where(d => d.Status != StateStatus.Completed).ToList();
+            if (dependencies.Any(d => d.Status != StateStatus.Completed))
             {
                 var dependencyStates = from d in dependencies select String.Format("{0} - {1}", d.Name, d.Status);
                 var dependentStateList = String.Join(",", dependencyStates.ToArray());
@@ -491,7 +491,7 @@ namespace DevelopmentInProgress.DipState
         /// This is set to false when the reset is initiated from a transition, in which case we maintain a reference to the antecedent.</param>
         private static void Reset(this State state, bool hardReset = true)
         {
-            if (state.Status.Equals(StateStatus.Uninitialised))
+            if (state.Status == StateStatus.Uninitialised)
             {
                 return;
             }
@@ -504,7 +504,7 @@ namespace DevelopmentInProgress.DipState
 
             state.SubStates.ForEach(s => s.Reset());
 
-            if (state.SubStates.Any(s => !s.Status.Equals(StateStatus.Uninitialised)))
+            if (state.SubStates.Any(s => s.Status != StateStatus.Uninitialised))
             {
                 state.WriteLogEntry(String.Format("{0} has one or more sub states that are unable to reset", state.Name));
                 return;
@@ -541,7 +541,7 @@ namespace DevelopmentInProgress.DipState
         /// <returns>An awaitable task.</returns>
         private static async Task ResetAsync(this State state, bool hardReset = true)
         {
-            if (state.Status.Equals(StateStatus.Uninitialised))
+            if (state.Status == StateStatus.Uninitialised)
             {
                 return;
             }
@@ -558,7 +558,7 @@ namespace DevelopmentInProgress.DipState
                 await subState.ResetAsync().ConfigureAwait(false);
             }
 
-            if (state.SubStates.Any(s => !s.Status.Equals(StateStatus.Uninitialised)))
+            if (state.SubStates.Any(s => s.Status != StateStatus.Uninitialised))
             {
                 state.WriteLogEntry(String.Format("{0} has one or more sub states that are unable to reset", state.Name));
                 return;
@@ -609,7 +609,7 @@ namespace DevelopmentInProgress.DipState
 
             await state.ExecuteActionsAsync(StateActionType.OnStatusChanged).ConfigureAwait(false);
 
-            if (state.Type.Equals(StateType.Auto))
+            if (state.Type == StateType.Auto)
             {
                 return await state.TransitionAsync().ConfigureAwait(false);
             }
@@ -644,7 +644,7 @@ namespace DevelopmentInProgress.DipState
 
             state.ExecuteActions(StateActionType.OnStatusChanged);
 
-            if (state.Type.Equals(StateType.Auto))
+            if (state.Type == StateType.Auto)
             {
                 return state.Transition();
             }
@@ -669,7 +669,7 @@ namespace DevelopmentInProgress.DipState
             {
                 var transitionedState = state.Transition;
 
-                if (!state.Transition.Status.Equals(StateStatus.Uninitialised))
+                if (state.Transition.Status != StateStatus.Uninitialised)
                 {
                     await state.Transition.ResetAsync(false);
                 }
@@ -698,17 +698,16 @@ namespace DevelopmentInProgress.DipState
              
             if (state.Parent != null)
             {
-                if (state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Completed))
-                    .Equals(state.Parent.SubStates.Count()))
+                if (state.Parent.SubStates.Count(s => s.Status == StateStatus.Completed) 
+                    == state.Parent.SubStates.Count())
                 {
                     return await state.Parent.TransitionAsync().ConfigureAwait(false);
                 }
 
                 if (state.CompletionRequired
                     && state.Parent.SubStates.Count(s => s.CompletionRequired)
-                        .Equals(
-                            state.Parent.SubStates.Count(
-                                s => s.CompletionRequired && s.Status.Equals(StateStatus.Completed))))
+                    == state.Parent.SubStates.Count(s => s.CompletionRequired
+                                                         && s.Status == StateStatus.Completed))
                 {
                     return await state.Parent.TransitionAsync().ConfigureAwait(false);
                 }
@@ -730,7 +729,7 @@ namespace DevelopmentInProgress.DipState
             {
                 var transitionedState = state.Transition;
 
-                if (!state.Transition.Status.Equals(StateStatus.Uninitialised))
+                if (state.Transition.Status != StateStatus.Uninitialised)
                 {
                     transitionedState.Reset(false);
                 }
@@ -755,17 +754,15 @@ namespace DevelopmentInProgress.DipState
            
             if (state.Parent != null)
             {
-                if (state.Parent.SubStates.Count(s => s.Status.Equals(StateStatus.Completed))
-                    .Equals(state.Parent.SubStates.Count()))
+                if (state.Parent.SubStates.Count(s => s.Status == StateStatus.Completed)
+                    == state.Parent.SubStates.Count())
                 {
                     return state.Parent.Transition();
                 }
 
                 if (state.CompletionRequired
                     && state.Parent.SubStates.Count(s => s.CompletionRequired)
-                        .Equals(
-                            state.Parent.SubStates.Count(
-                                s => s.CompletionRequired && s.Status.Equals(StateStatus.Completed))))
+                    == state.Parent.SubStates.Count(s => s.CompletionRequired && s.Status == StateStatus.Completed))
                 {
                     return state.Parent.Transition();
                 }
@@ -850,13 +847,13 @@ namespace DevelopmentInProgress.DipState
 
         private static void ExecuteActions(this State state, StateActionType actionType)
         {
-            var actions = state.Actions.Where(a => a.ActionType.Equals(actionType)).ToList();
+            var actions = state.Actions.Where(a => a.ActionType == actionType).ToList();
             actions.ForEach(a => a.Action(state));
         }
 
         private static async Task ExecuteActionsAsync(this State state, StateActionType actionType)
         {
-            var actions = state.Actions.Where(a => a.ActionType.Equals(actionType)).ToList();
+            var actions = state.Actions.Where(a => a.ActionType == actionType).ToList();
             foreach (var action in actions)
             {
                 if (action.IsActionAsync)
@@ -897,7 +894,7 @@ namespace DevelopmentInProgress.DipState
 
         private static bool CanExecute(this State state, StateStatus newStatus)
         {
-            return !state.Status.Equals(newStatus);
+            return state.Status != newStatus;
         }
 
         private static void UpdateParentStatus(this State state)
@@ -909,23 +906,23 @@ namespace DevelopmentInProgress.DipState
 
             var aggregate = state.Parent;
 
-            if (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.InProgress))
-                || (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.Completed))
-                    && !aggregate.SubStates.All(s => s.Status.Equals(StateStatus.Completed))))
+            if (aggregate.SubStates.Any(s => s.Status == StateStatus.InProgress)
+                || (aggregate.SubStates.Any(s => s.Status == StateStatus.Completed)
+                    && aggregate.SubStates.Any(s => s.Status != StateStatus.Completed)))
             {
                 aggregate.Status = StateStatus.InProgress;
                 aggregate.UpdateParentStatus();
                 return;
             }
 
-            if (aggregate.SubStates.Any(s => s.Status.Equals(StateStatus.Initialised)))
+            if (aggregate.SubStates.Any(s => s.Status == StateStatus.Initialised))
             {
                 aggregate.Status = StateStatus.Initialised;
                 aggregate.UpdateParentStatus();
                 return;
             }
 
-            if (aggregate.SubStates.All(s => s.Status.Equals(StateStatus.Uninitialised)))
+            if (aggregate.SubStates.All(s => s.Status == StateStatus.Uninitialised))
             {
                 aggregate.Status = StateStatus.Uninitialised;
                 aggregate.UpdateParentStatus();
@@ -935,7 +932,7 @@ namespace DevelopmentInProgress.DipState
         private static bool CanTransition(this State state)
         {
             if (state.Transition != null
-                && !state.Transitions.Exists(t => t.Id.Equals(state.Transition.Id)))
+                && !state.Transitions.Exists(t => t.Id == state.Transition.Id))
             {
                 var message =
                     String.Format("{0} cannot transition to {1} as it is not registered in the transition list.",

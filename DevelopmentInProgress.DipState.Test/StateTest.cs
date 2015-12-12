@@ -241,7 +241,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.SubStates.Count.Equals(1));
+            Assert.AreEqual(state.SubStates.Count, 1);
             Assert.AreEqual(state.SubStates.First(), subState);
             Assert.AreEqual(subState.Id, 2);
             Assert.AreEqual(subState.Name, "Data Capture");
@@ -260,7 +260,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Transitions.Count.Equals(1));
+            Assert.AreEqual(state.Transitions.Count, 1);
             Assert.AreEqual(state.Transitions.First(), review);
             Assert.AreEqual(review.Id, 2);
             Assert.AreEqual(review.Name, "Review");
@@ -276,9 +276,9 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Actions.Count().Equals(1));
-            Assert.IsTrue(state.Actions.Count(a => !a.IsActionAsync 
-                && a.ActionType.Equals(StateActionType.OnEntry)).Equals(1));
+            Assert.AreEqual(state.Actions.Count(), 1);
+            Assert.AreEqual(state.Actions.Count(a => !a.IsActionAsync
+                                                     && a.ActionType == StateActionType.OnEntry), 1);
         }
 
         [TestMethod]
@@ -291,9 +291,9 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Actions.Count().Equals(1));
-            Assert.IsTrue(state.Actions.Count(a => !a.IsActionAsync
-                && a.ActionType.Equals(StateActionType.OnExit)).Equals(1));
+            Assert.AreEqual(state.Actions.Count(), 1);
+            Assert.AreEqual(state.Actions.Count(a => !a.IsActionAsync
+                                                     && a.ActionType == StateActionType.OnExit), 1);
         }
 
         [TestMethod]
@@ -310,12 +310,12 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(a.Id, 1);
             Assert.AreEqual(a.Name, "A");
-            Assert.IsTrue(a.Dependants.Count.Equals(1));
+            Assert.AreEqual(a.Dependants.Count, 1);
             Assert.AreEqual(a.Dependants.First().Dependant, b);
 
             Assert.AreEqual(b.Id, 2);
             Assert.AreEqual(b.Name, "B");
-            Assert.IsTrue(b.Dependencies.Count.Equals(1));
+            Assert.AreEqual(b.Dependencies.Count, 1);
             Assert.AreEqual(b.Dependencies.First(), a);
         }
 
@@ -334,12 +334,12 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(a.Id, 1);
             Assert.AreEqual(a.Name, "A");
-            Assert.IsTrue(a.Dependants.Count.Equals(1));
+            Assert.AreEqual(a.Dependants.Count, 1);
             Assert.AreEqual(a.Dependants.First().Dependant, b);
 
             Assert.AreEqual(b.Id, 2);
             Assert.AreEqual(b.Name, "B");
-            Assert.IsTrue(b.Dependencies.Count.Equals(1));
+            Assert.AreEqual(b.Dependencies.Count, 1);
             Assert.AreEqual(b.Dependencies.First(), a);
         }
 
@@ -355,11 +355,11 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(dependant.Id, 0);
             Assert.AreEqual(dependant.Name, "Dependant");
-            Assert.IsTrue(dependant.Dependencies.Count.Equals(1));
+            Assert.AreEqual(dependant.Dependencies.Count, 1);
             Assert.AreEqual(dependant.Dependencies.First(), state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Dependants.Count.Equals(1));
+            Assert.AreEqual(state.Dependants.Count, 1);
             Assert.AreEqual(state.Dependants.First().Dependant, dependant);
         }
 
@@ -375,11 +375,11 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(dependant.Id, 2);
             Assert.AreEqual(dependant.Name, "Dependant");
-            Assert.IsTrue(dependant.Dependencies.Count.Equals(1));
+            Assert.AreEqual(dependant.Dependencies.Count, 1);
             Assert.AreEqual(dependant.Dependencies.First(), state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Dependants.Count.Equals(1));
+            Assert.AreEqual(state.Dependants.Count, 1);
             Assert.AreEqual(state.Dependants.First().Dependant, dependant);
         }
 
@@ -395,11 +395,11 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(dependency.Id, 0);
             Assert.AreEqual(dependency.Name, "Dependency");
-            Assert.IsTrue(dependency.Dependants.Count.Equals(1));
+            Assert.AreEqual(dependency.Dependants.Count, 1);
             Assert.AreEqual(dependency.Dependants.First().Dependant, state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Dependencies.Count.Equals(1));
+            Assert.AreEqual(state.Dependencies.Count, 1);
             Assert.AreEqual(state.Dependencies.First(), dependency);
         }
 
@@ -415,11 +415,11 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(dependency.Id, 0);
             Assert.AreEqual(dependency.Name, "Dependency");
-            Assert.IsTrue(dependency.Dependants.Count.Equals(1));
+            Assert.AreEqual(dependency.Dependants.Count, 1);
             Assert.AreEqual(dependency.Dependants.First().Dependant, state);
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.Dependencies.Count.Equals(1));
+            Assert.AreEqual(state.Dependencies.Count, 1);
             Assert.AreEqual(state.Dependencies.First(), dependency);
         }
 
@@ -501,7 +501,7 @@ namespace DevelopmentInProgress.DipState.Test
             var states = SubState2.Flatten();
 
             // Assert
-            Assert.IsTrue(states.Count.Equals(6));
+            Assert.AreEqual(states.Count, 6);
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Root")));
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 1")));
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2")));
@@ -534,7 +534,7 @@ namespace DevelopmentInProgress.DipState.Test
             var states = rootState.Flatten();
 
             // Assert
-            Assert.IsTrue(states.Count.Equals(6));
+            Assert.AreEqual(states.Count, 6);
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Root")));
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 1")));
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2")));
@@ -567,7 +567,7 @@ namespace DevelopmentInProgress.DipState.Test
             var states = SubState2_2.Flatten();
 
             // Assert
-            Assert.IsTrue(states.Count.Equals(6));
+            Assert.AreEqual(states.Count, 6);
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Root")));
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 1")));
             Assert.IsNotNull(states.FirstOrDefault(s => s.Name.Equals("Sub State 2")));

@@ -78,7 +78,7 @@ namespace DevelopmentInProgress.DipState.Test
             // Assert
             Assert.AreEqual(state.Id, 1);
             Assert.AreEqual(state.Name, "Pricing Workflow");
-            Assert.IsTrue(state.SubStates.Count.Equals(1));
+            Assert.IsTrue(state.SubStates.Count == 1);
             Assert.AreEqual(state.SubStates.First(), subState);
             
             Assert.AreEqual(subState.Id, 2);
