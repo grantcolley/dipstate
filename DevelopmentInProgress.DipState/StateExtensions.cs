@@ -18,9 +18,9 @@ namespace DevelopmentInProgress.DipState
         /// <param name="state">The state to execute.</param>
         /// <param name="executionType">The type of action the execution must perform on the state.</param>
         /// <returns>An awaitable task of type <see cref="State"/> which is the result of the execution.</returns>
-        public static async Task<State> ExecuteAsync(this State state, StateExecutionType executionType)
+        public static Task<State> ExecuteAsync(this State state, StateExecutionType executionType)
         {
-            return await state.ExecuteAsync(executionType, false).ConfigureAwait(false);
+            return state.ExecuteAsync(executionType, false);
         }
 
         /// <summary>
@@ -30,10 +30,10 @@ namespace DevelopmentInProgress.DipState
         /// <param name="transitionToState">The state to transition to.</param>
         /// <param name="transitionWithoutComplete">Indicates whether the state must transition without completing. Set to false by default.</param>
         /// <returns>An awaitable task of type <see cref="State"/>. Typically this is the state that has been transitioned to.</returns>
-        public static async Task<State> ExecuteAsync(this State state, State transitionToState, bool transitionWithoutComplete = false)
+        public static Task<State> ExecuteAsync(this State state, State transitionToState, bool transitionWithoutComplete = false)
         {
             state.Transition = transitionToState;
-            return await state.ExecuteAsync(StateExecutionType.Complete, transitionWithoutComplete).ConfigureAwait(false);
+            return state.ExecuteAsync(StateExecutionType.Complete, transitionWithoutComplete);
         }
 
         /// <summary>
@@ -43,25 +43,24 @@ namespace DevelopmentInProgress.DipState
         /// <param name="executionType">The type of action the execution must perform on the state.</param>
         /// <param name="transitionWithoutComplete">Indicates whether the state must transition without completing. Set to false by default.</param>
         /// <returns>An awaitable task of type <see cref="State"/> which is the result of the execution.</returns>
-        private static async Task<State> ExecuteAsync(this State state, StateExecutionType executionType, bool transitionWithoutComplete)
+        private static Task<State> ExecuteAsync(this State state, StateExecutionType executionType, bool transitionWithoutComplete)
         {
             var newStatus = ExecutionTypeToStatusConverter(executionType);
             if (!state.CanExecute(newStatus))
             {
-                return state;
+                return Task.FromResult<State>(state);
             }
 
             switch (executionType)
             {
                 case StateExecutionType.Complete:
-                    return await state.TransitionAsync(transitionWithoutComplete).ConfigureAwait(false);
+                    return state.TransitionAsync(transitionWithoutComplete);
                 case StateExecutionType.Initialise:
-                    return await state.InitialiseAsync().ConfigureAwait(false);
+                    return state.InitialiseAsync();
                 case StateExecutionType.Reset:
-                    await state.ResetAsync().ConfigureAwait(false);
-                    return state;
+                    return ResetAsynchronously(state);
                 default:
-                    return await state.ChangeStatusAsync(newStatus).ConfigureAwait(false);
+                    return state.ChangeStatusAsync(newStatus);
             }
         }
 
@@ -587,6 +586,12 @@ namespace DevelopmentInProgress.DipState
             }
 
             state.UpdateParentStatus();
+        }
+
+        private static async Task<State> ResetAsynchronously(State state)
+        {
+            await state.ResetAsync();
+            return state;
         }
 
         private static async Task<State> InitialiseAsync(this State state)
