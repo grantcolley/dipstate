@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DevelopmentInProgress.DipState</RootNamespace>
-    <AssemblyName>DipState</AssemblyName>
+    <AssemblyName>DevelopmentInProgress.DipState</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
