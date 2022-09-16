@@ -6,7 +6,6 @@
 Dipstate provides a simple mechanism to maintain state for an activity based workflow.
 
 ## Features
-  * Support for async and synchronous execution
   * Action delegates execute with context for entry, exit, reset and status changed events
   * Conditional transitioning between states
   * States can have sub-states
